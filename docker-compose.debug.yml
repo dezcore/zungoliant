@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  zungoliant:
+    image: zungoliant
+    build:
+      context: .
+      dockerfile: ./Dockerfile
