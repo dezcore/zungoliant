@@ -4,7 +4,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdlib.h>
+#include <unistd.h>
+#include <limits.h>
 
-int printContent(const char *filePath);
+int getCurrentDir(char *res,  size_t size);
+int existFile(char *fileName);
+int printContent(char *filePath);
 #endif
