@@ -78,8 +78,8 @@ int test_parseFile() {
 
     if(element != NULL) {
         displayElement(element);
-        //downloadPage(element->value, filePath);
-        //parseFile(filePath);
+        downloadPage(element->value, filePath);
+        parseFile(filePath);
     }
 
     free(filePath);
