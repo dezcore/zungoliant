@@ -9,4 +9,5 @@ int test_createFile();
 int test_filetoFifo();
 int test_printContent();
 int test_downloadPage();
+int test_parseFile();
 #endif

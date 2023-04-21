@@ -1,5 +1,6 @@
 #include "./../include/fifo.h"
 #include "./../include/curl.h"
+#include "./../include/parser.h"
 #include "./../include/testfile.h"
 #define STR_SIZE 100
 
@@ -53,6 +54,34 @@ int test_downloadPage() {
         downloadPage(element->value, filePath);
     }
     
+    free(filePath);
+    free(urlsFile);
+    freeFile(file);
+    freeElement(element);
+    return 0;
+}
+
+int test_parseFile() {
+    Element *element;
+    File *file = init();
+    char *filePath = (char*) malloc(STR_SIZE * sizeof(char));
+    char *urlsFile = (char*) malloc(STR_SIZE * sizeof(char));
+
+    getCurrentDir(filePath, STR_SIZE);
+    getCurrentDir(urlsFile, STR_SIZE);
+    strcat(urlsFile, "/data/file/test");
+    strcat(filePath, "/data/file/test.html");
+    createFile(filePath);
+
+    fileToFifo(urlsFile, file);
+    element = pop(file);
+
+    if(element != NULL) {
+        displayElement(element);
+        //downloadPage(element->value, filePath);
+        //parseFile(filePath);
+    }
+
     free(filePath);
     free(urlsFile);
     freeFile(file);

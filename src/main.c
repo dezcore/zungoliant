@@ -10,6 +10,7 @@ int main() {
     //test_printContent();
     //test_filetoFifo();
     //test_createFile();
-    test_downloadPage(); 
+    //test_downloadPage();
+    test_parseFile(); 
     return 0;
 }

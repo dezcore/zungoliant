@@ -10,12 +10,12 @@ TEST_DIR = test
 
 fifoDep = $(IDIR)/fifo.h $(SRC_DIR)/fifo.c
 mainDep = $(IDIR)/testfile.h  $(IDIR)/testfifo.h $(SRC_DIR)/main.c
-curlDep = $(IDIR)/curl.h $(SRC_DIR)/curl.c 
+curlDep = $(IDIR)/curl.h $(SRC_DIR)/curl.c
+parserDep = $(IDIR)/parser.h $(SRC_DIR)/parser.c 
 fileDep = $(IDIR)/fifo.h $(IDIR)/file.h $(SRC_DIR)/file.c 
 testfifoDep = $(IDIR)/fifo.h $(IDIR)/testfifo.h $(TEST_DIR)/testfifo.c
-testfileDep = $(IDIR)/curl.h $(IDIR)/fifo.h  $(IDIR)/file.h $(IDIR)/testfile.h $(TEST_DIR)/testfile.c
-
-mainObj =  $(ODIR)/curl.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/main.o -lcurl
+testfileDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h  $(IDIR)/file.h $(IDIR)/testfile.h $(TEST_DIR)/testfile.c
+mainObj =  $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/main.o -lcurl -I/usr/local/include/myhtml/
 
 all: $(BIN_DIR)/main
 	./$(BIN_DIR)/main
@@ -40,6 +40,9 @@ $(ODIR)/curl.o: $(curlDep)
 	@mkdir -p $(ODIR)
 	$(CC) -c $(SRC_DIR)/curl.c -o $(ODIR)/curl.o $(CFLAGS)
 
+$(ODIR)/parser.o: $(parserDep)
+	@mkdir -p $(ODIR)
+	$(CC) -c $(SRC_DIR)/parser.c -o $(ODIR)/parser.o $(CFLAGS)
 
 $(ODIR)/testfifo.o: $(testfifoDep)
 	@mkdir -p $(ODIR)
