@@ -8,30 +8,44 @@ LIBPATH = lib
 IDIR = include
 TEST_DIR = test
 
+fifoDep = $(IDIR)/fifo.h $(SRC_DIR)/fifo.c
+mainDep = $(IDIR)/testfile.h  $(IDIR)/testfifo.h $(SRC_DIR)/main.c
+curlDep = $(IDIR)/curl.h $(SRC_DIR)/curl.c 
+fileDep = $(IDIR)/fifo.h $(IDIR)/file.h $(SRC_DIR)/file.c 
+testfifoDep = $(IDIR)/fifo.h $(IDIR)/testfifo.h $(TEST_DIR)/testfifo.c
+testfileDep = $(IDIR)/curl.h $(IDIR)/fifo.h  $(IDIR)/file.h $(IDIR)/testfile.h $(TEST_DIR)/testfile.c
+
+mainObj =  $(ODIR)/curl.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/main.o -lcurl
+
 all: $(BIN_DIR)/main
 	./$(BIN_DIR)/main
 
-$(BIN_DIR)/main: $(ODIR)/file.o $(ODIR)/testfile.o $(ODIR)/fifo.o $(ODIR)/testfifo.o $(ODIR)/main.o
+$(BIN_DIR)/main: $(mainObj)
 	@mkdir -p $(BIN_DIR)
-	$(CC) -o $(BIN_DIR)/main $(ODIR)/file.o $(ODIR)/testfile.o $(ODIR)/fifo.o $(ODIR)/testfifo.o $(ODIR)/main.o 
+	$(CC) -o $(BIN_DIR)/main $(mainObj)
 
-$(ODIR)/main.o: $(IDIR)/testfile.h  $(IDIR)/testfifo.h $(SRC_DIR)/main.c
+$(ODIR)/main.o: $(mainDep)
 	@mkdir -p $(ODIR)
 	$(CC) -c $(SRC_DIR)/main.c  -o $(ODIR)/main.o $(CFLAGS)
 
-$(ODIR)/fifo.o: $(IDIR)/fifo.h $(SRC_DIR)/fifo.c
+$(ODIR)/fifo.o: $(fifoDep)
 	@mkdir -p $(ODIR)
 	$(CC) -c $(SRC_DIR)/fifo.c -o $(ODIR)/fifo.o $(CFLAGS)
 
-$(ODIR)/file.o: $(IDIR)/file.h $(SRC_DIR)/file.c
+$(ODIR)/file.o: $(fileDep)
 	@mkdir -p $(ODIR)
 	$(CC) -c $(SRC_DIR)/file.c -o $(ODIR)/file.o $(CFLAGS)
 
-$(ODIR)/testfifo.o: $(IDIR)/fifo.h $(IDIR)/testfifo.h $(TEST_DIR)/testfifo.c
+$(ODIR)/curl.o: $(curlDep)
+	@mkdir -p $(ODIR)
+	$(CC) -c $(SRC_DIR)/curl.c -o $(ODIR)/curl.o $(CFLAGS)
+
+
+$(ODIR)/testfifo.o: $(testfifoDep)
 	@mkdir -p $(ODIR)
 	$(CC) -c $(TEST_DIR)/testfifo.c -o $(ODIR)/testfifo.o $(CFLAGS)
 
-$(ODIR)/testfile.o: $(IDIR)/file.h $(IDIR)/testfile.h $(TEST_DIR)/testfile.c
+$(ODIR)/testfile.o: $(testfileDep)
 	@mkdir -p $(ODIR)
 	$(CC) -c $(TEST_DIR)/testfile.c -o $(ODIR)/testfile.o $(CFLAGS)
 	

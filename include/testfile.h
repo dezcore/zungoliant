@@ -5,5 +5,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+int test_createFile();
+int test_filetoFifo();
 int test_printContent();
+int test_downloadPage();
 #endif

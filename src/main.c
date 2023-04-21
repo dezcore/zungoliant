@@ -7,6 +7,9 @@ int main() {
     //test_init();
     //test_push();
     //test_pop();
-    test_printContent();
+    //test_printContent();
+    //test_filetoFifo();
+    //test_createFile();
+    test_downloadPage(); 
     return 0;
 }
