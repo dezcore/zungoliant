@@ -85,15 +85,20 @@ int displayCollection(myhtml_collection_t *collection) {
     return 0;
 }
 
+bool filter_node(myhtml_tree_node_t* node) {
+    myhtml_tag_id_t tag = myhtml_node_tag_id(node);
+    return (tag != MyHTML_TAG__TEXT) && (tag != MyHTML_TAG__END_OF_FILE) && (tag != MyHTML_TAG__COMMENT) && (tag != MyHTML_TAG__UNDEF);
+}
+
 int walk_subtree(myhtml_tree_t* tree, myhtml_tree_node_t* root, int level){
     if (!root) {
         return 0;
     }
 
     /* Check if we handle this node type */
-    /*if(!filter_node(root)) {
+    if(!filter_node(root)) {
         return 0;
-    }*/
+    }
 
     /* start sexpr */
     putchar('(');
