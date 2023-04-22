@@ -17,13 +17,14 @@ push() {
     docker push dez28/zungoliantenv
 }
 
-run() {
-    docker build -t zungoliant .
-    docker compose up
-}
-
 clean() {
     docker compose down -v
+}
+
+run() {
+    clean
+    docker build -t zungoliant .
+    docker compose up
 }
 
 if [[ "$1" == "test" ]];then

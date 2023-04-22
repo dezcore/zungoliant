@@ -28,7 +28,7 @@ int downloadPage(char *url, char *output) {
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
         //curl_easy_setopt(curl, CURLOPT_PROXY, "127.0.0.1:8080");
         curl_easy_setopt(curl, CURLOPT_USERAGENT, "Dark Secret Ninja/1.0");
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "");
 
         fp = fopen(output,"wb");
