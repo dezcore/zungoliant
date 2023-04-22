@@ -161,9 +161,9 @@ int getTagById(myhtml_tree_t* tree) {
         myhtml_tree_attr_t* attr = myhtml_node_attribute_first(root);
         const char *key = myhtml_attribute_key(attr, NULL);
         const char *value = myhtml_attribute_value(attr, NULL);
-        if(strcmp(key, "id") == 0) {
+        //if(strcmp(key, "id") == 0) {
             printf("%s=%s\n", key, value);
-        }
+        //}
     }
     printf("tag_name : %lu\n", collection->length);
     return 0;
