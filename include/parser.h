@@ -6,6 +6,12 @@
 #include <stdlib.h>
 #include <myhtml/api.h>
 
+#ifdef _WIN32
+    #define MyCORE_FMT_Z "%Iu"
+#else
+    #define MyCORE_FMT_Z "%zu"
+#endif
+
 typedef struct res_html {
     char  *html;
     size_t size;
