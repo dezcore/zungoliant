@@ -87,13 +87,13 @@ int displayCollection(myhtml_collection_t *collection) {
 
 int walk_subtree(myhtml_tree_t* tree, myhtml_tree_node_t* root, int level){
     if (!root) {
-        return;
+        return 0;
     }
 
     /* Check if we handle this node type */
-    if (!filter_node(root)) {
-        return;
-    }
+    /*if(!filter_node(root)) {
+        return 0;
+    }*/
 
     /* start sexpr */
     putchar('(');

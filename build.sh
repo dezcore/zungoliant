@@ -18,7 +18,7 @@ push() {
 }
 
 run() {
-    docker build -t zungoliant 
+    docker build -t zungoliant .
     docker compose up
 }
 

@@ -8,7 +8,6 @@ LIBPATH = lib
 IDIR = include
 TEST_DIR = test
 LDFLAGS = -lmyhtml -lcurl
-LIBS = -I /usr/local/include/myhtml
 
 fifoDep = $(IDIR)/fifo.h $(SRC_DIR)/fifo.c
 mainDep = $(IDIR)/testfile.h  $(IDIR)/testfifo.h $(SRC_DIR)/main.c
@@ -23,7 +22,7 @@ all: $(BIN_DIR)/main
 
 $(BIN_DIR)/main: $(mainObj)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(mainObj)  $(LIBS) $(LDFLAGS) -o $(BIN_DIR)/main
+	$(CC) $(mainObj) $(LDFLAGS) -o $(BIN_DIR)/main
 
 $(ODIR)/main.o: $(mainDep)
 	@mkdir -p $(ODIR)
