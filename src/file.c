@@ -70,3 +70,15 @@ int fileToFifo(char *filePath, File *file) {
 
     return 0;
 }
+
+int appendStrToFile(char *fileName, char* str) {
+    FILE *fptr;
+    fptr = fopen(fileName, "a");
+    
+    if(fptr!= NULL) {
+        //fprintf(fptr, "This is testing for fprintf...\n");
+        fputs(str, fptr);
+    }
+    fclose(fptr);
+    return 0;
+}

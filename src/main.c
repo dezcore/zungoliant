@@ -11,6 +11,7 @@ int main() {
     //test_filetoFifo();
     //test_createFile();
     //test_downloadPage();
-    test_parseFile(); 
+    test_parseFile();
+    //test_appendStrToFile(); 
     return 0;
 }

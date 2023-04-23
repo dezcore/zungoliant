@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <myhtml/api.h>
+#include "./../include/file.h"
+#define STR_SIZE 100
 
 #ifdef _WIN32
     #define MyCORE_FMT_Z "%Iu"

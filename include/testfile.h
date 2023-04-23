@@ -10,4 +10,5 @@ int test_filetoFifo();
 int test_printContent();
 int test_downloadPage();
 int test_parseFile();
+int test_appendStrToFile();
 #endif

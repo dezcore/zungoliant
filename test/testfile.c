@@ -88,3 +88,13 @@ int test_parseFile() {
     freeElement(element);
     return 0;
 }
+
+int test_appendStrToFile() {
+    char *filePath = (char*) malloc(STR_SIZE * sizeof(char));
+    getCurrentDir(filePath, STR_SIZE);
+    strcat(filePath, "/data/file/append");
+    appendStrToFile(filePath, "This is testing for fprintf...\n");
+    appendStrToFile(filePath,  "This is testing for fputs...\n");
+    free(filePath);
+    return 0;
+}

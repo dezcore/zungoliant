@@ -12,11 +12,11 @@ LDFLAGS = -lmyhtml -lcurl
 fifoDep = $(IDIR)/fifo.h $(SRC_DIR)/fifo.c
 mainDep = $(IDIR)/testfile.h  $(IDIR)/testfifo.h $(SRC_DIR)/main.c
 curlDep = $(IDIR)/curl.h $(SRC_DIR)/curl.c
-parserDep = $(IDIR)/parser.h $(SRC_DIR)/parser.c 
+parserDep = $(IDIR)/file.h $(IDIR)/parser.h $(SRC_DIR)/parser.c 
 fileDep = $(IDIR)/fifo.h $(IDIR)/file.h $(SRC_DIR)/file.c 
 testfifoDep = $(IDIR)/fifo.h $(IDIR)/testfifo.h $(TEST_DIR)/testfifo.c
 testfileDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h  $(IDIR)/file.h $(IDIR)/testfile.h $(TEST_DIR)/testfile.c
-mainObj =  $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/main.o
+mainObj =  $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/main.o
 all: $(BIN_DIR)/main
 	./$(BIN_DIR)/main
 
