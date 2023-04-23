@@ -13,5 +13,6 @@ int createFile(char *fileName);
 int printContent(char *filePath);
 int fileToFifo(char *filePath, File *file);
 int getCurrentDir(char *res,  size_t size);
-int appendStrToFile(char *fileName, char* str);
+int appendStrToFile(char *fileName, const char* str);
+char* load_file(const char* filename,  char *fileContent);
 #endif

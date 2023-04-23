@@ -70,7 +70,7 @@ int test_parseFile() {
     getCurrentDir(filePath, STR_SIZE);
     getCurrentDir(urlsFile, STR_SIZE);
     strcat(urlsFile, "/data/file/test");
-    strcat(filePath, "/data/file/test.html");
+    strcat(filePath, "/data/file/model2.html");
     createFile(filePath);
 
     fileToFifo(urlsFile, file);
@@ -78,8 +78,8 @@ int test_parseFile() {
 
     if(element != NULL) {
         displayElement(element);
-        downloadPage(element->value, filePath);
-        parseFile(filePath);
+        //downloadPage(element->value, filePath);
+        parseYFile(filePath);
     }
 
     free(filePath);
@@ -96,5 +96,17 @@ int test_appendStrToFile() {
     appendStrToFile(filePath, "This is testing for fprintf...\n");
     appendStrToFile(filePath,  "This is testing for fputs...\n");
     free(filePath);
+    return 0;
+}
+
+int test_loadFile() {
+    char* fileContent = (char*) malloc(sizeof(char));
+    char *filePath = (char*) malloc(STR_SIZE * sizeof(char));
+    getCurrentDir(filePath, STR_SIZE);
+    strcat(filePath, "/data/file/model2.html");
+    fileContent = load_file(filePath, fileContent);
+    //printf("content : %s\n", fileContent);
+    free(filePath);
+    free(fileContent);
     return 0;
 }

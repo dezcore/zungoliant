@@ -1,6 +1,52 @@
 #include "./../include/file.h"
 #define STR_LEN 100
 
+char* load_file(const char* filename,  char *fileContent) {
+    long size;
+    size_t nread;
+    //char *fileContent;
+    FILE *fh = fopen(filename, "rb");
+
+    if(fh == NULL) {
+        fprintf(stderr, "Can't open html file: %s\n", filename);
+        exit(EXIT_FAILURE);
+    }
+
+    if(fseek(fh, 0L, SEEK_END) != 0) {
+        fprintf(stderr, "Can't set position (fseek) in file: %s\n", filename);
+        exit(EXIT_FAILURE);
+    }
+
+    size = ftell(fh);
+
+    if(fseek(fh, 0L, SEEK_SET) != 0) {
+        fprintf(stderr, "Can't set position (fseek) in file: %s\n", filename);
+        exit(EXIT_FAILURE);
+    }
+
+    if(size <= 0) {
+        fprintf(stderr, "Can't get file size or file is empty: %s\n", filename);
+        exit(EXIT_FAILURE);
+    }
+
+    //fileContent = (char*)malloc(size + 1);
+    fileContent = (char*)realloc(fileContent, size + 1);
+
+    if(fileContent == NULL) {
+        fprintf(stderr, "Can't allocate mem for html file: %s\n", filename);
+        exit(EXIT_FAILURE);
+    }
+
+    nread = fread(fileContent, 1, size, fh);
+    
+    if(nread != size) {
+        exit(EXIT_FAILURE);
+    }
+
+    fclose(fh);
+    return fileContent;
+}
+
 int createFile(char *fileName) {
     FILE *fptr;
     fptr = fopen(fileName, "rb+");
@@ -71,7 +117,7 @@ int fileToFifo(char *filePath, File *file) {
     return 0;
 }
 
-int appendStrToFile(char *fileName, char* str) {
+int appendStrToFile(char *fileName,const char* str) {
     FILE *fptr;
     fptr = fopen(fileName, "a");
     

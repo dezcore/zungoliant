@@ -8,6 +8,9 @@
 #include <myhtml/api.h>
 #include "./../include/file.h"
 #define STR_SIZE 100
+#define FILES_PATH "/data/file/"
+#define YINITDATA_FILE "ytInitialData" 
+#define YINITPLAYERDATA_FILE "ytInitialPlayerResponse"
 
 #ifdef _WIN32
     #define MyCORE_FMT_Z "%Iu"
@@ -21,4 +24,5 @@ typedef struct res_html {
 } res_html;
 
 int parseFile(char *filePath);
+int parseYFile(char *filePath);
 #endif
