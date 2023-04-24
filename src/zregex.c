@@ -75,7 +75,7 @@ int regex_replace(char **str, const char *pattern, const char *replace) {
         // ajust size
         *str = (char *)realloc(*str, strlen(*str) + 1);
     } else {
-        printf("Could not compile regex: %s\n", replace);
+        printf("Could not compile regex: %s, %s\n", replace, pattern);
     }
 
     return 0;

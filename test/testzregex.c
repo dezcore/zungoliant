@@ -12,14 +12,27 @@ int test_load() {
     free(fileContent);
     return 0;
 }
-
+ 
 int test_regex_replace() {
-    char *pattern = "\\[([^-]+)->([^]]+)\\]";
-    char *str = strdup("before [link->address] some text [link2->addr2] trail");
-    char rpl[] = "<a href=\"\2\">\1</a>";
-    puts(str);
-    regex_replace(&str, pattern, rpl);
-    puts(str);
-    free(str);
+    char rpl[] = " ";
+    char *first_pattern = "var ytInitialData = ";//"/.+=./";
+    char *second_pattern = ";";//";$"
+    char *filePath = (char*) malloc(STR_SIZE * sizeof(char));
+    char *saveFilePath = (char*) malloc(STR_SIZE * sizeof(char));
+    char* fileContent = (char*) malloc(sizeof(char));
+    
+    getCurrentDir(filePath, STR_SIZE);
+    getCurrentDir(saveFilePath, STR_SIZE);
+    strcat(filePath, "/data/file/ytInitialData_regex");
+    strcat(saveFilePath, "/data/file/test_regex");
+    fileContent = load_file(filePath, fileContent);
+
+    regex_replace(&fileContent, first_pattern, rpl);
+    regex_replace(&fileContent, second_pattern, rpl);
+    appendStrToFile(saveFilePath, fileContent);
+
+    free(filePath);
+    free(fileContent);
+    free(saveFilePath);
     return 0;
 }

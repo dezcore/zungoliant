@@ -7,7 +7,7 @@ SRC_DIR = src
 LIBPATH = lib
 IDIR = include
 TEST_DIR = test
-LDFLAGS = -lmyhtml -lcurl
+LDFLAGS = -lmyhtml -lcurl -ljson-c
 
 fifoDep = $(IDIR)/fifo.h $(SRC_DIR)/fifo.c
 curlDep = $(IDIR)/curl.h $(SRC_DIR)/curl.c
