@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "./../include/testfile.h"
 #include "./../include/testfifo.h"
+#include "./../include/testzregex.h"
 
 int main() {
     //test_init();
@@ -13,6 +14,7 @@ int main() {
     //test_downloadPage();
     //test_parseFile();
     //test_appendStrToFile();
-    test_loadFile(); 
+    //test_loadFile();
+    test_regex_replace(); 
     return 0;
 }

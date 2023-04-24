@@ -165,6 +165,8 @@ int saveText(const char* node_text, char *fileName) {
         getCurrentDir(filePath, STR_SIZE);
         strcat(filePath, FILES_PATH);
         strcat(filePath, fileName);
+        //var ytInitialData =
+        //;
         appendStrToFile(filePath, node_text);  
         free(filePath);
     }
