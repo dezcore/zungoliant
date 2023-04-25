@@ -13,4 +13,5 @@
 
 int search(char *filePath, char *expression);
 int regex_replace(char **str, const char *pattern, const char *replace);
+int regex_replace_all(char **str, char **patterns, size_t patterns_size, const char *replace);
 #endif

@@ -80,3 +80,14 @@ int regex_replace(char **str, const char *pattern, const char *replace) {
 
     return 0;
 }
+
+int regex_replace_all(char **str, char **patterns, size_t patterns_size, const char *replace) {
+    int i = 0;
+    if(*str != NULL) {
+        for (i = i; i < patterns_size; i++) {
+            printf("pattern : %s\n", patterns[i]);
+            //regex_replace(str, patterns[i], replace);
+        }
+    }
+    return 0;
+}

@@ -11,6 +11,7 @@
 int existFile(char *fileName);
 int createFile(char *fileName);
 int printContent(char *filePath);
+char* getAbsolutePath(const char *path);
 int fileToFifo(char *filePath, File *file);
 int getCurrentDir(char *res,  size_t size);
 int appendStrToFile(char *fileName, const char* str);

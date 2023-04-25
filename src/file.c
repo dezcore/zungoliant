@@ -71,6 +71,18 @@ int getCurrentDir(char *res,  size_t size) {
     return state;
 }
 
+char* getAbsolutePath(const char *path) {
+    char *filePath = NULL;
+
+    if(path != NULL) {
+        filePath = (char*) malloc(STR_LEN * sizeof(char));
+        getCurrentDir(filePath, STR_LEN);
+        strcat(filePath, path);
+    }
+
+    return filePath;
+}
+
 int existFile(char *fileName) {
     int exist = 0;
     if(fileName != NULL && access(fileName, F_OK) == 0)
