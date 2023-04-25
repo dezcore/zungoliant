@@ -6,5 +6,6 @@
 #include <stdlib.h>
 #include <json.h>
 
-json_object* str_tojson(char *str);
+int getValue(json_object *obj, char *key, char **str);
+json_object* getJson(char *str);
 #endif

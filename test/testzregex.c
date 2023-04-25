@@ -15,6 +15,8 @@ int test_load() {
 
 int test_regex_replace() {
     char rpl[] = " ";
+    json_object* json;
+    char *contents = (char*) malloc(sizeof(char));
     char *patterns[] = {"var ytInitialData = ", ";"}; //"/.+=./"; , ";$"
     char *fileContent = (char*) malloc(sizeof(char));
     char *saveFilePath = getAbsolutePath("/data/file/test_regex");
@@ -25,7 +27,12 @@ int test_regex_replace() {
     for(int i = 0; i < 2; i++) {
         regex_replace(&fileContent, patterns[i], rpl);
     }
-    appendStrToFile(saveFilePath, fileContent);
+    json = getJson(fileContent);
+    getValue(json, "contents", &contents);
+    appendStrToFile(saveFilePath, contents);
+
+    json_object_put(json);
+    free(contents);
     free(filePath);
     free(fileContent);
     free(saveFilePath);

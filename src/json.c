@@ -19,19 +19,19 @@ int printJson(json_object *obj) {
     return 0;
 }
 
-json_object* getObj_bykey(json_object *obj, char *key) {
-    json_object *res= NULL;
-    
+int getValue(json_object *obj, char *key, char **str) {
+    json_object *target_obj;
     if(obj != NULL) {
-        res = json_object_object_get(obj, key);
+        target_obj = json_object_object_get(obj, key);
+        const char* value = json_object_get_string(target_obj);
+        *str = (char *)realloc(*str, strlen(value) + 1);
+        sprintf(*str, "%s", value);
         //json_object_object_get_ex(obj, key, &target_obj);
-        //appendStrToFile(saveFilePath, json_object_get_string(obj));
-        //res = json_object_get_string(target_obj);
     }
-    return res;
+    return 0;
 }
 
-json_object* str_tojson(char *str) {
+json_object* getJson(char *str) {
     struct json_object *new_obj = NULL;
 
     if(str != NULL) {
