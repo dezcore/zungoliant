@@ -58,7 +58,6 @@ struct json_object* getObj_rec(struct json_object *obj, char *fields) { //fields
         //json_pointer_getf(obj, &target_obj, "/%s/%d/%s/%d/%s", "arr", 0, "obj", 2, "obj2")
         //json_object_is_type(jo2, json_type_string)
     }
-
     return target_obj;
 }
 

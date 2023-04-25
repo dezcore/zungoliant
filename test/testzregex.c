@@ -13,17 +13,38 @@ int test_load() {
     return 0;
 }
 
-int test_regex_replace() {
-    char rpl[] = " ";
+int test_getObj_rec(char* fileContent) {
     const char *value;
     struct json_object *json, *results;
+    char *saveFilePath = getAbsolutePath("/data/file/test_regex");
+
+    if(fileContent != NULL) {
+        json = getJson(fileContent);
+
+        if(json != NULL) {
+            results = getObj_rec(json, "/contents/twoColumnWatchNextResults/secondaryResults/secondaryResults/results");
+            
+            if(results != NULL) {
+                value = json_object_to_json_string_ext(results, JSON_C_TO_STRING_PRETTY);
+                
+                if(value != NULL) {
+                    appendStrToFile(saveFilePath, value);
+                }
+            }
+
+            json_object_put(json);
+        }
+    }
+
+    free(saveFilePath);
+    return 0;
+}
+
+int test_regex_replace() {
+    char rpl[] = " ";
     char *contents = (char*) malloc(sizeof(char));
     char *patterns[] = {"var ytInitialData = ", ";"}; //"/.+=./"; , ";$"
-    
-    //char *results[] = {"contents", "twoColumnWatchNextResults", "secondaryResults", "secondaryResults", "results"};
-
     char *fileContent = (char*) malloc(sizeof(char));
-    char *saveFilePath = getAbsolutePath("/data/file/test_regex");
     char *filePath = getAbsolutePath("/data/file/ytInitialData_regex");
 
     fileContent = load_file(filePath, fileContent);
@@ -32,24 +53,10 @@ int test_regex_replace() {
         regex_replace(&fileContent, patterns[i], rpl);
     }
 
-    json = getJson(fileContent);
-    results =  getObj_rec(json, "contents/twoColumnWatchNextResults/secondaryResults/secondaryResults/results");
+    test_getObj_rec(fileContent);
 
-    if(results != NULL) {
-        value = json_object_to_json_string_ext(results, JSON_C_TO_STRING_PRETTY);
-        printf("value : %s\n", value);
-        if(value != NULL) {
-            appendStrToFile(saveFilePath, value);
-        }
-        json_object_put(results);
-    }
-    //getValue(json, "contents", &contents);
-    //appendStrToFile(saveFilePath, contents);
-
-    json_object_put(json);
     free(contents);
     free(filePath);
     free(fileContent);
-    free(saveFilePath);
     return 0;
 }
