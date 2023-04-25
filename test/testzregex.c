@@ -22,11 +22,10 @@ int test_regex_replace() {
 
     fileContent = load_file(filePath, fileContent);
 
-    //regex_replace(&fileContent, first_pattern, rpl);
-    //regex_replace(&fileContent, second_pattern, rpl);
-    regex_replace_all(&fileContent, patterns, 2, rpl);
-    //appendStrToFile(saveFilePath, fileContent);
-    
+    for(int i = 0; i < 2; i++) {
+        regex_replace(&fileContent, patterns[i], rpl);
+    }
+    appendStrToFile(saveFilePath, fileContent);
     free(filePath);
     free(fileContent);
     free(saveFilePath);
