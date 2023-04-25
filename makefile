@@ -1,5 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g $(shell pkg-config --cflags json-c)
+LDFLAGS += $(shell pkg-config --libs json-c)
 
 ODIR = obj
 BIN_DIR = bin
@@ -28,11 +29,11 @@ all: $(BIN_DIR)/main
 
 $(BIN_DIR)/main: $(mainObj)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(mainObj) $(LDFLAGS) -o $(BIN_DIR)/main
+	$(CC) $(mainObj) $(LDFLAGS) $(LDFLAGS) -o $(BIN_DIR)/main
 
 $(ODIR)/main.o: $(mainDep)
 	@mkdir -p $(ODIR)
-	$(CC) -c $(SRC_DIR)/main.c  -o $(ODIR)/main.o $(CFLAGS)
+	$(CC) -c $(SRC_DIR)/main.c  -o $(ODIR)/main.o $(CFLAGS) $(LDFLAGS)
 
 $(ODIR)/fifo.o: $(fifoDep)
 	@mkdir -p $(ODIR)
