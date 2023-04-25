@@ -15,9 +15,13 @@ int test_load() {
 
 int test_regex_replace() {
     char rpl[] = " ";
-    json_object* json;
+    const char *value;
+    struct json_object *json, *results;
     char *contents = (char*) malloc(sizeof(char));
     char *patterns[] = {"var ytInitialData = ", ";"}; //"/.+=./"; , ";$"
+    
+    //char *results[] = {"contents", "twoColumnWatchNextResults", "secondaryResults", "secondaryResults", "results"};
+
     char *fileContent = (char*) malloc(sizeof(char));
     char *saveFilePath = getAbsolutePath("/data/file/test_regex");
     char *filePath = getAbsolutePath("/data/file/ytInitialData_regex");
@@ -27,9 +31,20 @@ int test_regex_replace() {
     for(int i = 0; i < 2; i++) {
         regex_replace(&fileContent, patterns[i], rpl);
     }
+
     json = getJson(fileContent);
-    getValue(json, "contents", &contents);
-    appendStrToFile(saveFilePath, contents);
+    results =  getObj_rec(json, "contents/twoColumnWatchNextResults/secondaryResults/secondaryResults/results");
+
+    if(results != NULL) {
+        value = json_object_to_json_string_ext(results, JSON_C_TO_STRING_PRETTY);
+        printf("value : %s\n", value);
+        if(value != NULL) {
+            appendStrToFile(saveFilePath, value);
+        }
+        json_object_put(results);
+    }
+    //getValue(json, "contents", &contents);
+    //appendStrToFile(saveFilePath, contents);
 
     json_object_put(json);
     free(contents);
