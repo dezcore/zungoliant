@@ -19,6 +19,20 @@ int printJson(struct json_object *obj) {
     return 0;
 }
 
+int iterObj(struct json_object *obj) {
+    unsigned int ii;
+    struct json_object *val;
+
+    if(obj != NULL) {
+        for(ii = 0; ii < json_object_array_length(obj); ii++){
+		    val = json_object_array_get_idx(obj, ii);
+		    printf("%s%.2lf", (ii > 0) ? "," : "", json_object_get_double(val));
+	    }
+    }
+
+    return 0;
+}
+
 int getValue(struct  json_object *obj, char *field, char **str) {
     const char* value;
     struct json_object *target_obj = NULL;
