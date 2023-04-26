@@ -23,7 +23,7 @@ typedef struct _Ydata {
 } Ydata;
 
 typedef struct _Yfile {
-    Ydata * head;
+    Ydata *head;
     size_t size;
 } Yfile;
 

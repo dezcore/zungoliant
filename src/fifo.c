@@ -8,11 +8,9 @@ File* init() {
 }
 
 int init_yfile(Yfile **file) {
-    if(*file != NULL) {
-        *file = malloc(sizeof(*file));
-        (*file)->size = 0;
-        (*file)->head = NULL;
-    }
+    *file = malloc(sizeof(*file));
+    (*file)->size = 0;
+    (*file)->head = NULL;
     return 0;
 }
 
@@ -195,6 +193,7 @@ int free_yfile(Yfile **file) {
     Ydata * current = (*file)->head;
 
     while(current != NULL) {
+        printf("current : ");
         elementToDelete = current;
         current = current->next;
         free_ydata(elementToDelete);
@@ -202,5 +201,6 @@ int free_yfile(Yfile **file) {
 
     (*file)->head = NULL;
     free(*file);
+    
     return 0;
 }

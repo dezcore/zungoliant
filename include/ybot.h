@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include "./../include/fifo.h"
 
+#define STR_SIZE 20
+
 typedef struct _Ybot {
     File *urls_fifo;
     Yfile *data_fifo;
