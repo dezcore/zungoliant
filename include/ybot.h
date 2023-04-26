@@ -8,7 +8,8 @@
 
 typedef struct _Ybot {
     File *urls_fifo;
-    File *data_fifo;
+    Yfile *data_fifo;
 } Ybot;
 
+int run_ybot();
 #endif

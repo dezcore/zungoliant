@@ -1,6 +1,11 @@
-FROM dez28/zungoliantenv
+FROM dez28/zungoliantenv as base
 
 WORKDIR /zungoliant
 COPY . .
 RUN make clean
+
+FROM base as test
+CMD ["make", "test"]
+
+FROM base as dev
 CMD ["make"]

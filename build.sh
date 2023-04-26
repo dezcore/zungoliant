@@ -23,12 +23,20 @@ clean() {
 
 run() {
     clean
-    docker build -t zungoliant .
+    docker build -t zungoliant . --target dev
     docker compose up
 }
 
-if [[ "$1" == "test" ]];then
+test() {
+    clean
+    docker build -t zungoliant . --target test
+    docker compose up
+}
+
+if [[ "$1" == "default" ]];then
 fonctiondetest
+elif [[ "$1" == "test" ]];then
+test
 elif [[ "$1" == "run" ]];then
 run
 elif [[ "$1" == "build" ]];then

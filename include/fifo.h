@@ -15,6 +15,18 @@ typedef struct _File {
     size_t size;
 } File;
 
+typedef struct _Ydata {
+    char *title;
+    char *img;
+    char *videoId;
+    struct _Ydata * next;
+} Ydata;
+
+typedef struct _Yfile {
+    Ydata * head;
+    size_t size;
+} Yfile;
+
 File* init();
 size_t size(File *file);
 int push(File *file, char *value);
@@ -23,5 +35,14 @@ int display(File *file);
 int freeFile(File *file);
 int freeElement(Element *element);
 int displayElement(Element *element);
+
+int free_ydata(Ydata *data);
+int free_yfile(Yfile **file);
+int init_yfile(Yfile **file);
+int print_ydata(Ydata *data);
+int print_yfile(Yfile *file);
+size_t y_file_size(Yfile *file);
+int pop_yfile(Yfile **file, Ydata **data);
+int push_ydata(Yfile **file, char *title, char *img, char *videoId);
 
 #endif
