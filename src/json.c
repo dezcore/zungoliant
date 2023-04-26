@@ -24,6 +24,7 @@ int iterObj(struct json_object *obj) {
     struct json_object *val;
 
     if(obj != NULL) {
+        //int parsed_len = json_object_get_string_len(obj);
         for(ii = 0; ii < json_object_array_length(obj); ii++){
 		    val = json_object_array_get_idx(obj, ii);
 		    printf("%s%.2lf", (ii > 0) ? "," : "", json_object_get_double(val));
@@ -98,5 +99,41 @@ int sameJson(struct json_object *src) {
     if(src != NULL) {
         return  json_object_equal(src, dst);
     }
+    return 0;
+}
+
+int json_tofile(const char *outfile,struct json_object *jso) {
+    int rv;
+
+    if(outfile != NULL) {
+        rv = json_object_to_file(outfile, jso);
+        //rv = json_object_to_file_ext(outfile2, jso, JSON_C_TO_STRING_PRETTY);
+        printf("%s: json_object_to_file(%s, jso)=%d\n", (rv == 0) ? "OK" : "FAIL", outfile, rv);
+    }
+
+    return 0;
+}
+
+int file_tojson(char* fileName) {
+    /*int d ;
+    json_object *jso;
+
+    if(fileName != NULL) {
+        d = open(fileName, O_RDONLY);
+        if(d < 0) {
+		    fprintf(stderr, "FAIL: unable to open %s: %s\n", fileName, strerror(errno));
+		    exit(EXIT_FAILURE);
+	    }
+
+        jso = json_object_from_fd(d);
+        
+        if(jso != NULL) {
+		    printf("OK: json_object_from_fd(valid.json)=%s\n", json_object_to_json_string(jso));
+		    json_object_put(jso);
+	    } else {
+		    fprintf(stderr, "FAIL: unable to parse contents of %s: %s\n", fileName, json_util_get_last_err());
+	    }
+        close(d);
+    }*/
     return 0;
 }
