@@ -51,7 +51,7 @@ int push(File *file, char *value) {
     return 0;
 }
 
-int push_ydata(Yfile **file, char *title, char *img, char *videoId) {
+int push_ydata(Yfile **file, const char *title, const char *img, const char *videoId) {
     Ydata *data, *current;
     if(file == NULL) exit(EXIT_FAILURE);
 

@@ -17,6 +17,9 @@
 #define YINITDATA_FILE_PATH "/data/file/ytInitialData"
 #define YRESULTS_FIELDS  "/contents/twoColumnWatchNextResults/secondaryResults/secondaryResults/results"
 
+#define VIDEOID_FIELD "/compactVideoRenderer/videoId"
+#define TITLE_FIELD "/compactVideoRenderer/title/simpleText"
+#define IMG_FIELD "/compactVideoRenderer/thumbnail/thumbnails/0/url"
 typedef struct _Ybot {
     File *urls_fifo;
     Yfile *data_fifo;

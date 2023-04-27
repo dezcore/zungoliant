@@ -43,6 +43,6 @@ int print_ydata(Ydata *data);
 int print_yfile(Yfile *file);
 size_t y_file_size(Yfile *file);
 int pop_yfile(Yfile **file, Ydata **data);
-int push_ydata(Yfile **file, char *title, char *img, char *videoId);
+int push_ydata(Yfile **file, const char *title, const char *img, const char *videoId);
 
 #endif

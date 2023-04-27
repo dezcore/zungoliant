@@ -22,8 +22,9 @@ int free_ybot(Ybot *bot) {
 }
 
 int save_data(char* fileContent, Yfile **data_fifo) {
-    const char *value;
+    unsigned int ii;
     struct json_object *json, *results;
+    struct json_object *video, *titleObj, *videoObj, *imgObj;
     char *saveFilePath = getAbsolutePath("/data/file/test_json");
 
     if(fileContent != NULL && *data_fifo != NULL) {
@@ -32,11 +33,20 @@ int save_data(char* fileContent, Yfile **data_fifo) {
         if(json != NULL) {
             results = getObj_rec(json, YRESULTS_FIELDS);
             if(results != NULL) {
-                value = json_object_to_json_string_ext(results, JSON_C_TO_STRING_PRETTY);
-                if(value != NULL) {
-                    ///printf("Value : %s\n", value);
-                    appendStrToFile(saveFilePath, value);
-                }
+
+                for(ii = 0; ii < json_object_array_length(results); ii++){
+		            video = json_object_array_get_idx(results, ii);
+                    titleObj = getObj_rec(video, TITLE_FIELD);
+                    videoObj =  getObj_rec(video, VIDEOID_FIELD);
+                    imgObj = getObj_rec(video, IMG_FIELD);
+
+                    if(videoObj != NULL && titleObj != NULL && imgObj != NULL) {
+                        push_ydata( &(*data_fifo), 
+                        json_object_get_string(titleObj), 
+                        json_object_get_string(imgObj), 
+                        json_object_get_string(videoObj)); 
+                    }
+	            }
             }
 
             json_object_put(json);
@@ -105,6 +115,7 @@ int run_ybot() {
             if(url != NULL) {
                 downloadPage(url->value, downloadPageSrc);
                 extract_pagedata(downloadPageSrc, &bot->data_fifo);
+                print_yfile(bot->data_fifo);
                 freeElement(url);
                 url = NULL;
             }
