@@ -24,19 +24,17 @@ int free_ybot(Ybot *bot) {
 int save_data(char* fileContent, Yfile **data_fifo) {
     const char *value;
     struct json_object *json, *results;
-    char *saveFilePath = getAbsolutePath("/data/file/test_regex");
+    char *saveFilePath = getAbsolutePath("/data/file/test_json");
 
     if(fileContent != NULL && *data_fifo != NULL) {
-        appendStrToFile(saveFilePath, fileContent);
         json = getJson(fileContent);
-        //printf("%d\n", (json != NULL));
 
         if(json != NULL) {
             results = getObj_rec(json, YRESULTS_FIELDS);
             if(results != NULL) {
                 value = json_object_to_json_string_ext(results, JSON_C_TO_STRING_PRETTY);
                 if(value != NULL) {
-                    //printf("Value : %s\n", value);
+                    ///printf("Value : %s\n", value);
                     appendStrToFile(saveFilePath, value);
                 }
             }
@@ -44,7 +42,6 @@ int save_data(char* fileContent, Yfile **data_fifo) {
             json_object_put(json);
         }
     }
-
     free(saveFilePath);
     return 0;
 }
@@ -52,28 +49,29 @@ int save_data(char* fileContent, Yfile **data_fifo) {
 int extract_pagedata(char *downloadPage, Yfile **data_fifo) {
     char *contents;
     char rpl[] = " ";
-    char *parseContent = NULL; 
+    char *parseContentPath = NULL; 
     char *patterns[] = {"var ytInitialData = ", ";"}; //"/.+=./"; , ";$"
+    //char *saveFilePath = getAbsolutePath("/data/file/hello_regex");
 
     if(downloadPage != NULL) {
         parseYFile(downloadPage);
         contents = (char*) malloc(sizeof(char));        
-        get_absolutePath(YINITDATA_FILE_PATH, &parseContent);
-
-        if(parseContent != NULL) {
-            contents = load_file(parseContent, contents);
-
+        get_absolutePath(YINITDATA_FILE_PATH, &parseContentPath);
+        if(parseContentPath != NULL) {
+            contents = load_file(parseContentPath, contents);
             if(contents != NULL) {
                 for(int i = 0; i < 2; i++) {
                     regex_replace(&contents, patterns[i], rpl);
                 }
+                //appendStrToFile(saveFilePath, contents);
                 save_data(contents, &(*data_fifo));
                 free(contents);
             }
-            free(parseContent);
+            free(parseContentPath);
         }
     }
 
+    //free(saveFilePath);
     return 0;
 }
 
