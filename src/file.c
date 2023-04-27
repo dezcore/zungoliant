@@ -83,6 +83,16 @@ char* getAbsolutePath(const char *path) {
     return filePath;
 }
 
+int get_absolutePath(const char *path, char **filePath) {
+    if(path != NULL) {
+        *filePath = (char*) malloc(STR_LEN * sizeof(char));
+        getCurrentDir(*filePath, STR_LEN);
+        strcat(*filePath, path);
+    }
+
+    return 0;
+}
+
 int existFile(char *fileName) {
     int exist = 0;
     if(fileName != NULL && access(fileName, F_OK) == 0)
@@ -112,19 +122,21 @@ int printContent(char *filePath) {
 }
 
 int fileToFifo(char *filePath, File *file) {
-    FILE *fptr;
     char* line;
+    FILE * fptr = fopen(filePath, "r");
+    
+    if(fptr != NULL) {
+        line =(char *) malloc(STR_LEN * sizeof(char));
 
-    fptr = fopen(filePath, "r");
-    if(fptr == NULL) exit(EXIT_FAILURE);
-    line =(char *) malloc(STR_LEN * sizeof(char));
+        while(fgets(line, STR_LEN, fptr)) {
+            push(file, line);
+        }
 
-    while(fgets(line, STR_LEN, fptr)) {
-        push(file, line);
+        free(line);
+        fclose(fptr);
+    } else {
+        exit(EXIT_FAILURE);
     }
-
-    free(line);
-    fclose(fptr);
 
     return 0;
 }

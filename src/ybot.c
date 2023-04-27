@@ -21,25 +21,103 @@ int free_ybot(Ybot *bot) {
     return 0;
 }
 
+int save_data(char* fileContent, Yfile **data_fifo) {
+    const char *value;
+    struct json_object *json, *results;
+    char *saveFilePath = getAbsolutePath("/data/file/test_regex");
+
+    if(fileContent != NULL && *data_fifo != NULL) {
+        appendStrToFile(saveFilePath, fileContent);
+        json = getJson(fileContent);
+        //printf("%d\n", (json != NULL));
+
+        if(json != NULL) {
+            results = getObj_rec(json, YRESULTS_FIELDS);
+            if(results != NULL) {
+                value = json_object_to_json_string_ext(results, JSON_C_TO_STRING_PRETTY);
+                if(value != NULL) {
+                    //printf("Value : %s\n", value);
+                    appendStrToFile(saveFilePath, value);
+                }
+            }
+
+            json_object_put(json);
+        }
+    }
+
+    free(saveFilePath);
+    return 0;
+}
+
+int extract_pagedata(char *downloadPage, Yfile **data_fifo) {
+    char *contents;
+    char rpl[] = " ";
+    char *parseContent = NULL; 
+    char *patterns[] = {"var ytInitialData = ", ";"}; //"/.+=./"; , ";$"
+
+    if(downloadPage != NULL) {
+        parseYFile(downloadPage);
+        contents = (char*) malloc(sizeof(char));        
+        get_absolutePath(YINITDATA_FILE_PATH, &parseContent);
+
+        if(parseContent != NULL) {
+            contents = load_file(parseContent, contents);
+
+            if(contents != NULL) {
+                for(int i = 0; i < 2; i++) {
+                    regex_replace(&contents, patterns[i], rpl);
+                }
+                save_data(contents, &(*data_fifo));
+                free(contents);
+            }
+            free(parseContent);
+        }
+    }
+
+    return 0;
+}
+
+int init_urls(File **urls_fifo,  char **urlsFileSrc) {
+    char *urlsFile =  NULL;
+
+    get_absolutePath(URLS_FILE, &urlsFile);
+
+    if(urlsFile != NULL) {
+        fileToFifo(urlsFile, *urls_fifo);
+        *urlsFileSrc = urlsFile;
+    }
+
+    return 0;
+}
+
 int run_ybot() {
-    //char * str = (char *) malloc(STR_SIZE * sizeof(char*));
-    Ybot *bot = NULL; 
-    Ydata *data = NULL;
+    Ybot *bot = NULL;
+    Element *url = NULL; 
+    char *urlsFileSrc =  NULL;
+    char *downloadPageSrc = NULL; 
 
     init_ybot(&bot);
-    //sprintf(str, "%s", "test");
-    //push(bot->urls_fifo, str);
-    //display(bot->urls_fifo);
+    init_urls(&bot->urls_fifo, &urlsFileSrc);     
+    get_absolutePath(DOWNLOAD_FILE, &downloadPageSrc);
 
-    push_ydata(&bot->data_fifo, "title1", "img1", "videoId1");
-    push_ydata(&bot->data_fifo, "title2", "img2", "videoId2");
-    push_ydata(&bot->data_fifo, "title3", "img3", "videoId3");
-    push_ydata(&bot->data_fifo, "title4", "img4", "videoId4");
-    pop_yfile(&bot->data_fifo, &data);
-    print_yfile(bot->data_fifo);
-    //print_ydata(data);
-    //free(str);
-    free_ydata(data);
-    free_ybot(bot);
+    if(downloadPageSrc != NULL && urlsFileSrc != NULL) {
+        while(0 < bot->urls_fifo->size) {
+            url = pop(bot->urls_fifo);
+
+            if(url != NULL) {
+                downloadPage(url->value, downloadPageSrc);
+                extract_pagedata(downloadPageSrc, &bot->data_fifo);
+                freeElement(url);
+                url = NULL;
+            }
+        }
+
+        free(urlsFileSrc);
+        free(downloadPageSrc);
+    }
+
+    if(bot != NULL)
+        free_ybot(bot);
+    
     return 0;
 }

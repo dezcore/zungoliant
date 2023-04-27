@@ -15,9 +15,9 @@ jsonDep = $(IDIR)/json.h $(SRC_DIR)/json.c
 fifoDep = $(IDIR)/fifo.h $(SRC_DIR)/fifo.c
 curlDep = $(IDIR)/curl.h $(SRC_DIR)/curl.c
 fileDep = $(IDIR)/fifo.h $(IDIR)/file.h $(SRC_DIR)/file.c
-ybotDep = $(IDIR)/fifo.h $(IDIR)/ybot.h $(SRC_DIR)/ybot.c
 zregexDep = $(IDIR)/file.h $(IDIR)/zregex.h $(SRC_DIR)/zregex.c
 parserDep = $(IDIR)/file.h $(IDIR)/parser.h $(SRC_DIR)/parser.c 
+ybotDep = $(IDIR)/zregex.h $(IDIR)/json.h $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/file.h $(IDIR)/fifo.h $(IDIR)/ybot.h $(SRC_DIR)/ybot.c
 mainDep = $(IDIR)/ybot.h $(SRC_DIR)/main.c
 mainObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/ybot.o $(ODIR)/main.o
 
