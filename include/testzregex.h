@@ -18,6 +18,10 @@
 #define TEST_DEFAULT_REGEX_FILE_PATH "/data/test/ytInitialData_regex"
 #define TEST_REPLACE_REGEX_FILE_PATH "/data/test/regex/test.json"
 
+//Regex
+//https://en.wikibooks.org/wiki/Regular_Expressions/POSIX_Basic_Regular_Expressions
+#define TEST_VAR_REGEX "[ \t]*var[ \t]*[A-Za-z]+[ \t]*=[ \t]*"
+
 int test_regex_replace();
 int test_downloadPage_and_replace();
 #endif

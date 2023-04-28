@@ -42,11 +42,9 @@ int test_getObj_rec(char* fileContent) {
 
 int test_regex_replace() {
     char rpl[] = " ";
-    char *contents = (char*) malloc(sizeof(char));
-    //[ \t]*var[ \t]*ytInitialData[ \t]*=[ \t]*
-    //[ \t]
-    char *patterns[] = {"[ \t]*var[ \t]*ytInitialData[ \t]*=[ \t]*", ";$"};//{"var ytInitialData = ", ";"}; //"/.+=./"; , ";$"
-
+    char *contents = (char*) malloc(sizeof(char));    
+    char *patterns[] = {TEST_VAR_REGEX,  ";$"};
+    
     char *fileContent = (char*) malloc(sizeof(char));
     char *filePath = getAbsolutePath(TEST_DEFAULT_REGEX_FILE_PATH);
     char *saveFilePath = getAbsolutePath(TEST_REPLACE_REGEX_FILE_PATH);
@@ -72,7 +70,7 @@ int extract_htmlpagedata(char *downloadPage) {
     char rpl[] = " ";
     char *saveFilePath = NULL;
     char *parseContentPath = NULL; 
-    char *patterns[] = {"var ytInitialData = ", ";"}; //"/.+=./"; , ";$"
+    char *patterns[] = {TEST_VAR_REGEX, ";$"};
 
     if(downloadPage != NULL) {
         parseYFile(downloadPage);
@@ -82,13 +80,11 @@ int extract_htmlpagedata(char *downloadPage) {
         get_absolutePath(TEST_PARSE_FILE_PATH, &saveFilePath);
 
         if(parseContentPath != NULL && saveFilePath != NULL) {
-            printf("parseContentPath : %s\n", parseContentPath);
             contents = load_file(parseContentPath, contents);
             if(contents != NULL) {
                 for(int i = 0; i < 2; i++) {
                     regex_replace(&contents, patterns[i], rpl);
                 }
-                printf("%s, %s\n", parseContentPath, saveFilePath);
                 appendStrToFile(saveFilePath, contents);
                 free(contents);
             } else {
@@ -116,13 +112,12 @@ int test_downloadPage_and_replace() {
 
     if(urlsFileSrc != NULL)
         fileToFifo(urlsFileSrc, urls_fifo);
-
+        
     if(urls_fifo !=  NULL) {
         url = pop(urls_fifo);
         get_absolutePath(TEST_DOWNLOAD_FILE, &downloadPageSrc);
 
         if(downloadPageSrc != NULL && url != NULL) {
-            //downloadPage(url->value, downloadPageSrc);
             downloadPage_bycontains(url->value, downloadPageSrc, YINITDATA_VAR);
             extract_htmlpagedata(downloadPageSrc);
             freeElement(url);
