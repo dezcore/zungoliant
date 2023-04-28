@@ -23,8 +23,8 @@ int test_dowload() {
 }
 
 int test_regex() {
-    //test_regex_replace(); 
-    test_downloadPage_and_replace();
+    test_regex_replace(); 
+    //test_downloadPage_and_replace();
     return 0;
 }
 

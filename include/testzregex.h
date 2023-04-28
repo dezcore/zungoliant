@@ -15,6 +15,8 @@
 #define TEST_DOWNLOAD_FILE "/data/test/download/test.html"
 #define TEST_PARSE_FILE_PATH "/data/test/parse/ytInitialData.json"
 #define TEST_YINITDATA_FILE_PATH "/data/file/ytInitialData"
+#define TEST_DEFAULT_REGEX_FILE_PATH "/data/test/ytInitialData_regex"
+#define TEST_REPLACE_REGEX_FILE_PATH "/data/test/regex/test.json"
 
 int test_regex_replace();
 int test_downloadPage_and_replace();

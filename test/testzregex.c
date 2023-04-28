@@ -43,19 +43,22 @@ int test_getObj_rec(char* fileContent) {
 int test_regex_replace() {
     char rpl[] = " ";
     char *contents = (char*) malloc(sizeof(char));
-    char *patterns[] = {"var ytInitialData = ", ";"}; //"/.+=./"; , ";$"
+    //[ \t]*var[ \t]*ytInitialData[ \t]*=[ \t]*
+    //[ \t]
+    char *patterns[] = {"[ \t]*var[ \t]*ytInitialData[ \t]*=[ \t]*", ";$"};//{"var ytInitialData = ", ";"}; //"/.+=./"; , ";$"
+
     char *fileContent = (char*) malloc(sizeof(char));
-    char *filePath = getAbsolutePath("/data/file/ytInitialData_regex");
-    char *saveFilePath = getAbsolutePath("/data/file/replace_regex");
+    char *filePath = getAbsolutePath(TEST_DEFAULT_REGEX_FILE_PATH);
+    char *saveFilePath = getAbsolutePath(TEST_REPLACE_REGEX_FILE_PATH);
 
     fileContent = load_file(filePath, fileContent);
 
     for(int i = 0; i < 2; i++) {
         regex_replace(&fileContent, patterns[i], rpl);
-        //appendStrToFile(saveFilePath, fileContent);
+       appendStrToFile(saveFilePath, fileContent);
     }
 
-    test_getObj_rec(fileContent);
+    //test_getObj_rec(fileContent);
 
     free(contents);
     free(filePath);
