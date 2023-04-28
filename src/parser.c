@@ -174,20 +174,20 @@ int saveText(const char* node_text, char *fileName) {
     return 0;
 }
 
-int getNodeText(myhtml_tree_t* tree, myhtml_tree_node_t *node, size_t inc) {
+int getNodeText(myhtml_tree_t* tree, myhtml_tree_node_t *node, size_t inc, char *playerdata_file, char *yinitdata_file) {
     while(node) {
         myhtml_tag_id_t tag_id = myhtml_node_tag_id(node);
 
         if(tag_id == MyHTML_TAG__TEXT || tag_id == MyHTML_TAG__COMMENT) {
             const char* node_text = myhtml_node_text(node, NULL);
             if(strstr(node_text, YINITPLAYERDATA_FILE) != NULL) {
-                 saveText(node_text, YINITPLAYERDATA_FILE);
+                saveText(node_text, playerdata_file);
             } else if(strstr(node_text, YINITDATA_FILE) != NULL) {
-                saveText(node_text, YINITDATA_FILE);
+                saveText(node_text, yinitdata_file);
             }
         }
         //print children
-        getNodeText(tree, myhtml_node_child(node), (inc + 1));
+        getNodeText(tree, myhtml_node_child(node), (inc + 1), playerdata_file, yinitdata_file);
         node = myhtml_node_next(node);
     }
     return 0;
@@ -202,7 +202,7 @@ int getTargetNodesByName(myhtml_tree_t* tree, char *tag_name) {
         collection = myhtml_get_nodes_by_name(tree, NULL, tag_name, 1, NULL);
         for(size_t i = 0; i < collection->length; ++i) {
             root = collection->list[i];  
-            getNodeText(tree, root, 0);
+            getNodeText(tree, root, 0, YINITPLAYERDATA_FILE, YINITDATA_FILE);
         }
         printf("getTargetNodes (collection->length) : %lu\n", collection->length); 
     }
@@ -210,24 +210,31 @@ int getTargetNodesByName(myhtml_tree_t* tree, char *tag_name) {
     return 0;
 }
 
-int getTargetNodes(myhtml_tree_t* tree, myhtml_tag_id_t tag_id) {
-    //tag_id : MyHTML_TAG_BODY, MyHTML_TAG_DIV,  MyHTML_TAG_SCRIPT, , etc ...
-    myhtml_collection_t *collection;
+int extract_nodetext(myhtml_tree_t* tree, myhtml_collection_t *collection) {
     myhtml_tree_node_t *root;
 
-    if(tree != NULL) {
-        collection = myhtml_get_nodes_by_tag_id(tree, NULL, tag_id, NULL);
+    if(collection != NULL) {
         for(size_t i = 0; i < collection->length; ++i) {
             root = collection->list[i];  
-            getNodeText(tree, root, 0);
+            getNodeText(tree, root, 0, YINITPLAYERDATA_FILE, YINITDATA_FILE);
         }
-        printf("getTargetNodes (collection->length) : %lu\n", collection->length); 
     }
 
+    return 0;
+}
+
+int getTargetNodes(myhtml_tree_t* tree, myhtml_tag_id_t tag_id, myhtml_collection_t **collection) {
+    //tag_id : MyHTML_TAG_BODY, MyHTML_TAG_DIV,  MyHTML_TAG_SCRIPT, , etc ...
+    if(tree != NULL) {
+        *collection = myhtml_get_nodes_by_tag_id(tree, NULL, tag_id, NULL);
+        if(*collection != NULL)
+            printf("getTargetNodes (collection->length) : %lu\n", (*collection)->length); 
+    }
     return 0;
 }
 
 int parseYFile(char *filePath) {
+    myhtml_collection_t *collection = NULL;
     struct res_html res = load_html_file(filePath);
 
     // basic init
@@ -242,7 +249,10 @@ int parseYFile(char *filePath) {
     myhtml_parse(tree, MyENCODING_UTF_8, res.html, res.size);
 
     //print result
-    getTargetNodes(tree, MyHTML_TAG_BODY);
+    getTargetNodes(tree, MyHTML_TAG_BODY, &collection);
+
+    if(collection != NULL)
+        extract_nodetext(tree, collection);
 
     //release resources
     myhtml_tree_destroy(tree);

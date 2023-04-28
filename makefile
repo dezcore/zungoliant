@@ -13,7 +13,7 @@ LDFLAGS = -lmyhtml -lcurl -ljson-c
 
 jsonDep = $(IDIR)/json.h $(SRC_DIR)/json.c
 fifoDep = $(IDIR)/fifo.h $(SRC_DIR)/fifo.c
-curlDep = $(IDIR)/curl.h $(SRC_DIR)/curl.c
+curlDep = $(IDIR)/file.h $(IDIR)/curl.h $(SRC_DIR)/curl.c
 fileDep = $(IDIR)/fifo.h $(IDIR)/file.h $(SRC_DIR)/file.c
 zregexDep = $(IDIR)/file.h $(IDIR)/zregex.h $(SRC_DIR)/zregex.c
 parserDep = $(IDIR)/file.h $(IDIR)/parser.h $(SRC_DIR)/parser.c 
@@ -22,9 +22,9 @@ mainDep = $(IDIR)/ybot.h $(SRC_DIR)/main.c
 mainObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/ybot.o $(ODIR)/main.o
 
 testfifoDep = $(IDIR)/fifo.h $(IDIR)/testfifo.h $(TEST_DIR)/testfifo.c
-testzregexDep = $(IDIR)/json.h $(IDIR)/zregex.h $(IDIR)/testzregex.h $(TEST_DIR)/testzregex.c
 testfileDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h  $(IDIR)/file.h $(IDIR)/testfile.h $(TEST_DIR)/testfile.c
 testDep = $(IDIR)/testzregex.h $(IDIR)/testfile.h  $(IDIR)/testfifo.h $(TEST_DIR)/main.c
+testzregexDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h $(IDIR)/file.h $(IDIR)/json.h $(IDIR)/zregex.h $(IDIR)/testzregex.h $(TEST_DIR)/testzregex.c
 testObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/testzregex.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/test.o
 
 all: $(BIN_DIR)/main

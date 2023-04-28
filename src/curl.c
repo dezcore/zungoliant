@@ -25,9 +25,10 @@ int downloadPage(char *url, char *output) {
         trim(url); 
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-        //curl_easy_setopt(curl, CURLOPT_PROXY, "127.0.0.1:8080");
+        /* example.com is redirected, so we tell libcurl to follow redirection */
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);        
         curl_easy_setopt(curl, CURLOPT_USERAGENT, "Dark Secret Ninja/1.0");
+        //curl_easy_setopt(curl, CURLOPT_COOKIESESSION, 1L);
         //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "");
 
@@ -38,20 +39,45 @@ int downloadPage(char *url, char *output) {
             res = curl_easy_perform(curl);
 
             if(res == CURLE_OK)
-                printf("CURLE_OK\n");
+                printf("CURLE_OK (downloadPage)\n");
             else
-                printf("curl error : %d\n", res);
+                printf("curl error (downloadPage): %d\n", res);
 
             fclose(fp);
-        } else {
-            printf("test in else : %s\n", output);
-        }  
+        }
 
         curl_easy_cleanup(curl);
         curl_global_cleanup();
-    } else {
-        printf("test in else (curl) : %s\n", output);
     }
     
+    return 0;
+}
+
+int downloadPage_withsystem(char *url, char *output) {
+    char *command = (char*) malloc(COMMAND_SIZE * sizeof(char));
+    
+    if(url != NULL && command != NULL) {
+        sprintf(command, "curl %s -L -o %s", url, output);
+        system(command);
+        free(command);
+    }
+
+    return 0;
+}
+
+int downloadPage_bycontains(char *url, char *output, char* contains) {
+    char *contents = (char*) malloc(sizeof(char));  
+
+    if(url != NULL && output != NULL && contents != NULL) {
+        downloadPage(url, output);
+        contents = load_file(output, contents);
+
+        if(strstr(contents, contains) == NULL) { // not contains
+            downloadPage_withsystem(url, output);
+        }
+
+        free(contents);
+    }
+
     return 0;
 }
