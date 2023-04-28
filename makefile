@@ -24,8 +24,9 @@ mainObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/
 testfifoDep = $(IDIR)/fifo.h $(IDIR)/testfifo.h $(TEST_DIR)/testfifo.c
 testfileDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h  $(IDIR)/file.h $(IDIR)/testfile.h $(TEST_DIR)/testfile.c
 testDep = $(IDIR)/testzregex.h $(IDIR)/testfile.h  $(IDIR)/testfifo.h $(TEST_DIR)/main.c
+testyDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h $(IDIR)/file.h $(IDIR)/json.h $(IDIR)/zregex.h $(IDIR)/testy.h $(TEST_DIR)/testy.c
 testzregexDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h $(IDIR)/file.h $(IDIR)/json.h $(IDIR)/zregex.h $(IDIR)/testzregex.h $(TEST_DIR)/testzregex.c
-testObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/testzregex.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/test.o
+testObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/testy.o $(ODIR)/testzregex.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/test.o
 
 all: $(BIN_DIR)/main
 	./$(BIN_DIR)/main
@@ -84,6 +85,10 @@ $(ODIR)/testfifo.o: $(testfifoDep)
 $(ODIR)/testfile.o: $(testfileDep)
 	@mkdir -p $(ODIR)
 	$(CC) -c $(TEST_DIR)/testfile.c -o $(ODIR)/testfile.o $(CFLAGS)
+
+$(ODIR)/testy.o: $(testyDep)
+	@mkdir -p $(ODIR)
+	$(CC) -c $(TEST_DIR)/testy.c -o $(ODIR)/testy.o $(CFLAGS)
 
 $(ODIR)/testzregex.o: $(testzregexDep)
 	@mkdir -p $(ODIR)

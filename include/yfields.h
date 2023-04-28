@@ -6,46 +6,42 @@
 #define YINITDATA_FILE_PATH "/data/file/ytInitialData"
 #define YRESULTS_FIELDS  "/contents/twoColumnWatchNextResults/secondaryResults/secondaryResults/results"
 
-// "/contents/twoColumnWatchNextResults/results/results/contents"
-// "/contents/twoColumnWatchNextResults/results/results/contents/0/videoPrimaryInfoRenderer/" :
-//-> /dateText/simpleText
+//VIDEO PAGE
+#define VIDEO_PAGE_CHANNEL_ROOT_FIELD "/contents/twoColumnWatchNextResults/results/results"
+#define VIDEO_PAGE_ROOT_FIELD "/contents/twoColumnWatchNextResults/secondaryResults/secondaryResults/results"
 
-//Current Video
-#define VIDEO_TITLE_FIELD "/contents/twoColumnWatchNextResults/results/results/contents/0/videoPrimaryInfoRenderer/title/runs/0/text"
-#define VIDEO_DESCRIPTION_FIELD "/contents/twoColumnWatchNextResults/results/results/contents/1/videoSecondaryInfoRenderer/attributedDescription/content"
-#define VIEWCOUNT_FIELD "/contents/twoColumnWatchNextResults/results/results/contents/0/videoPrimaryInfoRenderer/viewCount/videoViewCountRenderer/viewCount/simpleText"
-#define VIEWCOUNT_SHORT_FIELD "/contents/twoColumnWatchNextResults/results/results/contents/0/videoPrimaryInfoRenderer/viewCount/videoViewCountRenderer/shortViewCount/simpleText"
+#define VIDEO_PAGE_PLAYLIST_ITEM_VIDEOID_FIELD "/compactVideoRenderer/videoId"
+#define VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD "/compactVideoRenderer/title/simpleText"
+#define VIDEO_PAGE_PLAYLIST_ITEM_LENGTH_FIELD "/compactVideoRenderer/lengthText/simpleText"
+#define VIDEO_PAGE_PLAYLIST_ITEM_IMG_FIELD "/compactVideoRenderer/thumbnail/thumbnails/0/url"
+#define VIDEO_PAGE_PLAYLIST_ITEM_VIEW_COUNT_FIELD "/compactVideoRenderer/viewCountText/simpleText"
+#define VIDEO_PAGE_PLAYLIST_ITEM_URL_FIELD "/compactVideoRenderer/navigationEndpoint/commandMetadata/webCommandMetadata/url"
 
-//Channel 
-#define CHANNEL_TITLE_FIELD "/contents/twoColumnWatchNextResults/results/results/contents/1/videoSecondaryInfoRenderer/owner/videoOwnerRenderer/title/runs/0/text"
-#define CHANNEL_IMG_FIELD "/contents/twoColumnWatchNextResults/results/results/contents/1/videoSecondaryInfoRenderer/owner/videoOwnerRenderer/thumbnail/thumbnails/0/url"
-#define CHANNEL_URL_FIELD "/contents/twoColumnWatchNextResults/results/results/contents/1/videoSecondaryInfoRenderer/owner/videoOwnerRenderer/title/runs/0/navigationEndpoint/commandMetadata/webCommandMetadata/url"
+#define VIDEO_PAGE_TITLE_FIELD "/contents/0/videoPrimaryInfoRenderer/title/runs/0/text"
+#define VIDEO_PAGE_DESCRIPTION_FIELD "/contents/1/videoSecondaryInfoRenderer/attributedDescription/content"
+#define VIDEO_VIEWCOUNT_FIELD "/contents/0/videoPrimaryInfoRenderer/viewCount/videoViewCountRenderer/viewCount/simpleText"
+#define VIDEO_VIEWCOUNT_SHORT_FIELD "/contents/0/videoPrimaryInfoRenderer/viewCount/videoViewCountRenderer/shortViewCount/simpleText"
+
+#define VIDEO_PAGE_CHANNEL_TITLE_FIELD "/contents/1/videoSecondaryInfoRenderer/owner/videoOwnerRenderer/title/runs/0/text"
+#define VIDEO_PAGE_CHANNEL_IMG_FIELD "/contents/1/videoSecondaryInfoRenderer/owner/videoOwnerRenderer/thumbnail/thumbnails/0/url"
+#define VIDEO_PAGE_CHANNEL_URL_FIELD "/contents/1/videoSecondaryInfoRenderer/owner/videoOwnerRenderer/title/runs/0/navigationEndpoint/commandMetadata/webCommandMetadata/url"
+
+//CHANNEL PAGE
+#define CHANNEL_PAGE_ROOT_FIELD "/contents/twoColumnBrowseResultsRenderer"
+#define CHANNEL_PAGE_HOME_TAB_FIELD "/0/tabRenderer/endpoint/commandMetadata/webCommandMetadata/url"
+#define CHANNEL_PAGE_HOME_TAB_CONTENT_FIELD "/0/tabRenderer/content/sectionListRenderer/contents"
 
 //Channe Page
-#define HOME_TAB_FIELD "/contents/twoColumnBrowseResultsRenderer/0/tabRenderer/endpoint/commandMetadata/webCommandMetadata/url"
-#define HOME_TAB_CONTENT_FIELD "/contents/twoColumnBrowseResultsRenderer/0/tabRenderer/content/sectionListRenderer/contents"
 //-> /0/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/videoId
 //-> /0/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/title/runs/0/text
 //-> /0/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/description/runs/0/text
 //-> /0/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/viewCountText/simpleText
 //-> /0/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/readMoreText/runs/0/navigationEndpoint/commandMetadata/webCommandMetadata/url
 
-
-
-
 #define VIDEOS_TAB_FIELD "/contents/twoColumnBrowseResultsRenderer/1/tabRenderer/endpoint/commandMetadata/webCommandMetadata/url"
 #define PLAYLISTS_TAB_FIELD "/contents/twoColumnBrowseResultsRenderer/4/tabRenderer/endpoint/commandMetadata/webCommandMetadata/url"
 #define CHANNELS_TAB_FIELD "/contents/twoColumnBrowseResultsRenderer/6/tabRenderer/endpoint/commandMetadata/webCommandMetadata/url"
 #define TAGS_FIELD "/microformat/microformatDataRenderer/tags"
-
-
-//PlayList (VIDEO)
-#define VIDEOID_FIELD "/compactVideoRenderer/videoId"
-#define TITLE_FIELD "/compactVideoRenderer/title/simpleText"
-#define LENGTH_FIELD "/compactVideoRenderer/lengthText/simpleText"
-#define IMG_FIELD "/compactVideoRenderer/thumbnail/thumbnails/0/url"
-#define VIEW_COUNT_FIELD "/compactVideoRenderer/viewCountText/simpleText"
-#define URL_FIELD "/compactVideoRenderer/navigationEndpoint/commandMetadata/webCommandMetadata/url"
 
 //Youtube Page
 #define YOUTBE_VIDEOS_FIELD "/contents/twoColumnBrowseResultsRenderer/tabs/0/tabRenderer/content/richGridRenderer/contents"

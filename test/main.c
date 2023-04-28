@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "./../include/testfile.h"
 #include "./../include/testfifo.h"
+#include "./../include/testy.h"
 #include "./../include/testzregex.h"
 
 int test_fifo() {
@@ -28,7 +29,15 @@ int test_regex() {
     return 0;
 }
 
+int test_json() {
+    //test_video_page_items();
+    //test_video_page_channel();
+    test_channel_page_home();
+    return 0;
+}
+
 int main() {    
-    test_regex();
+    //test_regex();
+    test_json();
     return 0;
 }

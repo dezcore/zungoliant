@@ -114,26 +114,10 @@ int json_tofile(const char *outfile,struct json_object *jso) {
     return 0;
 }
 
-int file_tojson(char* fileName) {
-    /*int d ;
-    json_object *jso;
-
+int file_tojson(char* fileName, struct json_object **json) {
     if(fileName != NULL) {
-        d = open(fileName, O_RDONLY);
-        if(d < 0) {
-		    fprintf(stderr, "FAIL: unable to open %s: %s\n", fileName, strerror(errno));
-		    exit(EXIT_FAILURE);
-	    }
-
-        jso = json_object_from_fd(d);
-        
-        if(jso != NULL) {
-		    printf("OK: json_object_from_fd(valid.json)=%s\n", json_object_to_json_string(jso));
-		    json_object_put(jso);
-	    } else {
-		    fprintf(stderr, "FAIL: unable to parse contents of %s: %s\n", fileName, json_util_get_last_err());
-	    }
-        close(d);
-    }*/
+        *json =  json_object_from_file(fileName);
+        printf("state : %d, %s\n", (*json == NULL), fileName);
+    }
     return 0;
 }

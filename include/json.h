@@ -6,8 +6,9 @@
 #include <stdlib.h>
 #include <json.h>
 
-int getValue(struct  json_object *obj, char *key, char **str);
+int getValue(struct  json_object *obj, char *field, char **str);
 struct json_object* getJson(char *str);
 struct json_object* getObj(struct  json_object *obj, char *field);
 struct json_object* getObj_rec(struct json_object *obj, char *fields);
+int file_tojson(char* fileName, struct json_object **json);
 #endif
