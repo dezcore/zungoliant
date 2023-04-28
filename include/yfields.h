@@ -1,16 +1,5 @@
-#ifndef YBOT_H_
-#define YBOT_H_
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-#include "./../include/json.h"
-#include "./../include/zregex.h"
-#include "./../include/fifo.h"
-#include "./../include/file.h"
-#include "./../include/curl.h"
-#include "./../include/parser.h"
+#ifndef YFIELDS_H_
+#define YFIELDS_H_
 
 #define URLS_FILE "/data/file/urls"
 #define DOWNLOAD_FILE "/data/file/download"
@@ -66,10 +55,4 @@
 //-> /0/richItemRenderer/content/videoRenderer/descriptionSnippet/runs/0/text
 //-> /0/richItemRenderer/content/videoRenderer/navigationEndpoint/commandMetadata/webCommandMetadata/url
 
-typedef struct _Ybot {
-    File *urls_fifo;
-    Yfile *data_fifo;
-} Ybot;
-
-int run_ybot();
 #endif
