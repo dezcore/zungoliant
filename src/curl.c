@@ -58,6 +58,13 @@ int downloadPage_withsystem(char *url, char *output) {
     
     if(url != NULL && command != NULL) {
         sprintf(command, "curl %s -L -o %s", url, output);
+
+        if(system(command) != 0 ) {
+            fprintf( stderr, 
+                "Impossible de lancer la commande : %s\n",
+                command );
+        }
+        
         system(command);
         free(command);
     }

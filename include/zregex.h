@@ -12,5 +12,6 @@
 #define EXPRESSION_SIZE 100
 
 int search(char *filePath, char *expression);
+int get_nested_json(char **str, const char *pattern);
 int regex_replace(char **str, const char *pattern, const char *replace);
 #endif

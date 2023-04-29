@@ -5,6 +5,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <json.h>
+#include<unistd.h>
+#include<fcntl.h>
+#include<errno.h>
 
 int getValue(struct  json_object *obj, char *field, char **str);
 struct json_object* getJson(char *str);

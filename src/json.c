@@ -114,20 +114,35 @@ int json_tofile(const char *outfile,struct json_object *jso) {
     return 0;
 }
 
-int file_tojson(char* fileName, struct json_object **json) {
-    char *contents;
-    struct json_object *test;
+int file_tojson_byfd(char* fileName, struct json_object **json) {
+     int fd = open(fileName, O_RDONLY);
 
-    if(fileName != NULL) {
-        contents = (char*) malloc(sizeof(char));
-        contents = load_file(fileName, contents);   
-        *json =  json_object_from_file(fileName);
-        test = getJson(contents);
-        printf("state : %d, %s\n", (test == NULL), fileName);
-        json_object_put(test);
-
-        //printf("Content : %s\n", contents);
-        free(contents);
+    if(fd ==-1) {
+        // print which type of error have in a code
+        printf("Error Number % d\n", errno);     
+        // print program detail "Success or failure"
+        perror("Program");                
     }
+
+    lseek(fd, 0, SEEK_SET);
+    *json = json_object_from_fd(fd);
+
+    if(close(fd) < 0) {
+        perror("c1");
+        exit(1);
+    }
+
+    printf("Error : %s\n", json_util_get_last_err());
+    
+    return 0;
+}
+
+int file_tojson(char* fileName, struct json_object **json) {
+    if(fileName != NULL) {
+        printf("fileName : %s\n", fileName);
+        file_tojson_byfd(fileName, &(*json)); 
+        //*json =  json_object_from_file(fileName);
+    }
+
     return 0;
 }

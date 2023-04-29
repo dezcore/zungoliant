@@ -31,6 +31,38 @@ int search(char *filePath, char *expression) {
     return 0;
 }
 
+int get_nested_json(char **str, const char *pattern) {
+    char *new; 
+    regex_t reg;
+    int start, end;
+    size_t size, nmatch;
+
+    if(!regcomp(&reg, pattern, REG_EXTENDED)) {
+        nmatch = reg.re_nsub; 
+        regmatch_t m[nmatch + 1];
+
+        if(!regexec(&reg, *str, nmatch + 1, m, REG_NOTBOL)) {
+            start = m[0].rm_so;
+            end = m[0].rm_eo;
+            size = end - start;
+            new = (char*) malloc(sizeof(*new) * (size + 1));
+
+            if(new) {
+                strncpy(new, &(*str)[start], size);
+                new[size] = '\0';
+                *str = (char *)realloc(*str, strlen(new) + 1);
+                sprintf(*str, "%s", new);
+                free(new);
+            }
+        }
+        
+        regfree(&reg);
+    } else {
+        printf("Could not compile regex: %s\n", pattern);
+    }  
+    return 0;
+}
+
 int regex_replace(char **str, const char *pattern, const char *replace) {
     regex_t reg;
 

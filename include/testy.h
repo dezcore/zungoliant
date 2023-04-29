@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include<sys/wait.h>
+#include<unistd.h>
 #include "./../include/fifo.h"
 #include "./../include/file.h"
 #include "./../include/json.h"
@@ -30,5 +32,4 @@
 int test_video_page_items();
 int test_video_page_channel();
 int test_channel_page_home();
-
 #endif

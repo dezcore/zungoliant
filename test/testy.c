@@ -2,9 +2,9 @@
 
 int extract_htmlpagedata_(char *downloadPage, char *saveFilePath) {
     char *contents;
-    char rpl[] = " ";
+    //char rpl[] = " ";
     char *parseContentPath = NULL; 
-    char *patterns[] = {TEST_VAR_REGEX, ";$"};
+    //char *patterns[] = {TEST_VAR_REGEX, ";$"};
 
     if(downloadPage != NULL) {
         parseYFile(downloadPage);
@@ -14,9 +14,10 @@ int extract_htmlpagedata_(char *downloadPage, char *saveFilePath) {
         if(parseContentPath != NULL && saveFilePath != NULL) {
             contents = load_file(parseContentPath, contents);
             if(contents != NULL) {
-                for(int i = 0; i < 2; i++) {
+                /*for(int i = 0; i < 2; i++) {
                     regex_replace(&contents, patterns[i], rpl);
-                }
+                }*/
+                get_nested_json(&contents, "\"contents\".+\"header\"");
                 appendStrToFile(saveFilePath, contents);
                 free(contents);
             } else {
@@ -49,7 +50,7 @@ int test_get_root_field(char *url, struct json_object **json) {
 
     if(parseFile != NULL) {
         test_downloadPage_and_replace_(url, parseFile);
-        file_tojson(parseFile, &(*json));
+        //file_tojson(parseFile, &(*json));
         free(parseFile);
     }
 
@@ -113,15 +114,13 @@ int test_video_page_channel() {
 
 int test_channel_page_home() {
     //#define CHANNEL_PAGE_HOME_TAB_CONTENT_FIELD "/0/tabRenderer/content/sectionListRenderer/contents"
-    struct json_object *json, *rootObj = NULL;
+    struct json_object *json = NULL, *rootObj = NULL;
     struct json_object *channelHomeTabUrlObj/*,  *descriptionObj ,*viewCountObj, *channelTitleObj, *channelImgObj, *channelUrlObj*/;
 
     test_get_root_field(TEST_YOUTUBE_CHANNELPAGE_URL, &json);
     
-    printf("channel_page_home (1) : %d\n", (json != NULL));
     if(json != NULL) {
         rootObj = getObj_rec(json, CHANNEL_PAGE_ROOT_FIELD);
-        printf("channel_page_home (2) : %d\n", (json != NULL));
         channelHomeTabUrlObj = getObj_rec(rootObj, CHANNEL_PAGE_HOME_TAB_FIELD);
 
         if(channelHomeTabUrlObj != NULL) {
