@@ -115,9 +115,19 @@ int json_tofile(const char *outfile,struct json_object *jso) {
 }
 
 int file_tojson(char* fileName, struct json_object **json) {
+    char *contents;
+    struct json_object *test;
+
     if(fileName != NULL) {
+        contents = (char*) malloc(sizeof(char));
+        contents = load_file(fileName, contents);   
         *json =  json_object_from_file(fileName);
-        printf("state : %d, %s\n", (*json == NULL), fileName);
+        test = getJson(contents);
+        printf("state : %d, %s\n", (test == NULL), fileName);
+        json_object_put(test);
+
+        //printf("Content : %s\n", contents);
+        free(contents);
     }
     return 0;
 }
