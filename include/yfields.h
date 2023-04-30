@@ -27,7 +27,7 @@
 #define VIDEO_PAGE_CHANNEL_URL_FIELD "/contents/1/videoSecondaryInfoRenderer/owner/videoOwnerRenderer/title/runs/0/navigationEndpoint/commandMetadata/webCommandMetadata/url"
 
 //CHANNEL PAGE
-#define CHANNEL_PAGE_ROOT_FIELD "/contents/twoColumnBrowseResultsRenderer"
+#define CHANNEL_PAGE_ROOT_FIELD "/twoColumnBrowseResultsRenderer"
 #define CHANNEL_PAGE_HOME_TAB_FIELD "/0/tabRenderer/endpoint/commandMetadata/webCommandMetadata/url"
 #define CHANNEL_PAGE_HOME_TAB_CONTENT_FIELD "/0/tabRenderer/content/sectionListRenderer/contents"
 

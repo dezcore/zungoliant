@@ -14,4 +14,5 @@
 int search(char *filePath, char *expression);
 int get_nested_json(char **str, const char *pattern);
 int regex_replace(char **str, const char *pattern, const char *replace);
+int replace_all(char **contents, char *patterns[], char rpl[], size_t len);
 #endif

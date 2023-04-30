@@ -1,10 +1,11 @@
 #include "./../include/testy.h" 
 
-int extract_htmlpagedata_(char *downloadPage, char *saveFilePath) {
+int extract_htmlpagedata_(char *downloadPage, char *saveFilePath, char *regex, char *patterns[], size_t patterns_len, char* rpl) {
     char *contents;
     //char rpl[] = " ";
     char *parseContentPath = NULL; 
     //char *patterns[] = {TEST_VAR_REGEX, ";$"};
+    //char *patterns[] = {"\"contents\":", ",\"header\""};
 
     if(downloadPage != NULL) {
         parseYFile(downloadPage);
@@ -14,10 +15,15 @@ int extract_htmlpagedata_(char *downloadPage, char *saveFilePath) {
         if(parseContentPath != NULL && saveFilePath != NULL) {
             contents = load_file(parseContentPath, contents);
             if(contents != NULL) {
-                /*for(int i = 0; i < 2; i++) {
-                    regex_replace(&contents, patterns[i], rpl);
-                }*/
-                get_nested_json(&contents, "\"contents\".+\"header\"");
+
+                if(regex != NULL)
+                    get_nested_json(&contents, regex);
+
+                if(0 < patterns_len) {
+                    replace_all(&contents, patterns, rpl, patterns_len);
+                }
+
+                //get_nested_json(&contents, TEST_CONTENT_REGEX);
                 appendStrToFile(saveFilePath, contents);
                 free(contents);
             } else {
@@ -31,29 +37,29 @@ int extract_htmlpagedata_(char *downloadPage, char *saveFilePath) {
     return 0;
 }
 
-int test_downloadPage_and_replace_(char *url, char *parseContent ) {
+int test_downloadPage_and_replace_(char *url, char *parseContent, char *regex, char *patterns[], size_t patterns_len, char* rpl) {
     char *downloadPageSrc = NULL; 
     get_absolutePath(TEST_DOWNLOAD_FILE, &downloadPageSrc);
 
     if(downloadPageSrc != NULL) {
         downloadPage_bycontains(url, downloadPageSrc, YINITDATA_VAR);
-        extract_htmlpagedata_(downloadPageSrc, parseContent);
+        extract_htmlpagedata_(downloadPageSrc, parseContent, regex, patterns, patterns_len, rpl);
         free(downloadPageSrc);
     }
 
     return 0;
 }
 
-int test_get_root_field(char *url, struct json_object **json) {
+int test_get_root_field(char *url, struct json_object **json, char *regex, char *patterns[], size_t patterns_len, char* rpl) {
     char* parseFile = NULL;
     get_absolutePath(TEST_PARSE_FILE_PATH, &parseFile);
 
     if(parseFile != NULL) {
-        test_downloadPage_and_replace_(url, parseFile);
-        //file_tojson(parseFile, &(*json));
+        test_downloadPage_and_replace_(url, parseFile, regex, patterns, patterns_len, rpl);
+        file_tojson(parseFile, &(*json));
         free(parseFile);
     }
-
+    
     return 0;
 }
 
@@ -62,7 +68,7 @@ int test_video_page_items() {
     struct json_object *json, *results = NULL;
     struct json_object *video, *titleObj, *videoIdObj/*, *imgObj*/;
 
-    test_get_root_field(TEST_YOUTUBE_VIDEOPAGE_URL, &json);
+    test_get_root_field(TEST_YOUTUBE_VIDEOPAGE_URL, &json, NULL, TEST_DEFAULT_PATTERNS, TEST_DEFAULT_PATTERNS_LEN, " ");
 
     if(json != NULL) {
         results = getObj_rec(json, VIDEO_PAGE_ROOT_FIELD);
@@ -88,7 +94,7 @@ int test_video_page_items() {
 int test_video_page_channel() {
     struct json_object *json, *rootObj = NULL;
     struct json_object *titleObj, *descriptionObj, *viewCountObj, *channelTitleObj, *channelImgObj, *channelUrlObj;
-    test_get_root_field(TEST_YOUTUBE_VIDEOPAGE_URL, &json);
+    test_get_root_field(TEST_YOUTUBE_VIDEOPAGE_URL, &json, NULL, TEST_DEFAULT_PATTERNS, TEST_DEFAULT_PATTERNS_LEN, " ");
 
     if(json != NULL) {
         rootObj = getObj_rec(json, VIDEO_PAGE_CHANNEL_ROOT_FIELD);
@@ -116,9 +122,8 @@ int test_channel_page_home() {
     //#define CHANNEL_PAGE_HOME_TAB_CONTENT_FIELD "/0/tabRenderer/content/sectionListRenderer/contents"
     struct json_object *json = NULL, *rootObj = NULL;
     struct json_object *channelHomeTabUrlObj/*,  *descriptionObj ,*viewCountObj, *channelTitleObj, *channelImgObj, *channelUrlObj*/;
+    test_get_root_field(TEST_YOUTUBE_CHANNELPAGE_URL, &json, TEST_CONTENT_REGEX, TEST_CONTENTS_PATTERNS, TEST_CONTENTS_PATTERNS_LEN, " ");
 
-    test_get_root_field(TEST_YOUTUBE_CHANNELPAGE_URL, &json);
-    
     if(json != NULL) {
         rootObj = getObj_rec(json, CHANNEL_PAGE_ROOT_FIELD);
         channelHomeTabUrlObj = getObj_rec(rootObj, CHANNEL_PAGE_HOME_TAB_FIELD);

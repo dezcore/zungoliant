@@ -27,7 +27,13 @@
 
 //Regex
 //https://en.wikibooks.org/wiki/Regular_Expressions/POSIX_Basic_Regular_Expressions
+#define TEST_DEFAULT_PATTERNS_LEN 2
+#define TEST_CONTENTS_PATTERNS_LEN 2
+#define TEST_CONTENT_REGEX "\"contents\".+\"header\""
 #define TEST_VAR_REGEX "[ \t]*var[ \t]*[A-Za-z]+[ \t]*=[ \t]*"
+#define TEST_CONTENTS_PATTERNS (char*[]) {"\"contents\":", ",\"header\""}
+#define TEST_DEFAULT_PATTERNS (char*[]) {"[ \t]*var[ \t]*[A-Za-z]+[ \t]*=[ \t]*", ";$"}
+
 
 int test_video_page_items();
 int test_video_page_channel();

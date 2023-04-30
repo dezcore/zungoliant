@@ -55,7 +55,7 @@ int get_nested_json(char **str, const char *pattern) {
                 free(new);
             }
         }
-        
+
         regfree(&reg);
     } else {
         printf("Could not compile regex: %s\n", pattern);
@@ -110,5 +110,15 @@ int regex_replace(char **str, const char *pattern, const char *replace) {
         printf("Could not compile regex: %s, %s\n", replace, pattern);
     }
 
+    return 0;
+}
+
+int replace_all(char **contents, char *patterns[], char rpl[], size_t len) {
+    puts("replace_all");
+    if(*contents != NULL) {
+        for(int i = 0; i < len; i++) {
+            regex_replace(&(*contents), patterns[i], rpl);
+        }
+    }
     return 0;
 }
