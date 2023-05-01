@@ -152,15 +152,14 @@ int test_channel_page_home_videos(struct json_object *videosContentObj) {
 }
 
 int test_channel_page_home() {
-    unsigned int i;
+    //unsigned int i;
     YPage *page = malloc(sizeof(*page));
     //struct json_object *homeUrlObj;
     //struct json_object *json = NULL, *rootObj = NULL, *tabsObj = NULL, *tabObj = NULL, *contents = NULL;
-
     init_yPage(page, 1, TEST_YOUTUBE_CHANNELPAGE_URL, " ");
     test_get_root_field(page);
     free_yPage(page);
-
+    
     /*if(page != NULL) {
         rootObj = getObj_rec(json, CHANNEL_PAGE_ROOT_FIELD);
         if(rootObj != NULL) {

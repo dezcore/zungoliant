@@ -39,11 +39,12 @@ int init_yPage(YPage *page, int type, char *url, char *replace) {
     size_t patterns_len = 0 ? DEFAULT_PATTERNS_LEN : CONTENTS_PATTERNS_LEN;
     page->patterns_len = patterns_len;
     page->patterns = init_patterns(patterns, patterns_len); 
-    page->url = (char*) calloc((strlen(url)+1), sizeof(char));
+    page->url = (char*) calloc((strlen(url)), sizeof(char));
     page->replace = (char*) calloc(DEFAULT_STR_LEN, sizeof(char));
     page->regex = type == 0 ? NULL : (char*) calloc((strlen(CONTENT_REGEX)+1), sizeof(char));
-
+    
     if(url != NULL && page->replace != NULL) {
+        //strcpy(page->url, url);
         sprintf(page->url, "%s", url);
         sprintf(page->replace, "%s", replace);
     }
@@ -70,7 +71,9 @@ int free_yPage(YPage *page) {
     free_patterns(page->patterns, page->patterns_len);
     if(page->regex != NULL)
         free(page->regex);
-    json_object_put(page->json);
+
+    if(page->json != NULL)
+        json_object_put(page->json);
     free(page);
     return 0;
 }

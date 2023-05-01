@@ -13,8 +13,9 @@ int downloadPage(char **url, char *output) {
     if(curl) {
         trim(&(*url));
         //"https://www.youtube.com/@Tribl"
-        //printf("url : %s, %d\n", *url, strlen(*url));
-        curl_easy_setopt(curl, CURLOPT_URL, url);
+        
+        printf("url : %s, %d\n", *url, strcmp(*url, "https://www.youtube.com/@Tribl"));
+        curl_easy_setopt(curl, CURLOPT_URL, *url);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
         /* example.com is redirected, so we tell libcurl to follow redirection */
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);        
