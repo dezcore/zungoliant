@@ -1,11 +1,19 @@
 #include "./../include/testy.h" 
 
+int trim_(char * s) {
+    char * p = s;
+    int l = strlen(p);
+
+    while(isspace(p[l - 1])) p[--l] = 0;
+    while(* p && isspace(* p)) ++p, --l;
+
+    memmove(s, p, l + 1);
+    return 0;
+} 
+
 int extract_htmlpagedata_(char *downloadPage, char *saveFilePath, char *regex, char *patterns[], size_t patterns_len, char* rpl) {
     char *contents;
-    //char rpl[] = " ";
     char *parseContentPath = NULL; 
-    //char *patterns[] = {TEST_VAR_REGEX, ";$"};
-    //char *patterns[] = {"\"contents\":", ",\"header\""};
 
     if(downloadPage != NULL) {
         parseYFile(downloadPage);
@@ -15,15 +23,13 @@ int extract_htmlpagedata_(char *downloadPage, char *saveFilePath, char *regex, c
         if(parseContentPath != NULL && saveFilePath != NULL) {
             contents = load_file(parseContentPath, contents);
             if(contents != NULL) {
-
+                trim_(contents);
                 if(regex != NULL)
                     get_nested_json(&contents, regex);
 
-                if(0 < patterns_len) {
+                if(0 < patterns_len)
                     replace_all(&contents, patterns, rpl, patterns_len);
-                }
 
-                //get_nested_json(&contents, TEST_CONTENT_REGEX);
                 appendStrToFile(saveFilePath, contents);
                 free(contents);
             } else {
@@ -59,7 +65,7 @@ int test_get_root_field(char *url, struct json_object **json, char *regex, char 
         file_tojson(parseFile, &(*json));
         free(parseFile);
     }
-    
+
     return 0;
 }
 
@@ -118,18 +124,68 @@ int test_video_page_channel() {
     return 0;
 }
 
+int test_channel_page_home_videos(struct json_object *videosContentObj) {
+    unsigned int i;
+    struct json_object *videoObj;
+    struct json_object *videoIdObj, *titleObj, /* *descriptionObj,*/ *viewCountObj, /*videoCountObj,*/ *videoUrlObj;
+
+    if(videosContentObj != NULL) {
+        printf("\n  test_channel_page_home_videos : \n");
+        for(i = 0; i < json_object_array_length(videosContentObj); i++) {
+            videoObj = json_object_array_get_idx(videosContentObj, i);
+            if(videoObj != NULL) {
+                
+                if(i == 0) {
+                    videoIdObj = getObj_rec(videoObj, CHANNEL_PAGE_HOME_VIDEOID_FIELD);
+                    titleObj =  getObj_rec(videoObj, CHANNEL_PAGE_HOME_VIDEO_TITLE_FIELD);
+                    viewCountObj =  getObj_rec(videoObj, CHANNEL_PAGE_HOME_VIDEO_VIEWCOUNT_FIELD);
+                    videoUrlObj = getObj_rec(videoObj, CHANNEL_PAGE_HOME_VIDEO_URL_FIELD);
+                } else if(i == 1) {
+                    videoIdObj = getObj_rec(videoObj, CHANNEL_PAGE_HOME_ITEM_VIDEOID_FIELD);
+                    titleObj =  getObj_rec(videoObj, CHANNEL_PAGE_HOME_ITEM_VIDEO_TITLE_FIELD);
+                    viewCountObj =  getObj_rec(videoObj, CHANNEL_PAGE_HOME_ITEM_VIDEO_VIEWCOUNT_FIELD);
+                    videoUrlObj = getObj_rec(videoObj, CHANNEL_PAGE_HOME_ITEM_VIDEO_URL_FIELD);
+                }
+                //descriptionObj = getObj_rec(videoObj, CHANNEL_PAGE_HOME_VIDEO_DESCRIPTION_FIELD);
+                printf("VideoId : %s\n", json_object_get_string(videoIdObj));
+                printf("Title : %s\n", json_object_get_string(titleObj));
+                printf("ViewCount : %s\n", json_object_get_string(viewCountObj));
+                printf("Url : %s\n", json_object_get_string(videoUrlObj));
+
+            }
+        }
+    }
+    return 0;
+}
+
 int test_channel_page_home() {
-    //#define CHANNEL_PAGE_HOME_TAB_CONTENT_FIELD "/0/tabRenderer/content/sectionListRenderer/contents"
-    struct json_object *json = NULL, *rootObj = NULL;
-    struct json_object *channelHomeTabUrlObj/*,  *descriptionObj ,*viewCountObj, *channelTitleObj, *channelImgObj, *channelUrlObj*/;
+    unsigned int i;
+    struct json_object *homeUrlObj;
+    struct json_object *json = NULL, *rootObj = NULL, *tabsObj = NULL, *tabObj = NULL, *contents = NULL;
     test_get_root_field(TEST_YOUTUBE_CHANNELPAGE_URL, &json, TEST_CONTENT_REGEX, TEST_CONTENTS_PATTERNS, TEST_CONTENTS_PATTERNS_LEN, " ");
 
     if(json != NULL) {
         rootObj = getObj_rec(json, CHANNEL_PAGE_ROOT_FIELD);
-        channelHomeTabUrlObj = getObj_rec(rootObj, CHANNEL_PAGE_HOME_TAB_FIELD);
+        if(rootObj != NULL) {
+            tabsObj = getObj_rec(rootObj, CHANNEL_PAGE_TABS_FIELD);
 
-        if(channelHomeTabUrlObj != NULL) {
-            printf("Url : %s\n", json_object_get_string(channelHomeTabUrlObj));
+            if(tabsObj != NULL) {
+                for(i = 0; i < json_object_array_length(tabsObj); i++) {
+                    if(i == 0) {
+                        tabObj = json_object_array_get_idx(tabsObj, i);
+                        if(tabObj != NULL) {
+                            homeUrlObj = getObj_rec(tabObj, CHANNEL_PAGE_HOME_TAB_URL_FIELD);
+                            contents =  getObj_rec(tabObj, CHANNEL_PAGE_HOME_TAB_CONTENTS_FIELD);
+                            //#define CHANNEL_PAGE_HOME_TAB_CONTENTS_FIELD
+                            printf("Url : %s\n", json_object_get_string(homeUrlObj));
+                            
+                            if(contents)
+                                test_channel_page_home_videos(contents);
+                        }
+                       
+                    }
+                }
+            }
         }
 
         json_object_put(json);

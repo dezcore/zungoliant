@@ -28,15 +28,22 @@
 
 //CHANNEL PAGE
 #define CHANNEL_PAGE_ROOT_FIELD "/twoColumnBrowseResultsRenderer"
-#define CHANNEL_PAGE_HOME_TAB_FIELD "/0/tabRenderer/endpoint/commandMetadata/webCommandMetadata/url"
-#define CHANNEL_PAGE_HOME_TAB_CONTENT_FIELD "/0/tabRenderer/content/sectionListRenderer/contents"
+#define CHANNEL_PAGE_TABS_FIELD "/tabs"
+#define CHANNEL_PAGE_HOME_TAB_URL_FIELD "/tabRenderer/endpoint/commandMetadata/webCommandMetadata/url"
+#define CHANNEL_PAGE_HOME_TAB_CONTENTS_FIELD "/tabRenderer/content/sectionListRenderer/contents"
 
-//Channe Page
-//-> /0/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/videoId
-//-> /0/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/title/runs/0/text
-//-> /0/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/description/runs/0/text
-//-> /0/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/viewCountText/simpleText
-//-> /0/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/readMoreText/runs/0/navigationEndpoint/commandMetadata/webCommandMetadata/url
+#define CHANNEL_PAGE_HOME_VIDEOID_FIELD "/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/videoId"
+#define CHANNEL_PAGE_HOME_VIDEO_TITLE_FIELD "/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/title/runs/0/text"
+#define CHANNEL_PAGE_HOME_VIDEO_DESCRIPTION_FIELD "/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/description/runs/0/text"
+#define CHANNEL_PAGE_HOME_VIDEO_VIEWCOUNT_FIELD "itemSectionRenderer/contents/0/channelVideoPlayerRenderer/viewCountText/simpleText"
+#define CHANNEL_PAGE_HOME_VIDEO_URL_FIELD "/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/readMoreText/runs/0/navigationEndpoint/commandMetadata/webCommandMetadata/url"
+
+#define CHANNEL_PAGE_HOME_ITEM_VIDEOID_FIELD "/itemSectionRenderer/contents/0/shelfRenderer/content/horizontalListRenderer/items/0/gridVideoRenderer/videoId"
+#define CHANNEL_PAGE_HOME_ITEM_IMG_FIELD "/itemSectionRenderer/contents/0/shelfRenderer/content/horizontalListRenderer/items/0/gridVideoRenderer/thumbnail/thumbnails/0/url"
+#define CHANNEL_PAGE_HOME_ITEM_VIDEO_TITLE_FIELD "/itemSectionRenderer/contents/0/shelfRenderer/content/horizontalListRenderer/items/0/gridVideoRenderer/title/simpleText"
+#define CHANNEL_PAGE_HOME_ITEM_VIDEO_DESCRIPTION_FIELD "/itemSectionRenderer/contents/0/shelfRenderer/description/runs/0/text"
+#define CHANNEL_PAGE_HOME_ITEM_VIDEO_VIEWCOUNT_FIELD "/itemSectionRenderer/contents/0/shelfRenderer/content/horizontalListRenderer/items/0/gridVideoRenderer/viewCountText/simpleText"
+#define CHANNEL_PAGE_HOME_ITEM_VIDEO_URL_FIELD "/itemSectionRenderer/contents/0/shelfRenderer/content/horizontalListRenderer/items/0/gridVideoRenderer/navigationEndpoint/commandMetadata/webCommandMetadata/url"
 
 #define VIDEOS_TAB_FIELD "/contents/twoColumnBrowseResultsRenderer/1/tabRenderer/endpoint/commandMetadata/webCommandMetadata/url"
 #define PLAYLISTS_TAB_FIELD "/contents/twoColumnBrowseResultsRenderer/4/tabRenderer/endpoint/commandMetadata/webCommandMetadata/url"

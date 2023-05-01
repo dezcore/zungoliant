@@ -37,11 +37,11 @@ int get_nested_json(char **str, const char *pattern) {
     int start, end;
     size_t size, nmatch;
 
-    if(!regcomp(&reg, pattern, REG_EXTENDED)) {
-        nmatch = reg.re_nsub; 
+    if(!regcomp(&reg, pattern,  REG_EXTENDED)) {
+        nmatch = reg.re_nsub;
         regmatch_t m[nmatch + 1];
 
-        if(!regexec(&reg, *str, nmatch + 1, m, REG_NOTBOL)) {
+        if(!regexec(&reg, *str, nmatch + 1, m, 0)) {
             start = m[0].rm_so;
             end = m[0].rm_eo;
             size = end - start;
@@ -60,6 +60,72 @@ int get_nested_json(char **str, const char *pattern) {
     } else {
         printf("Could not compile regex: %s\n", pattern);
     }  
+    return 0;
+}
+
+int cut_pattern(char **str, int start, int end, char* replace) {
+    char *res;
+    int len = strlen(*str);
+    char *startSubBuff = NULL, *endSubBuff = NULL;
+
+    if(*str != NULL) {
+        len = strlen(*str);
+        startSubBuff = (char*) calloc((start + 1), sizeof(char));
+        endSubBuff = (char*) calloc((len + 1), sizeof(char));
+
+        if(startSubBuff != NULL && endSubBuff != NULL) {
+            memcpy(startSubBuff, &(*str)[0], start);    
+            startSubBuff[start] = '\0';
+            memcpy(endSubBuff, &(*str)[end], len);
+            endSubBuff[len] = '\0';
+            res = (char*) calloc(len, sizeof(char));
+
+            if(res != NULL) {
+                strcat(res, startSubBuff);
+                strcat(res, replace);
+                strcat(res, endSubBuff);
+                res[strlen(res)] = '\0';
+                //printf("tmp : %s\n", res);
+                sprintf(*str, "%s", res);
+                free(res);
+            }
+
+            free(startSubBuff);
+            free(endSubBuff);
+        }
+    }
+
+    return 0;
+}
+
+int replace_substring(char **str, const char *pattern, char* replace) {
+    regex_t reg;
+    size_t nmatch;
+    int start, end;
+
+    if(!regcomp(&reg, pattern,  REG_EXTENDED)) {
+        nmatch = reg.re_nsub;
+        regmatch_t m[nmatch + 1];
+
+        if(!regexec(&reg, *str, nmatch + 1, m, 0)) {
+            start = m[0].rm_so;
+            end = m[0].rm_eo;
+            cut_pattern(&(*str), start, end, replace);
+
+        }
+
+        regfree(&reg);
+    }
+
+    return 0;
+}
+
+int replace_all(char **contents, char *patterns[], char rpl[], size_t len) {
+    if(*contents != NULL) {
+        for(int i = 0; i < len; i++) {
+            replace_substring(&(*contents), patterns[i], rpl);
+        }
+    }
     return 0;
 }
 
@@ -82,7 +148,7 @@ int regex_replace(char **str, const char *pattern, const char *replace) {
         if(br != nmatch) return 0;
         // look for matches and replace
         char *new;
-        while(!regexec(&reg, *str, nmatch + 1, m, REG_NOTBOL)) {
+        while(!regexec(&reg, *str, nmatch + 1, m, 0)) {
             // make enough room
             new = (char *)malloc(strlen(*str) + strlen(rpl));
             if(!new) exit(EXIT_FAILURE);
@@ -110,15 +176,5 @@ int regex_replace(char **str, const char *pattern, const char *replace) {
         printf("Could not compile regex: %s, %s\n", replace, pattern);
     }
 
-    return 0;
-}
-
-int replace_all(char **contents, char *patterns[], char rpl[], size_t len) {
-    puts("replace_all");
-    if(*contents != NULL) {
-        for(int i = 0; i < len; i++) {
-            regex_replace(&(*contents), patterns[i], rpl);
-        }
-    }
     return 0;
 }

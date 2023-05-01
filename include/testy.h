@@ -31,7 +31,7 @@
 #define TEST_CONTENTS_PATTERNS_LEN 2
 #define TEST_CONTENT_REGEX "\"contents\".+\"header\""
 #define TEST_VAR_REGEX "[ \t]*var[ \t]*[A-Za-z]+[ \t]*=[ \t]*"
-#define TEST_CONTENTS_PATTERNS (char*[]) {"\"contents\":", ",\"header\""}
+#define TEST_CONTENTS_PATTERNS (char*[]) {"^(\"([a-z])*\":)", ",\"header\"$"}
 #define TEST_DEFAULT_PATTERNS (char*[]) {"[ \t]*var[ \t]*[A-Za-z]+[ \t]*=[ \t]*", ";$"}
 
 
