@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include<sys/wait.h>
 #include<unistd.h>
+#include <json.h>
 #define DEFAULT_STR_LEN 100
 
 //Regex

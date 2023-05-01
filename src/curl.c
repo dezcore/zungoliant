@@ -68,14 +68,14 @@ int downloadPage_bycontains(char **url, char *output, char* contains) {
 
     if(url != NULL && output != NULL && contents != NULL) {
         downloadPage(&(*url), output);
-        /*contents = load_file(output, contents);
+        contents = load_file(output, contents);
 
         if(strstr(contents, contains) == NULL) { // not contains
-            downloadPage_withsystem(url, output);
-        }*/
+            downloadPage_withsystem(*url, output);
+        }
 
         free(contents);
     }
-
+    
     return 0;
 }

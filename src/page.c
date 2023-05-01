@@ -42,7 +42,7 @@ int init_yPage(YPage *page, int type, char *url, char *replace) {
     page->url = (char*) calloc((strlen(url)), sizeof(char));
     page->replace = (char*) calloc(DEFAULT_STR_LEN, sizeof(char));
     page->regex = type == 0 ? NULL : (char*) calloc((strlen(CONTENT_REGEX)+1), sizeof(char));
-    
+
     if(url != NULL && page->replace != NULL) {
         //strcpy(page->url, url);
         sprintf(page->url, "%s", url);
@@ -71,9 +71,7 @@ int free_yPage(YPage *page) {
     free_patterns(page->patterns, page->patterns_len);
     if(page->regex != NULL)
         free(page->regex);
-
-    if(page->json != NULL)
-        json_object_put(page->json);
+    json_object_put(page->json);
     free(page);
     return 0;
 }

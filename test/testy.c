@@ -38,7 +38,7 @@ int test_downloadPage_and_replace_(char *parseContent, YPage *page) {
 
     if(downloadPageSrc != NULL) {
         downloadPage_bycontains(&page->url, downloadPageSrc, YINITDATA_VAR);
-        //extract_htmlpagedata_(downloadPageSrc, parseContent, page);
+        extract_htmlpagedata_(downloadPageSrc, parseContent, page);
         free(downloadPageSrc);
     }
 
@@ -51,10 +51,10 @@ int test_get_root_field(YPage *page) {
 
     if(parseFile != NULL) {
         test_downloadPage_and_replace_(parseFile, page);
-        //file_tojson(parseFile, &(*json));
+        file_tojson(parseFile, &(page->json));
         free(parseFile);
     }
-    
+
     return 0;
 }
 
@@ -66,8 +66,8 @@ int test_video_page_items() {
 
     init_yPage(page, 0, TEST_YOUTUBE_VIDEOPAGE_URL, " ");
     test_get_root_field(page);
-
-    if(page != NULL) {
+    
+    if(page != NULL  && page->json != NULL) {
         results = getObj_rec(page->json, VIDEO_PAGE_ROOT_FIELD);
         if(results != NULL) {
             for(ii = 0; ii < json_object_array_length(results); ii++){
@@ -96,7 +96,7 @@ int test_video_page_channel() {
     init_yPage(page, 0, TEST_YOUTUBE_VIDEOPAGE_URL, " ");
     test_get_root_field(page);
 
-    if(page != NULL) {
+    if(page != NULL  && page->json != NULL) {
         rootObj = getObj_rec(page->json, VIDEO_PAGE_CHANNEL_ROOT_FIELD);
         titleObj = getObj_rec(rootObj, VIDEO_PAGE_TITLE_FIELD);
         channelTitleObj = getObj_rec(rootObj, VIDEO_PAGE_CHANNEL_TITLE_FIELD);
@@ -152,16 +152,16 @@ int test_channel_page_home_videos(struct json_object *videosContentObj) {
 }
 
 int test_channel_page_home() {
-    //unsigned int i;
+    unsigned int i;
     YPage *page = malloc(sizeof(*page));
-    //struct json_object *homeUrlObj;
-    //struct json_object *json = NULL, *rootObj = NULL, *tabsObj = NULL, *tabObj = NULL, *contents = NULL;
+    struct json_object *homeUrlObj;
+    struct json_object *rootObj = NULL, *tabsObj = NULL, *tabObj = NULL, *contents = NULL;
+
     init_yPage(page, 1, TEST_YOUTUBE_CHANNELPAGE_URL, " ");
     test_get_root_field(page);
-    free_yPage(page);
-    
-    /*if(page != NULL) {
-        rootObj = getObj_rec(json, CHANNEL_PAGE_ROOT_FIELD);
+
+    if(page != NULL && page->json != NULL) {
+        rootObj = getObj_rec(page->json, CHANNEL_PAGE_ROOT_FIELD);
         if(rootObj != NULL) {
             tabsObj = getObj_rec(rootObj, CHANNEL_PAGE_TABS_FIELD);
 
@@ -184,8 +184,7 @@ int test_channel_page_home() {
             }
         }
         free_yPage(page);
-        json_object_put(json);
-    }*/
+    }
 
     return 0;
 }
