@@ -1,6 +1,7 @@
 #include "./../include/file.h"
 #define STR_LEN 100
 
+
 char* load_file(const char* filename,  char *fileContent) {
     long size;
     size_t nread;

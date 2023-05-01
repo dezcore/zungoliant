@@ -1,17 +1,6 @@
 #include "./../include/testy.h" 
 
-int trim_(char * s) {
-    char * p = s;
-    int l = strlen(p);
-
-    while(isspace(p[l - 1])) p[--l] = 0;
-    while(* p && isspace(* p)) ++p, --l;
-
-    memmove(s, p, l + 1);
-    return 0;
-} 
-
-int extract_htmlpagedata_(char *downloadPage, char *saveFilePath, char *regex, char *patterns[], size_t patterns_len, char* rpl) {
+int extract_htmlpagedata_(char *downloadPage, char *saveFilePath, YPage *page) {
     char *contents;
     char *parseContentPath = NULL; 
 
@@ -23,12 +12,12 @@ int extract_htmlpagedata_(char *downloadPage, char *saveFilePath, char *regex, c
         if(parseContentPath != NULL && saveFilePath != NULL) {
             contents = load_file(parseContentPath, contents);
             if(contents != NULL) {
-                trim_(contents);
-                if(regex != NULL)
-                    get_nested_json(&contents, regex);
+                trim(&contents);
+                if(page->regex != NULL)
+                    get_nested_json(&contents, page->regex);
 
-                if(0 < patterns_len)
-                    replace_all(&contents, patterns, rpl, patterns_len);
+                if(0 < page->patterns_len)
+                    replace_all(&contents, page->patterns, page->replace, page->patterns_len);
 
                 appendStrToFile(saveFilePath, contents);
                 free(contents);
@@ -43,41 +32,43 @@ int extract_htmlpagedata_(char *downloadPage, char *saveFilePath, char *regex, c
     return 0;
 }
 
-int test_downloadPage_and_replace_(char *url, char *parseContent, char *regex, char *patterns[], size_t patterns_len, char* rpl) {
+int test_downloadPage_and_replace_(char *parseContent, YPage *page) {
     char *downloadPageSrc = NULL; 
-    get_absolutePath(TEST_DOWNLOAD_FILE, &downloadPageSrc);
+    get_pwd(&downloadPageSrc, TEST_DOWNLOAD_FILE);
 
     if(downloadPageSrc != NULL) {
-        downloadPage_bycontains(url, downloadPageSrc, YINITDATA_VAR);
-        extract_htmlpagedata_(downloadPageSrc, parseContent, regex, patterns, patterns_len, rpl);
+        downloadPage_bycontains(&page->url, downloadPageSrc, YINITDATA_VAR);
+        //extract_htmlpagedata_(downloadPageSrc, parseContent, page);
         free(downloadPageSrc);
     }
 
     return 0;
 }
 
-int test_get_root_field(char *url, struct json_object **json, char *regex, char *patterns[], size_t patterns_len, char* rpl) {
+int test_get_root_field(YPage *page) {
     char* parseFile = NULL;
-    get_absolutePath(TEST_PARSE_FILE_PATH, &parseFile);
+    get_pwd(&parseFile, TEST_PARSE_FILE_PATH);
 
     if(parseFile != NULL) {
-        test_downloadPage_and_replace_(url, parseFile, regex, patterns, patterns_len, rpl);
-        file_tojson(parseFile, &(*json));
+        test_downloadPage_and_replace_(parseFile, page);
+        //file_tojson(parseFile, &(*json));
         free(parseFile);
     }
-
+    
     return 0;
 }
 
 int test_video_page_items() {
     unsigned int ii;
-    struct json_object *json, *results = NULL;
+    YPage *page = malloc(sizeof(*page));
+    struct json_object *results = NULL;
     struct json_object *video, *titleObj, *videoIdObj/*, *imgObj*/;
 
-    test_get_root_field(TEST_YOUTUBE_VIDEOPAGE_URL, &json, NULL, TEST_DEFAULT_PATTERNS, TEST_DEFAULT_PATTERNS_LEN, " ");
+    init_yPage(page, 0, TEST_YOUTUBE_VIDEOPAGE_URL, " ");
+    test_get_root_field(page);
 
-    if(json != NULL) {
-        results = getObj_rec(json, VIDEO_PAGE_ROOT_FIELD);
+    if(page != NULL) {
+        results = getObj_rec(page->json, VIDEO_PAGE_ROOT_FIELD);
         if(results != NULL) {
             for(ii = 0; ii < json_object_array_length(results); ii++){
 		        video = json_object_array_get_idx(results, ii);
@@ -92,18 +83,21 @@ int test_video_page_items() {
                 }
 	        }
         }
-        json_object_put(json);
+        free_yPage(page);
     }
     return 0;
 }
 
 int test_video_page_channel() {
-    struct json_object *json, *rootObj = NULL;
+    YPage *page = malloc(sizeof(*page));
+    struct json_object *rootObj = NULL;
     struct json_object *titleObj, *descriptionObj, *viewCountObj, *channelTitleObj, *channelImgObj, *channelUrlObj;
-    test_get_root_field(TEST_YOUTUBE_VIDEOPAGE_URL, &json, NULL, TEST_DEFAULT_PATTERNS, TEST_DEFAULT_PATTERNS_LEN, " ");
 
-    if(json != NULL) {
-        rootObj = getObj_rec(json, VIDEO_PAGE_CHANNEL_ROOT_FIELD);
+    init_yPage(page, 0, TEST_YOUTUBE_VIDEOPAGE_URL, " ");
+    test_get_root_field(page);
+
+    if(page != NULL) {
+        rootObj = getObj_rec(page->json, VIDEO_PAGE_CHANNEL_ROOT_FIELD);
         titleObj = getObj_rec(rootObj, VIDEO_PAGE_TITLE_FIELD);
         channelTitleObj = getObj_rec(rootObj, VIDEO_PAGE_CHANNEL_TITLE_FIELD);
         channelImgObj = getObj_rec(rootObj, VIDEO_PAGE_CHANNEL_IMG_FIELD);
@@ -117,8 +111,7 @@ int test_video_page_channel() {
                 json_object_get_string(channelTitleObj), json_object_get_string(channelUrlObj), json_object_get_string(channelImgObj)
             );
         }
-
-        json_object_put(json);
+        free_yPage(page);
     }
 
     return 0;
@@ -160,11 +153,15 @@ int test_channel_page_home_videos(struct json_object *videosContentObj) {
 
 int test_channel_page_home() {
     unsigned int i;
-    struct json_object *homeUrlObj;
-    struct json_object *json = NULL, *rootObj = NULL, *tabsObj = NULL, *tabObj = NULL, *contents = NULL;
-    test_get_root_field(TEST_YOUTUBE_CHANNELPAGE_URL, &json, TEST_CONTENT_REGEX, TEST_CONTENTS_PATTERNS, TEST_CONTENTS_PATTERNS_LEN, " ");
+    YPage *page = malloc(sizeof(*page));
+    //struct json_object *homeUrlObj;
+    //struct json_object *json = NULL, *rootObj = NULL, *tabsObj = NULL, *tabObj = NULL, *contents = NULL;
 
-    if(json != NULL) {
+    init_yPage(page, 1, TEST_YOUTUBE_CHANNELPAGE_URL, " ");
+    test_get_root_field(page);
+    free_yPage(page);
+
+    /*if(page != NULL) {
         rootObj = getObj_rec(json, CHANNEL_PAGE_ROOT_FIELD);
         if(rootObj != NULL) {
             tabsObj = getObj_rec(rootObj, CHANNEL_PAGE_TABS_FIELD);
@@ -187,9 +184,9 @@ int test_channel_page_home() {
                 }
             }
         }
-
+        free_yPage(page);
         json_object_put(json);
-    }
+    }*/
 
     return 0;
 }

@@ -74,7 +74,7 @@ int test_downloadPage_and_replace() {
         get_absolutePath(TEST_DOWNLOAD_FILE, &downloadPageSrc);
 
         if(downloadPageSrc != NULL && url != NULL) {
-            downloadPage_bycontains(url->value, downloadPageSrc, YINITDATA_VAR);
+            downloadPage_bycontains(&url->value, downloadPageSrc, YINITDATA_VAR);
             extract_htmlpagedata(downloadPageSrc);
             freeElement(url);
             free(downloadPageSrc);

@@ -10,14 +10,16 @@ IDIR = include
 TEST_DIR = test
 LDFLAGS = -lmyhtml -lcurl -ljson-c
 
-
 jsonDep = $(IDIR)/json.h $(SRC_DIR)/json.c
 fifoDep = $(IDIR)/fifo.h $(SRC_DIR)/fifo.c
-curlDep = $(IDIR)/file.h $(IDIR)/curl.h $(SRC_DIR)/curl.c
+pageDep = $(IDIR)/page.h $(SRC_DIR)/page.c
+utilityDep = $(IDIR)/utility.h $(SRC_DIR)/utility.c
 fileDep = $(IDIR)/fifo.h $(IDIR)/file.h $(SRC_DIR)/file.c
 zregexDep = $(IDIR)/file.h $(IDIR)/zregex.h $(SRC_DIR)/zregex.c
-parserDep = $(IDIR)/file.h $(IDIR)/parser.h $(SRC_DIR)/parser.c 
+parserDep = $(IDIR)/file.h $(IDIR)/parser.h $(SRC_DIR)/parser.c
+curlDep = $(IDIR)/utility.h $(IDIR)/file.h $(IDIR)/curl.h $(SRC_DIR)/curl.c 
 ybotDep = $(IDIR)/zregex.h $(IDIR)/json.h $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/file.h $(IDIR)/fifo.h $(IDIR)/ybot.h $(SRC_DIR)/ybot.c
+
 mainDep = $(IDIR)/ybot.h $(SRC_DIR)/main.c
 mainObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/ybot.o $(ODIR)/main.o
 
@@ -26,7 +28,7 @@ testfileDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h  $(IDIR)/file.h $(I
 testDep = $(IDIR)/testzregex.h $(IDIR)/testfile.h  $(IDIR)/testfifo.h $(TEST_DIR)/main.c
 testyDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h $(IDIR)/file.h $(IDIR)/json.h $(IDIR)/zregex.h $(IDIR)/testy.h $(TEST_DIR)/testy.c
 testzregexDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h $(IDIR)/file.h $(IDIR)/json.h $(IDIR)/zregex.h $(IDIR)/testzregex.h $(TEST_DIR)/testzregex.c
-testObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/testy.o $(ODIR)/testzregex.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/test.o
+testObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/utility.o $(ODIR)/curl.o $(ODIR)/page.o $(ODIR)/testy.o $(ODIR)/testzregex.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/test.o
 
 all: $(BIN_DIR)/main
 	./$(BIN_DIR)/main
@@ -53,6 +55,14 @@ $(ODIR)/test.o: $(testDep)
 $(ODIR)/fifo.o: $(fifoDep)
 	@mkdir -p $(ODIR)
 	$(CC) -c $(SRC_DIR)/fifo.c -o $(ODIR)/fifo.o $(CFLAGS)
+
+$(ODIR)/page.o: $(pageDep)
+	@mkdir -p $(ODIR)
+	$(CC) -c $(SRC_DIR)/page.c -o $(ODIR)/page.o $(CFLAGS)
+
+$(ODIR)/utility.o: $(utilityDep)
+	@mkdir -p $(ODIR)
+	$(CC) -c $(SRC_DIR)/utility.c -o $(ODIR)/utility.o $(CFLAGS)
 
 $(ODIR)/json.o: $(jsonDep)
 	@mkdir -p $(ODIR)

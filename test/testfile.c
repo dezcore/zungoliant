@@ -51,7 +51,7 @@ int test_downloadPage() {
 
     if(element != NULL) {
         displayElement(element);
-        downloadPage(element->value, filePath);
+        downloadPage(&element->value, filePath);
     }
     
     free(filePath);

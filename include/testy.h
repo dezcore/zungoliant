@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include<sys/wait.h>
 #include<unistd.h>
+
 #include "./../include/fifo.h"
 #include "./../include/file.h"
 #include "./../include/json.h"
@@ -12,6 +13,9 @@
 #include "./../include/zregex.h"
 #include "./../include/parser.h"
 #include "./../include/yfields.h"
+
+#include "./../include/page.h"
+#include "./../include/utility.h"
 
 #define YINITDATA_VAR "ytInitialData"
 #define TEST_DOWNLOAD_FILE "/data/test/download/test.html"
@@ -24,17 +28,6 @@
 #define TEST_YOUTUBE_CHANNELPAGE_URL "https://www.youtube.com/@Tribl"
 #define TEST_YOUTUBE_VIDEOPAGE_URL "https://www.youtube.com/watch?v=Onjxmdryox0&ab_channel=TRIBL"
 #define TEST_YOUTUBE_VIDEOSPAGE_URL ""
-
-//Regex
-//https://en.wikibooks.org/wiki/Regular_Expressions/POSIX_Basic_Regular_Expressions
-#define TEST_DEFAULT_PATTERNS_LEN 2
-#define TEST_CONTENTS_PATTERNS_LEN 2
-#define TEST_CONTENT_REGEX "\"contents\".+\"header\""
-#define TEST_VAR_REGEX "[ \t]*var[ \t]*[A-Za-z]+[ \t]*=[ \t]*"
-#define TEST_CONTENTS_PATTERNS (char*[]) {"^(\"([a-z])*\":)", ",\"header\"$"}
-#define TEST_DEFAULT_PATTERNS (char*[]) {"[ \t]*var[ \t]*[A-Za-z]+[ \t]*=[ \t]*", ";$"}
-
-
 int test_video_page_items();
 int test_video_page_channel();
 int test_channel_page_home();
