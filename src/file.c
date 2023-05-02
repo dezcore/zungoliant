@@ -153,3 +153,15 @@ int appendStrToFile(char *fileName,const char* str) {
     fclose(fptr);
     return 0;
 }
+
+int createDir(char *dir_path) {
+    struct stat st = {0};
+
+    if(dir_path != NULL) {
+        if(stat(dir_path, &st) == -1) {
+            mkdir(dir_path, 0777);
+        }
+    }
+    
+    return 0;
+}

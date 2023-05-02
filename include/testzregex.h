@@ -9,6 +9,7 @@
 #include "./../include/curl.h"
 #include "./../include/zregex.h"
 #include "./../include/parser.h"
+#include "./../include/utility.h"
 
 #define YINITDATA_VAR "ytInitialData"
 #define TEST_URLS_FILE "/data/test/urls"
@@ -22,6 +23,5 @@
 //https://en.wikibooks.org/wiki/Regular_Expressions/POSIX_Basic_Regular_Expressions
 #define TEST_VAR_REGEX "[ \t]*var[ \t]*[A-Za-z]+[ \t]*=[ \t]*"
 
-int test_regex_replace();
 int test_downloadPage_and_replace();
 #endif

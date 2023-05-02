@@ -21,74 +21,40 @@ int free_ybot(Ybot *bot) {
     return 0;
 }
 
-int save_data(char* fileContent, Yfile **data_fifo) {
+int save_data(struct json_object *json, Yfile **data_fifo) {
     unsigned int ii;
-    struct json_object *json, *results;
+    struct json_object *results;
     struct json_object *video, *titleObj, *videoObj, *imgObj;
     char *saveFilePath = getAbsolutePath("/data/file/test_json");
 
-    if(fileContent != NULL && *data_fifo != NULL) {
-        json = getJson(fileContent);
+    if(json != NULL && *data_fifo != NULL) {
+        results = getObj_rec(json, YRESULTS_FIELDS);
 
-        if(json != NULL) {
-            results = getObj_rec(json, YRESULTS_FIELDS);
-            if(results != NULL) {
+        if(results != NULL) {
+            for(ii = 0; ii < json_object_array_length(results); ii++){
+		        video = json_object_array_get_idx(results, ii);
+                titleObj = getObj_rec(video, TITLE_FIELD);
+                videoObj =  getObj_rec(video, VIDEOID_FIELD);
+                imgObj = getObj_rec(video, IMG_FIELD);
 
-                for(ii = 0; ii < json_object_array_length(results); ii++){
-		            video = json_object_array_get_idx(results, ii);
-                    titleObj = getObj_rec(video, TITLE_FIELD);
-                    videoObj =  getObj_rec(video, VIDEOID_FIELD);
-                    imgObj = getObj_rec(video, IMG_FIELD);
-
-                    if(videoObj != NULL && titleObj != NULL && imgObj != NULL) {
-                        push_ydata( &(*data_fifo), 
-                        json_object_get_string(titleObj), 
-                        json_object_get_string(imgObj), 
-                        json_object_get_string(videoObj)); 
-                    }
-	            }
-            }
-
-            json_object_put(json);
+                if(videoObj != NULL && titleObj != NULL && imgObj != NULL) {
+                    push_ydata( &(*data_fifo), 
+                    json_object_get_string(titleObj), 
+                    json_object_get_string(imgObj), 
+                    json_object_get_string(videoObj)); 
+                }
+	        }
         }
+        json_object_put(json);
     }
     free(saveFilePath);
-    return 0;
-}
-
-int extract_pagedata(char *downloadPage, Yfile **data_fifo) {
-    char *contents;
-    char rpl[] = " ";
-    char *parseContentPath = NULL; 
-    char *patterns[] = {"var ytInitialData = ", ";"}; //"/.+=./"; , ";$"
-    //char *saveFilePath = getAbsolutePath("/data/file/hello_regex");
-
-    if(downloadPage != NULL) {
-        parseYFile(downloadPage);
-        contents = (char*) malloc(sizeof(char));        
-        get_absolutePath(YINITDATA_FILE_PATH, &parseContentPath);
-        if(parseContentPath != NULL) {
-            contents = load_file(parseContentPath, contents);
-            if(contents != NULL) {
-                for(int i = 0; i < 2; i++) {
-                    regex_replace(&contents, patterns[i], rpl);
-                }
-                //appendStrToFile(saveFilePath, contents);
-                save_data(contents, &(*data_fifo));
-                free(contents);
-            }
-            free(parseContentPath);
-        }
-    }
-
-    //free(saveFilePath);
     return 0;
 }
 
 int init_urls(File **urls_fifo,  char **urlsFileSrc) {
     char *urlsFile =  NULL;
 
-    get_absolutePath(URLS_FILE, &urlsFile);
+    get_pwd(&urlsFile, URLS_FILE);
 
     if(urlsFile != NULL) {
         fileToFifo(urlsFile, *urls_fifo);
@@ -98,31 +64,59 @@ int init_urls(File **urls_fifo,  char **urlsFileSrc) {
     return 0;
 }
 
+int init_env() {
+    char *parseDir = NULL;
+    char *regexDir = NULL;
+    char *downloadDir = NULL;
+
+    get_pwd(&parseDir, PARSER_DIR_PATH);
+    get_pwd(&regexDir, REGEX_DIR_PATH);
+    get_pwd(&downloadDir, DOWNLOAD_DIR_PATH);
+
+    if(parseDir != NULL &&  regexDir != NULL && downloadDir != NULL) {
+        createDir(parseDir);
+        createDir(regexDir);
+        createDir(downloadDir);
+
+        free(parseDir);
+        free(regexDir);
+        free(downloadDir);
+    }
+
+    return 0;
+}
+
 int run_ybot() {
     Ybot *bot = NULL;
     Element *url = NULL; 
+    char* parseFile = NULL;
     char *urlsFileSrc =  NULL;
-    char *downloadPageSrc = NULL; 
+    YPage *page = malloc(sizeof(*page));
 
+    init_env();
     init_ybot(&bot);
-    init_urls(&bot->urls_fifo, &urlsFileSrc);     
-    get_absolutePath(DOWNLOAD_FILE, &downloadPageSrc);
+    init_urls(&bot->urls_fifo, &urlsFileSrc);
+    get_pwd(&parseFile, PARSE_FILE_PATH);
 
-    if(downloadPageSrc != NULL && urlsFileSrc != NULL) {
+    init_yPage(page, 0, "", " ");
+    
+    if(urlsFileSrc != NULL && page != NULL) {
         while(0 < bot->urls_fifo->size) {
             url = pop(bot->urls_fifo);
-
             if(url != NULL) {
-                downloadPage(url->value, downloadPageSrc);
-                extract_pagedata(downloadPageSrc, &bot->data_fifo);
-                print_yfile(bot->data_fifo);
+                set_url(page, url->value);
+                downloadPage_and_replace(parseFile, page);
+                //file_tojson(parseFile, &(page->json));
+                //save_data(page->json, &bot->data_fifo);
+                //print_yfile(bot->data_fifo);
                 freeElement(url);
                 url = NULL;
             }
         }
 
+        free(parseFile);
         free(urlsFileSrc);
-        free(downloadPageSrc);
+        free_yPage(page);
     }
 
     if(bot != NULL)

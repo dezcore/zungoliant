@@ -13,22 +13,23 @@ LDFLAGS = -lmyhtml -lcurl -ljson-c
 jsonDep = $(IDIR)/json.h $(SRC_DIR)/json.c
 fifoDep = $(IDIR)/fifo.h $(SRC_DIR)/fifo.c
 pageDep = $(IDIR)/page.h $(SRC_DIR)/page.c
-utilityDep = $(IDIR)/utility.h $(SRC_DIR)/utility.c
-fileDep = $(IDIR)/fifo.h $(IDIR)/file.h $(SRC_DIR)/file.c
+fileDep = $(IDIR)/utility.h $(IDIR)/file.h $(SRC_DIR)/file.c
+ybotDep = $(IDIR)/utility.h $(IDIR)/ybot.h $(SRC_DIR)/ybot.c
 zregexDep = $(IDIR)/file.h $(IDIR)/zregex.h $(SRC_DIR)/zregex.c
 parserDep = $(IDIR)/file.h $(IDIR)/parser.h $(SRC_DIR)/parser.c
-curlDep = $(IDIR)/utility.h $(IDIR)/file.h $(IDIR)/curl.h $(SRC_DIR)/curl.c 
-ybotDep = $(IDIR)/zregex.h $(IDIR)/json.h $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/file.h $(IDIR)/fifo.h $(IDIR)/ybot.h $(SRC_DIR)/ybot.c
+curlDep = $(IDIR)/utility.h $(IDIR)/curl.h $(SRC_DIR)/curl.c 
+utilityDep = $(IDIR)/parser.h $(IDIR)/fifo.h $(IDIR)/json.h $(IDIR)/curl.h $(IDIR)/file.h $(IDIR)/zregex.h $(IDIR)/page.h $(IDIR)/utility.h $(SRC_DIR)/utility.c
 
 mainDep = $(IDIR)/ybot.h $(SRC_DIR)/main.c
-mainObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/ybot.o $(ODIR)/main.o
+mainObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/utility.o $(ODIR)/ybot.o $(ODIR)/page.o $(ODIR)/main.o
 
 testfifoDep = $(IDIR)/fifo.h $(IDIR)/testfifo.h $(TEST_DIR)/testfifo.c
 testfileDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h  $(IDIR)/file.h $(IDIR)/testfile.h $(TEST_DIR)/testfile.c
 testDep = $(IDIR)/testzregex.h $(IDIR)/testfile.h  $(IDIR)/testfifo.h $(TEST_DIR)/main.c
-testyDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h $(IDIR)/file.h $(IDIR)/json.h $(IDIR)/zregex.h $(IDIR)/testy.h $(TEST_DIR)/testy.c
-testzregexDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h $(IDIR)/file.h $(IDIR)/json.h $(IDIR)/zregex.h $(IDIR)/testzregex.h $(TEST_DIR)/testzregex.c
-testObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/utility.o $(ODIR)/curl.o $(ODIR)/page.o $(ODIR)/testy.o $(ODIR)/testzregex.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/test.o
+testyDep = $(IDIR)/utility.h $(IDIR)/testy.h $(TEST_DIR)/testy.c
+testzregexDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h $(IDIR)/file.h $(IDIR)/json.h $(IDIR)/zregex.h $(IDIR)/utility.h $(IDIR)/testzregex.h $(TEST_DIR)/testzregex.c
+testObjs = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/utility.o $(ODIR)/curl.o $(ODIR)/page.o
+testObj = $(testObjs) $(ODIR)/testy.o $(ODIR)/testzregex.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/test.o
 
 all: $(BIN_DIR)/main
 	./$(BIN_DIR)/main

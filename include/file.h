@@ -1,13 +1,9 @@
 #ifndef FILE_H_
 #define FILE_H_
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <limits.h>
-#include "./../include/fifo.h"
+#include "./../include/utility.h"
 
+int createDir(char *dir_path);
 int existFile(char *fileName);
 int createFile(char *fileName);
 int printContent(char *filePath);

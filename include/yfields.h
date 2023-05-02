@@ -58,4 +58,12 @@
 //-> /0/richItemRenderer/content/videoRenderer/descriptionSnippet/runs/0/text
 //-> /0/richItemRenderer/content/videoRenderer/navigationEndpoint/commandMetadata/webCommandMetadata/url
 
+//PlayList (VIDEO)
+#define VIDEOID_FIELD "/compactVideoRenderer/videoId"
+#define TITLE_FIELD "/compactVideoRenderer/title/simpleText"
+#define LENGTH_FIELD "/compactVideoRenderer/lengthText/simpleText"
+#define IMG_FIELD "/compactVideoRenderer/thumbnail/thumbnails/0/url"
+#define VIEW_COUNT_FIELD "/compactVideoRenderer/viewCountText/simpleText"
+#define URL_FIELD "/compactVideoRenderer/navigationEndpoint/commandMetadata/webCommandMetadata/url"
+
 #endif

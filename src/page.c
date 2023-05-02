@@ -39,18 +39,28 @@ int init_yPage(YPage *page, int type, char *url, char *replace) {
     size_t patterns_len = 0 ? DEFAULT_PATTERNS_LEN : CONTENTS_PATTERNS_LEN;
     page->patterns_len = patterns_len;
     page->patterns = init_patterns(patterns, patterns_len); 
-    page->url = (char*) calloc((strlen(url)), sizeof(char));
+    page->url = (char*) calloc(DEFAULT_STR_LEN, sizeof(char));
     page->replace = (char*) calloc(DEFAULT_STR_LEN, sizeof(char));
     page->regex = type == 0 ? NULL : (char*) calloc((strlen(CONTENT_REGEX)+1), sizeof(char));
 
     if(url != NULL && page->replace != NULL) {
-        //strcpy(page->url, url);
         sprintf(page->url, "%s", url);
         sprintf(page->replace, "%s", replace);
     }
 
     if(page->regex != NULL)
         sprintf(page->regex, "%s", CONTENT_REGEX);
+    
+    return 0;
+}
+
+int set_url(YPage *page, char *url) {
+
+    if(page != NULL && url != NULL) {
+        //page->url = (char*) realloc(page->url, (strlen(url)) * sizeof(char));
+        //strcpy(page->url, url);
+         sprintf(page->url, "%s", url);
+    }
     
     return 0;
 }

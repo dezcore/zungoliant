@@ -1,14 +1,7 @@
 #ifndef CURL_H_
 #define CURL_H_
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h> 
-#include <regex.h>
-#include <curl/curl.h>
 #include "./../include/utility.h"
-#include "./../include/file.h"
 
 #define COMMAND_SIZE 100
 

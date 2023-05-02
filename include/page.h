@@ -27,6 +27,7 @@ typedef struct _YPage {
 } YPage;
 
 int init_yPage(YPage *page, int type, char *url, char *replace);
+int set_url(YPage *page, char *url);
 int print_page(YPage *page);
 int free_yPage(YPage *page);
 #endif

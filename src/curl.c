@@ -12,9 +12,7 @@ int downloadPage(char **url, char *output) {
     curl = curl_easy_init();
     if(curl) {
         trim(&(*url));
-        //"https://www.youtube.com/@Tribl"
-        
-        printf("url : %s, %d\n", *url, strcmp(*url, "https://www.youtube.com/@Tribl"));
+        printf("url : %s\n", *url);        
         curl_easy_setopt(curl, CURLOPT_URL, *url);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
         /* example.com is redirected, so we tell libcurl to follow redirection */
@@ -76,6 +74,6 @@ int downloadPage_bycontains(char **url, char *output, char* contains) {
 
         free(contents);
     }
-    
+
     return 0;
 }

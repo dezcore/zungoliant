@@ -49,3 +49,48 @@ int get_pwd(char **res, char *concatPath) {
     
     return 0;
 }
+
+int extract_htmlpagedata(char *html_file_path, char *output_file_path, YPage *page) {
+    char *contents;
+    char *parseContentPath = NULL; 
+
+    if(html_file_path != NULL) {
+        parseYFile(html_file_path);
+        contents = (char*) malloc(sizeof(char));        
+        get_absolutePath(YINITDATA_FILE_PATH, &parseContentPath);
+
+        if(parseContentPath != NULL && output_file_path != NULL) {
+            contents = load_file(parseContentPath, contents);
+            if(contents != NULL) {
+                trim(&contents);
+                if(page->regex != NULL)
+                    get_nested_json(&contents, page->regex);
+
+                if(0 < page->patterns_len)
+                    replace_all(&contents, page->patterns, page->replace, page->patterns_len);
+
+                appendStrToFile(output_file_path, contents);
+                free(contents);
+            } else {
+                printf("Empty content (extract_htmlpagedata)\n");
+            }
+
+            free(parseContentPath);
+        }
+    }
+
+    return 0;
+}
+
+int downloadPage_and_replace(char *parseContent, YPage *page) {
+    char *downloadPageSrc = NULL; 
+    get_pwd(&downloadPageSrc, DOWNLOAD_TEST_FILE);
+
+    if(downloadPageSrc != NULL) {
+        downloadPage_bycontains(&page->url, downloadPageSrc, YINITDATA_VAR);
+        extract_htmlpagedata(downloadPageSrc, parseContent, page);
+        free(downloadPageSrc);
+    }
+
+    return 0;
+}

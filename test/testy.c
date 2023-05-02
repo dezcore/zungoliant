@@ -1,56 +1,11 @@
 #include "./../include/testy.h" 
 
-int extract_htmlpagedata_(char *downloadPage, char *saveFilePath, YPage *page) {
-    char *contents;
-    char *parseContentPath = NULL; 
-
-    if(downloadPage != NULL) {
-        parseYFile(downloadPage);
-        contents = (char*) malloc(sizeof(char));        
-        get_absolutePath(TEST_YINITDATA_FILE_PATH, &parseContentPath);
-
-        if(parseContentPath != NULL && saveFilePath != NULL) {
-            contents = load_file(parseContentPath, contents);
-            if(contents != NULL) {
-                trim(&contents);
-                if(page->regex != NULL)
-                    get_nested_json(&contents, page->regex);
-
-                if(0 < page->patterns_len)
-                    replace_all(&contents, page->patterns, page->replace, page->patterns_len);
-
-                appendStrToFile(saveFilePath, contents);
-                free(contents);
-            } else {
-                printf("Empty content (extract_htmlpagedata)\n");
-            }
-
-            free(parseContentPath);
-        }
-    }
-
-    return 0;
-}
-
-int test_downloadPage_and_replace_(char *parseContent, YPage *page) {
-    char *downloadPageSrc = NULL; 
-    get_pwd(&downloadPageSrc, TEST_DOWNLOAD_FILE);
-
-    if(downloadPageSrc != NULL) {
-        downloadPage_bycontains(&page->url, downloadPageSrc, YINITDATA_VAR);
-        extract_htmlpagedata_(downloadPageSrc, parseContent, page);
-        free(downloadPageSrc);
-    }
-
-    return 0;
-}
-
 int test_get_root_field(YPage *page) {
     char* parseFile = NULL;
     get_pwd(&parseFile, TEST_PARSE_FILE_PATH);
-
+    
     if(parseFile != NULL) {
-        test_downloadPage_and_replace_(parseFile, page);
+        downloadPage_and_replace(parseFile, page);
         file_tojson(parseFile, &(page->json));
         free(parseFile);
     }
@@ -66,7 +21,7 @@ int test_video_page_items() {
 
     init_yPage(page, 0, TEST_YOUTUBE_VIDEOPAGE_URL, " ");
     test_get_root_field(page);
-    
+
     if(page != NULL  && page->json != NULL) {
         results = getObj_rec(page->json, VIDEO_PAGE_ROOT_FIELD);
         if(results != NULL) {
