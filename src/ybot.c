@@ -25,7 +25,6 @@ int save_data(struct json_object *json, Yfile **data_fifo) {
     unsigned int ii;
     struct json_object *results;
     struct json_object *video, *titleObj, *videoObj, *imgObj;
-    char *saveFilePath = getAbsolutePath("/data/file/test_json");
 
     if(json != NULL && *data_fifo != NULL) {
         results = getObj_rec(json, YRESULTS_FIELDS);
@@ -45,9 +44,7 @@ int save_data(struct json_object *json, Yfile **data_fifo) {
                 }
 	        }
         }
-        json_object_put(json);
     }
-    free(saveFilePath);
     return 0;
 }
 
@@ -90,6 +87,7 @@ int run_ybot() {
     Ybot *bot = NULL;
     Element *url = NULL; 
     char* parseFile = NULL;
+    struct json_object *json;
     char *urlsFileSrc =  NULL;
     YPage *page = malloc(sizeof(*page));
 
@@ -107,9 +105,10 @@ int run_ybot() {
                 set_url(page, url->value);
                 //print_page(page);
                 downloadPage_and_replace(parseFile, page);
-                //file_tojson(parseFile, &(page->json));
-                //save_data(page->json, &bot->data_fifo);
-                //print_yfile(bot->data_fifo);
+                file_tojson(parseFile, &json);
+                save_data(json, &bot->data_fifo);
+                print_yfile(bot->data_fifo);
+                json_object_put(json);
                 freeElement(url);
                 url = NULL;
             }
