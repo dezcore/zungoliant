@@ -1,6 +1,62 @@
 #include "./../include/file.h"
 #define STR_LEN 100
 
+int existFile(char *fileName) {
+    int exist = 0;
+    if(fileName != NULL && access(fileName, F_OK) == 0)
+        exist = 1;
+
+    return exist;
+}
+
+int getfileContents(char **output, char* filename) {
+    long size;
+    size_t nread;
+    FILE *fh;
+
+    if(existFile(filename)) {
+        fh = fopen(filename, "rb");
+        
+        if(fh == NULL) {
+            fprintf(stderr, "Can't open html file: %s\n", filename);
+            exit(EXIT_FAILURE);
+        }
+
+        if(fseek(fh, 0L, SEEK_END) != 0) {
+            fprintf(stderr, "Can't set position (fseek) in file: %s\n", filename);
+            exit(EXIT_FAILURE);
+        }
+
+        size = ftell(fh);
+
+        if(fseek(fh, 0L, SEEK_SET) != 0) {
+            fprintf(stderr, "Can't set position (fseek) in file: %s\n", filename);
+            exit(EXIT_FAILURE);
+        }
+
+        if(size <= 0) {
+            fprintf(stderr, "Can't get file size or file is empty: %s\n", filename);
+            exit(EXIT_FAILURE);
+        }
+        
+        *output = (char*) calloc(size + 1, sizeof(char));
+
+        if(*output == NULL) {
+            fprintf(stderr, "Can't allocate mem for html file: %s\n", filename);
+            exit(EXIT_FAILURE);
+        }
+
+        nread = fread(*output, 1, size, fh);
+
+        if(nread != size) {
+            exit(EXIT_FAILURE);
+        }
+
+        fclose(fh);
+    }
+
+    return 0;
+}
 
 char* load_file(const char* filename,  char *fileContent) {
     long size;
@@ -94,14 +150,6 @@ int get_absolutePath(const char *path, char **filePath) {
     return 0;
 }
 
-int existFile(char *fileName) {
-    int exist = 0;
-    if(fileName != NULL && access(fileName, F_OK) == 0)
-        exist = 1;
-
-    return exist;
-}
-
 int printContent(char *filePath) {
     FILE *fptr;
     char* line;
@@ -130,6 +178,7 @@ int fileToFifo(char *filePath, File *file) {
         line =(char *) malloc(STR_LEN * sizeof(char));
 
         while(fgets(line, STR_LEN, fptr)) {
+            line[strcspn(line, "\n")] = 0;
             push(file, line);
         }
 

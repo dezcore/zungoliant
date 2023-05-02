@@ -11,8 +11,7 @@ int downloadPage(char **url, char *output) {
     CURLcode res;
     curl = curl_easy_init();
     if(curl) {
-        trim(&(*url));
-        printf("url : %s\n", *url);        
+        trim(&(*url));     
         curl_easy_setopt(curl, CURLOPT_URL, *url);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
         /* example.com is redirected, so we tell libcurl to follow redirection */
@@ -62,13 +61,12 @@ int downloadPage_withsystem(char *url, char *output) {
 }
 
 int downloadPage_bycontains(char **url, char *output, char* contains) {
-    char *contents = (char*) malloc(sizeof(char));  
-
-    if(url != NULL && output != NULL && contents != NULL) {
+    char *contents = NULL;  
+    if(url != NULL && output != NULL) {
         downloadPage(&(*url), output);
-        contents = load_file(output, contents);
-
-        if(strstr(contents, contains) == NULL) { // not contains
+        getfileContents(&contents, output);
+        
+        if(contents != NULL && strstr(contents, contains) == NULL) {
             downloadPage_withsystem(*url, output);
         }
 

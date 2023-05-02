@@ -105,6 +105,7 @@ int run_ybot() {
             url = pop(bot->urls_fifo);
             if(url != NULL) {
                 set_url(page, url->value);
+                //print_page(page);
                 downloadPage_and_replace(parseFile, page);
                 //file_tojson(parseFile, &(page->json));
                 //save_data(page->json, &bot->data_fifo);

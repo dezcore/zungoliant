@@ -59,7 +59,7 @@ int set_url(YPage *page, char *url) {
     if(page != NULL && url != NULL) {
         //page->url = (char*) realloc(page->url, (strlen(url)) * sizeof(char));
         //strcpy(page->url, url);
-         sprintf(page->url, "%s", url);
+        sprintf(page->url, "%s", url);
     }
     
     return 0;

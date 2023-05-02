@@ -28,7 +28,6 @@ int trim(char ** str) {
     res = (char*) calloc((strlen(*str)), sizeof(char));
 
     if(start != end && start != -1 && res != NULL) {
-        puts("test trim");
         memcpy(res, &(*str)[start], (end-start));
         sprintf(*str, "%s", res);
         free(res);
@@ -87,7 +86,7 @@ int downloadPage_and_replace(char *parseContent, YPage *page) {
     get_pwd(&downloadPageSrc, DOWNLOAD_TEST_FILE);
 
     if(downloadPageSrc != NULL) {
-        downloadPage_bycontains(&page->url, downloadPageSrc, YINITDATA_VAR);
+        downloadPage_bycontains(&(page->url), downloadPageSrc, YINITDATA_VAR);
         extract_htmlpagedata(downloadPageSrc, parseContent, page);
         free(downloadPageSrc);
     }
