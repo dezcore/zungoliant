@@ -139,9 +139,7 @@ int file_tojson_byfd(char* fileName, struct json_object **json) {
 
 int file_tojson(char* fileName, struct json_object **json) {
     if(fileName != NULL) {
-        printf("fileName : %s\n", fileName);
         file_tojson_byfd(fileName, &(*json)); 
-        //*json =  json_object_from_file(fileName);
     }
 
     return 0;

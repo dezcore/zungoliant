@@ -31,12 +31,26 @@
 #define CHANNEL_PAGE_TABS_FIELD "/tabs"
 #define CHANNEL_PAGE_HOME_TAB_URL_FIELD "/tabRenderer/endpoint/commandMetadata/webCommandMetadata/url"
 #define CHANNEL_PAGE_HOME_TAB_CONTENTS_FIELD "/tabRenderer/content/sectionListRenderer/contents"
+#define CHANNEL_PAGE_VIDEOS_TAB_CONTENTS_FIELD "/tabRenderer/content/richGridRenderer/contents"
+#define CHANNELS_PAGE_TAB_CONTENTS_FIELD "/tabRenderer/content/sectionListRenderer/contents/0/itemSectionRenderer/contents/0/gridRenderer/items"
 
 #define CHANNEL_PAGE_HOME_VIDEOID_FIELD "/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/videoId"
 #define CHANNEL_PAGE_HOME_VIDEO_TITLE_FIELD "/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/title/runs/0/text"
 #define CHANNEL_PAGE_HOME_VIDEO_DESCRIPTION_FIELD "/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/description/runs/0/text"
 #define CHANNEL_PAGE_HOME_VIDEO_VIEWCOUNT_FIELD "itemSectionRenderer/contents/0/channelVideoPlayerRenderer/viewCountText/simpleText"
 #define CHANNEL_PAGE_HOME_VIDEO_URL_FIELD "/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/readMoreText/runs/0/navigationEndpoint/commandMetadata/webCommandMetadata/url"
+
+#define VIDEOS_PAGE_VIDEOID_FIELD "/richItemRenderer/content/videoRenderer/videoId"
+#define VIDEOS_PAGE_VIDEO_TITLE_FIELD "/richItemRenderer/content/videoRenderer/title/runs/0/text"
+#define VIDEOS_PAGE_VIDEO_DESCRIPTION_FIELD "/richItemRenderer/content/videoRenderer/descriptionSnippet/runs/0/text"
+#define VIDEOS_PAGE_VIDEO_VIEWCOUNT_FIELD "/richItemRenderer/content/videoRenderer/viewCountText/simpleText"
+#define VIDEOS_PAGE_VIDEO_URL_FIELD "/richItemRenderer/content/videoRenderer/navigationEndpoint/commandMetadata/webCommandMetadata/url"
+
+#define CHANNELS_PAGE_ITEM_CHANNELID_FIELD "/gridChannelRenderer/channelId"
+#define CHANNELS_PAGE_ITEM_CHANNELIMG_FIELD "/gridChannelRenderer/thumbnail/thumbnails/0/url"
+#define CHANNELS_PAGE_ITEM_CHANNELTITLE_FIELD "/gridChannelRenderer/title/simpleText"
+#define CHANNELS_PAGE_ITEM_CHANNELSUBSCRIBERCOUNT_FIELD "/gridChannelRenderer/subscriberCountText/simpleText"
+#define CHANNELS_PAGE_ITEM_CHANNELURL_FIELD "/gridChannelRenderer/navigationEndpoint/commandMetadata/webCommandMetadata/url"
 
 #define CHANNEL_PAGE_HOME_ITEM_VIDEOID_FIELD "/itemSectionRenderer/contents/0/shelfRenderer/content/horizontalListRenderer/items/0/gridVideoRenderer/videoId"
 #define CHANNEL_PAGE_HOME_ITEM_IMG_FIELD "/itemSectionRenderer/contents/0/shelfRenderer/content/horizontalListRenderer/items/0/gridVideoRenderer/thumbnail/thumbnails/0/url"
@@ -52,11 +66,6 @@
 
 //Youtube Page
 #define YOUTBE_VIDEOS_FIELD "/contents/twoColumnBrowseResultsRenderer/tabs/0/tabRenderer/content/richGridRenderer/contents"
-//-> /0/richItemRenderer/content/videoRenderer/videoId
-//-> /0/richItemRenderer/content/videoRenderer/thumbnail/thumbnails/0/url
-//-> /0/richItemRenderer/content/videoRenderer/title/runs/0/text
-//-> /0/richItemRenderer/content/videoRenderer/descriptionSnippet/runs/0/text
-//-> /0/richItemRenderer/content/videoRenderer/navigationEndpoint/commandMetadata/webCommandMetadata/url
 
 //PlayList (VIDEO)
 #define VIDEOID_FIELD "/compactVideoRenderer/videoId"

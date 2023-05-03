@@ -176,5 +176,6 @@ int regex_replace(char **str, const char *pattern, const char *replace) {
         printf("Could not compile regex: %s, %s\n", replace, pattern);
     }
 
+
     return 0;
 }

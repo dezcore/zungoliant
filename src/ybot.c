@@ -48,6 +48,150 @@ int save_data(struct json_object *json, Yfile **data_fifo) {
     return 0;
 }
 
+int channel_page_home_videos(struct json_object *videosContentObj) {
+    unsigned int i;
+    struct json_object *videoObj;
+    struct json_object *videoIdObj, *titleObj, /* *descriptionObj,*/ *viewCountObj, /*videoCountObj,*/ *videoUrlObj;
+
+    if(videosContentObj != NULL) {
+        printf("\n  channel_page_home_videos : \n");
+        for(i = 0; i < json_object_array_length(videosContentObj); i++) {
+            videoObj = json_object_array_get_idx(videosContentObj, i);
+            if(videoObj != NULL) {
+                
+                if(i == 0) {
+                    videoIdObj = getObj_rec(videoObj, CHANNEL_PAGE_HOME_VIDEOID_FIELD);
+                    titleObj =  getObj_rec(videoObj, CHANNEL_PAGE_HOME_VIDEO_TITLE_FIELD);
+                    viewCountObj =  getObj_rec(videoObj, CHANNEL_PAGE_HOME_VIDEO_VIEWCOUNT_FIELD);
+                    videoUrlObj = getObj_rec(videoObj, CHANNEL_PAGE_HOME_VIDEO_URL_FIELD);
+                } else if(i == 1) {
+                    videoIdObj = getObj_rec(videoObj, CHANNEL_PAGE_HOME_ITEM_VIDEOID_FIELD);
+                    titleObj =  getObj_rec(videoObj, CHANNEL_PAGE_HOME_ITEM_VIDEO_TITLE_FIELD);
+                    viewCountObj =  getObj_rec(videoObj, CHANNEL_PAGE_HOME_ITEM_VIDEO_VIEWCOUNT_FIELD);
+                    videoUrlObj = getObj_rec(videoObj, CHANNEL_PAGE_HOME_ITEM_VIDEO_URL_FIELD);
+                }
+
+                if(i == 0 || i == 1) {
+                    //descriptionObj = getObj_rec(videoObj, CHANNEL_PAGE_HOME_VIDEO_DESCRIPTION_FIELD);
+                    printf("VideoId : %s\n", json_object_get_string(videoIdObj));
+                    printf("Title : %s\n", json_object_get_string(titleObj));
+                    printf("ViewCount : %s\n", json_object_get_string(viewCountObj));
+                    printf("Url : %s\n", json_object_get_string(videoUrlObj));
+                }
+
+            }
+        }
+    }
+    return 0;
+}
+
+int channel_videos_tabs_videos(struct json_object *videosContentObj) {
+    unsigned int i;
+    struct json_object *videoObj;
+    struct json_object *videoIdObj, *titleObj, /* *descriptionObj,*/ *viewCountObj, /*videoCountObj,*/ *videoUrlObj;
+
+    printf("\n  channel_videos_tabs : \n");
+    if(videosContentObj != NULL) {
+        for(i = 0; i < json_object_array_length(videosContentObj); i++) {
+            videoObj = json_object_array_get_idx(videosContentObj, i);
+            if(videoObj != NULL) {
+                if(i == 0) {
+                    videoIdObj = getObj_rec(videoObj, VIDEOS_PAGE_VIDEOID_FIELD);
+                    titleObj =  getObj_rec(videoObj, VIDEOS_PAGE_VIDEO_TITLE_FIELD);
+                    viewCountObj =  getObj_rec(videoObj, VIDEOS_PAGE_VIDEO_VIEWCOUNT_FIELD);
+                    videoUrlObj = getObj_rec(videoObj, VIDEOS_PAGE_VIDEO_URL_FIELD);
+                    //descriptionObj = getObj_rec(videoObj, VIDEOS_PAGE_VIDEO_DESCRIPTION_FIELD);
+                    printf("VideoId : %s\n", json_object_get_string(videoIdObj));
+                    printf("Title : %s\n", json_object_get_string(titleObj));
+                    printf("ViewCount : %s\n", json_object_get_string(viewCountObj));
+                    printf("Url : %s\n", json_object_get_string(videoUrlObj));
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+int channels_tabs(struct json_object *videosContentObj) {
+    unsigned int i;
+    struct json_object *videoObj;
+    struct json_object *channelIdObj, *titleObj, *subscriberCountObj, *channelUrlObj;
+    //struct json_object *imgObj;
+
+    printf("\n channels_tabs : \n");
+    if(videosContentObj != NULL) {
+        for(i = 0; i < json_object_array_length(videosContentObj); i++) {
+            videoObj = json_object_array_get_idx(videosContentObj, i);
+            if(videoObj != NULL) {
+                if(i == 0) {
+                    //imgObj = getObj_rec(videoObj, CHANNELS_PAGE_ITEM_CHANNELIMG_FIELD);
+                    channelIdObj = getObj_rec(videoObj, CHANNELS_PAGE_ITEM_CHANNELID_FIELD);
+                    titleObj =  getObj_rec(videoObj, CHANNELS_PAGE_ITEM_CHANNELTITLE_FIELD);
+                    subscriberCountObj =  getObj_rec(videoObj, CHANNELS_PAGE_ITEM_CHANNELSUBSCRIBERCOUNT_FIELD);
+                    channelUrlObj = getObj_rec(videoObj, CHANNELS_PAGE_ITEM_CHANNELURL_FIELD);
+
+                    //printf("Img src : %s\n", json_object_get_string(imgObj));
+                    printf("ChannelId : %s\n", json_object_get_string(channelIdObj));
+                    printf("Title : %s\n", json_object_get_string(titleObj));
+                    printf("SubscriberCount : %s\n", json_object_get_string(subscriberCountObj));
+                    printf("Url : %s\n", json_object_get_string(channelUrlObj));
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+int save_channel_page_home(struct json_object *json, Yfile **data_fifo) {
+    unsigned int i;
+    struct json_object *homeUrlObj;
+    struct json_object *rootObj = NULL, *tabsObj = NULL, *tabObj = NULL, *contents = NULL;
+
+    if(json != NULL && *data_fifo != NULL) {
+        rootObj = getObj_rec(json, CHANNEL_PAGE_ROOT_FIELD);
+        if(rootObj != NULL) {
+            tabsObj = getObj_rec(rootObj, CHANNEL_PAGE_TABS_FIELD);
+            if(tabsObj != NULL) {
+                for(i = 0; i < json_object_array_length(tabsObj); i++) {
+                    tabObj = json_object_array_get_idx(tabsObj, i);
+                    if(tabObj != NULL) {
+                        homeUrlObj = getObj_rec(tabObj, CHANNEL_PAGE_HOME_TAB_URL_FIELD);
+                        printf("Url : %s\n", json_object_get_string(homeUrlObj));
+
+                        if((contents = getObj_rec(tabObj, CHANNELS_PAGE_TAB_CONTENTS_FIELD)) != NULL)
+                            channels_tabs(contents);
+                        else if((contents = getObj_rec(tabObj, CHANNEL_PAGE_HOME_TAB_CONTENTS_FIELD)) != NULL)
+                            channel_page_home_videos(contents);
+                        else if((contents = getObj_rec(tabObj, CHANNEL_PAGE_VIDEOS_TAB_CONTENTS_FIELD)) != NULL)
+                            channel_videos_tabs_videos(contents);
+                    }
+                       
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+int match_pattern(char *str, char *pattern) {
+    int exist = 0;
+    regex_t reg;
+    size_t nmatch;
+
+    if(str != NULL && pattern != NULL && !regcomp(&reg, pattern, REG_EXTENDED)) {
+        nmatch = reg.re_nsub;
+        regmatch_t m[nmatch + 1];
+
+        if(!regexec(&reg, str, nmatch + 1, m, 0)) {
+            exist = 1;
+        }
+    }
+
+    return exist;
+}
+
 int init_urls(File **urls_fifo,  char **urlsFileSrc) {
     char *urlsFile =  NULL;
 
@@ -90,6 +234,7 @@ int run_ybot() {
     struct json_object *json;
     char *urlsFileSrc =  NULL;
     YPage *page = malloc(sizeof(*page));
+    YPage *page1 = malloc(sizeof(*page1));
 
     init_env();
     init_ybot(&bot);
@@ -97,17 +242,27 @@ int run_ybot() {
     get_pwd(&parseFile, PARSE_FILE_PATH);
 
     init_yPage(page, 0, "", " ");
-    
+    init_yPage(page1, 1, "", " ");
+
     if(urlsFileSrc != NULL && page != NULL) {
         while(0 < bot->urls_fifo->size) {
             url = pop(bot->urls_fifo);
             if(url != NULL) {
-                set_url(page, url->value);
-                //print_page(page);
-                downloadPage_and_replace(parseFile, page);
-                file_tojson(parseFile, &json);
-                save_data(json, &bot->data_fifo);
-                print_yfile(bot->data_fifo);
+                if(match_pattern(url->value, ".+watch\\?v.*")) {//VIDEOPAGE
+                    printf("VideoPage : %s\n", url->value);
+                    //set_url(page, url->value);
+                    //print_page(page);
+                    //downloadPage_and_replace(parseFile, page);
+                    //file_tojson(parseFile, &json);
+                    //save_data(json, &bot->data_fifo);
+                } else if(match_pattern(url->value, "@.+")) {// Channel page
+                    printf("channels : %s\n", url->value);
+                    set_url(page1, url->value);
+                    downloadPage_and_replace(parseFile, page1);
+                    file_tojson(parseFile, &json);
+                    save_channel_page_home(json, &bot->data_fifo);
+                }
+                //print_yfile(bot->data_fifo);
                 json_object_put(json);
                 freeElement(url);
                 url = NULL;
@@ -117,6 +272,7 @@ int run_ybot() {
         free(parseFile);
         free(urlsFileSrc);
         free_yPage(page);
+        free_yPage(page1);
     }
 
     if(bot != NULL)
