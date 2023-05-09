@@ -20,6 +20,7 @@
 #include "./../include/curl.h"
 #include "./../include/zregex.h"
 #include "./../include/page.h"
+#include "./../include/db/db.h"
 #define PWD_STR_LEN 100
 
 #define YINITDATA_VAR "ytInitialData"

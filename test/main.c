@@ -4,6 +4,7 @@
 #include "./../include/testfifo.h"
 #include "./../include/testy.h"
 #include "./../include/testzregex.h"
+#include "./../include/test/testdb.h"
 
 int test_fifo() {
     test_init();
