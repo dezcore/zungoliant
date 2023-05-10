@@ -1,14 +1,21 @@
-#include "./../include/db/db.h"
+#include "./../../include/db/db.h"
 
 int ping_mongodb(mongoc_client_t *client) {
-  bson_t *command = NULL;
+  bson_error_t error = {0};
+  bson_t *command = NULL, reply;
   mongoc_database_t *database = NULL;
 
-  // Get a handle on the "admin" database.
-  database = mongoc_client_get_database(client, "admin");
+  /*
+    * Get a handle on the database "db_name" and collection "coll_name"
+  */
+  database = mongoc_client_get_database(client, "maboke");
+  //collection = mongoc_client_get_collection(client, "maboke", "serie");
 
   if(database != NULL) {
-    //Ping the database.
+    /*
+      * Do work. This example pings the database, prints the result as JSON and
+      * performs an insert
+    */
     command = BCON_NEW("ping", BCON_INT32(1));
 
     if(mongoc_database_command_simple(database, command, NULL, &reply, &error)) {
@@ -28,32 +35,47 @@ int ping_mongodb(mongoc_client_t *client) {
 }
 
 int init_mongo_client(mongoc_client_t **client) {
+  mongoc_uri_t *uri;
   bson_error_t error = {0};
-  mongoc_server_api_t *api = NULL;
-  //const char *uri_string = "mongodb://localhost:27017";
+  const char *uri_string = "mongodb://localhost:27017";
 
   //Initialize the MongoDB C Driver.
   mongoc_init();
+
+  /*
+    * Safely create a MongoDB URI object from the given string
+  */
+  uri = mongoc_uri_new_with_error(uri_string, &error);
   
-  // Replace the <connection string> with your MongoDB deployment's connection string.
-  *client = mongoc_client_new("<connection string>");
-  //*client = mongoc_client_new_from_uri (uri);
-
-  // Set the version of the Stable API on the client.
-  api = mongoc_server_api_new (MONGOC_SERVER_API_V1);
-
-  if(!mongoc_client_set_server_api (client, api, &error)) {
-	  // Error condition.
-	  printf("Error: %s\n", error.message);
-	  return 0;
+  if(!uri) {
+    fprintf (stderr,
+      "failed to parse URI: %s\n"
+      "error message:       %s\n",
+      uri_string,
+      error.message);
+    return EXIT_FAILURE;
   }
-  
+  /*
+    * Create a new client instance
+  */
+  *client = mongoc_client_new_from_uri(uri);
+
+  if(!(*client)) {
+    return EXIT_FAILURE;
+  }
+
+  /*
+    * Register the application name so we can track it in the profile logs
+    * on the server. This can also be done from the URI (see other examples).
+  */
+  mongoc_client_set_appname(*client, "connect-maboke");
+  mongoc_uri_destroy(uri);
   return 0;
 }
 
 int free_mongo_client(mongoc_client_t *client) {
   //Perform Cleanup.
-  mongoc_client_destroy (client);
+  mongoc_client_destroy(client);
   mongoc_cleanup();
   return 0;
 }

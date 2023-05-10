@@ -1,6 +1,10 @@
 CC = gcc
-CFLAGS = -Wall -g $(shell pkg-config --cflags json-c)
-LDFLAGS += $(shell pkg-config --libs json-c)
+CFLAGS = -Wall -g $(shell pkg-config --cflags json-c) -g $(shell pkg-config --cflags libmongoc-1.0)
+LDFLAGS += $(shell pkg-config --libs json-c) $(shell pkg-config --libs libmongoc-1.0)
+#MONGOFLAG = $(shell pkg-config --libs --cflags libmongoc-1.0)
+#MONGOLIBS = -I/local/include/libbson-1.0 -I/usr/local/include/libmongoc-1.0 -lmongoc-1.0 -lbson-1.0
+#MONGOLIBS = -I/usr/local/include/libbson-1.0 -/usr/local/include/libmongoc-1.0 -lmongoc-1.0 -lbson-1.0
+#-I/usr/local/include/libbson-1.0 -/usr/local/include/libmongoc-1.0 -lmongoc-1.0 -lbson-1.0
 
 ODIR = obj
 BIN_DIR = bin
@@ -11,13 +15,13 @@ SRC_DB_DIR = src/db
 DB_IDIR = include/db
 TEST_DIR = test
 TEST_IDIR = include/test
-LDFLAGS = -lmyhtml -lcurl -ljson-c
+LDFLAGS = -lmyhtml -lcurl -ljson-c -lmongoc-1.0 -lbson-1.0
 
 jsonDep = $(IDIR)/json.h $(SRC_DIR)/json.c
 fifoDep = $(IDIR)/fifo.h $(SRC_DIR)/fifo.c
 pageDep = $(IDIR)/page.h $(SRC_DIR)/page.c
 
-dbDep = $(IDIR)/utility.h $(DB_IDIR)/db.h $(SRC_DB_DIR)/DB.c
+dbDep = $(IDIR)/utility.h $(DB_IDIR)/db.h $(SRC_DB_DIR)/db.c
 fileDep = $(IDIR)/utility.h $(IDIR)/file.h $(SRC_DIR)/file.c
 ybotDep = $(IDIR)/utility.h $(IDIR)/ybot.h $(SRC_DIR)/ybot.c
 zregexDep = $(IDIR)/file.h $(IDIR)/zregex.h $(SRC_DIR)/zregex.c
@@ -57,7 +61,7 @@ $(ODIR)/main.o: $(mainDep)
 
 $(ODIR)/test.o: $(testDep)
 	@mkdir -p $(ODIR)
-	$(CC) -c $(TEST_DIR)/main.c  -o $(ODIR)/test.o $(CFLAGS) $(LDFLAGS)
+	$(CC) -c $(TEST_DIR)/main.c  -o $(ODIR)/test.o $(CFLAGS) $(LDFLAGS) 
 
 $(ODIR)/fifo.o: $(fifoDep)
 	@mkdir -p $(ODIR)
@@ -85,7 +89,7 @@ $(ODIR)/file.o: $(fileDep)
 
 $(ODIR)/db.o: $(dbDep)
 	@mkdir -p $(ODIR)
-	$(CC) -c $(SRC_DB_DIR)/db.c -o $(ODIR)/db.o $(CFLAGS)
+	$(CC) -c $(SRC_DB_DIR)/db.c -o $(ODIR)/db.o $(CFLAGS) $(LDFLAGS)
 
 $(ODIR)/zregex.o: $(zregexDep)
 	@mkdir -p $(ODIR)

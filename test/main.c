@@ -37,8 +37,10 @@ int test_json() {
     return 0;
 }
 
-int main() {    
+int main() {
+    //while(1);    
     //test_regex();
-    test_json();
+    //test_json();
+    test_ping_mongodb();
     return 0;
 }
