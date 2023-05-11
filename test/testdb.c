@@ -5,7 +5,8 @@ int test_ping_mongodb() {
     mongoc_client_t *client = NULL;
     init_mongo_client(&client);
     ping_mongodb(client);
+    get_collection(client, "maboke", "view");
     free_mongo_client(client);
-    while(1);
+    //while(1);
     return 0;
 }

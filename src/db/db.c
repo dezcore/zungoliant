@@ -10,6 +10,7 @@ int print_res(const bson_t *reply) {
 
   return 0;
 } 
+
 int ping_mongodb(mongoc_client_t *client) {
   bson_error_t error = {0};
   bson_t *command = NULL, reply;
@@ -44,10 +45,35 @@ int ping_mongodb(mongoc_client_t *client) {
   return 0;
 }
 
+int get_collection(mongoc_client_t *client, char *dbName, char *collection) {
+  char *str;
+  bson_t *cmd;
+  bson_t reply;
+  bson_error_t error;
+  mongoc_collection_t *coll;
+  
+  if(client != NULL) {
+    coll = mongoc_client_get_collection(client, dbName, collection);
+    cmd = BCON_NEW ("ping", BCON_INT32 (1));
+
+    if(mongoc_collection_command_simple(coll, cmd, NULL, &reply, &error)) {
+      str = bson_as_canonical_extended_json(&reply, NULL);
+      printf("Got reply: %s\n", str);
+      bson_free(str);
+    } else {
+      fprintf(stderr, "Got error: %s\n", error.message);
+    }
+  }
+
+  bson_destroy (&reply);
+  bson_destroy (cmd);
+  mongoc_collection_destroy(coll);
+  return 0;
+}
 int init_mongo_client(mongoc_client_t **client) {
   mongoc_uri_t *uri;
   bson_error_t error = {0};
-  const char *uri_string = "mongodb://root:secret@localhost:27017/?authMechanism=DEFAULT";
+  const char *uri_string = "mongodb://root:secret@127.0.0.1:27017/?authMechanism=DEFAULT";
 
   //Initialize the MongoDB C Driver.
   mongoc_init();
