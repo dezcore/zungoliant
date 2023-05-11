@@ -1,5 +1,15 @@
 #include "./../../include/db/db.h"
 
+int print_res(const bson_t *reply) {
+  char *str;
+  
+  BSON_ASSERT(reply);
+  str = bson_as_canonical_extended_json (reply, NULL);
+  printf ("%s\n", str);
+  bson_free (str);
+
+  return 0;
+} 
 int ping_mongodb(mongoc_client_t *client) {
   bson_error_t error = {0};
   bson_t *command = NULL, reply;
@@ -22,7 +32,7 @@ int ping_mongodb(mongoc_client_t *client) {
       printf("Pinged your deployment. You successfully connected to MongoDB!\n");
     } else {
       // Error condition.
-      printf("Error: %s\n", error.message);
+      printf("Error*: %s\n", error.message);
     }
   }
 
@@ -37,7 +47,7 @@ int ping_mongodb(mongoc_client_t *client) {
 int init_mongo_client(mongoc_client_t **client) {
   mongoc_uri_t *uri;
   bson_error_t error = {0};
-  const char *uri_string = "mongodb://localhost:27017";
+  const char *uri_string = "mongodb://root:secret@localhost:27017/?authMechanism=DEFAULT";
 
   //Initialize the MongoDB C Driver.
   mongoc_init();

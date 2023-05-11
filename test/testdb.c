@@ -6,5 +6,6 @@ int test_ping_mongodb() {
     init_mongo_client(&client);
     ping_mongodb(client);
     free_mongo_client(client);
+    while(1);
     return 0;
 }
