@@ -8,19 +8,33 @@ services:
       dockerfile: ./Dockerfile
     #depends_on:
    #   - mongo
-    networks:
-      - mongonetwork
+    #networks:
+    #  - mongonetwork
     volumes:
       - zvolume:/zungoliant
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: secret
-      ME_CONFIG_MONGODB_URL: mongodb://root:secret@mongo:27017/
+      - CONN_STR=mongodb://root:secret@mongodb
+      #ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      #ME_CONFIG_MONGODB_ADMINPASSWORD: secret
+      #ME_CONFIG_MONGODB_URL: mongodb://root:secret@mongo:27017/
+    #command: '/bin/bash -c "sleep 5; mongosh $$CONN_STR --eval \"show dbs;\""'
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongodb/mongodb-community-server:6.0-ubi8
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data/db
 
 volumes:
   zvolume:
 
-networks:
-  mongonetwork:
-    name: maboke_network  
-    external: true 
+#networks:
+#  mongonetwork:
+#    name: maboke_network  
+#    external: true 

@@ -73,7 +73,10 @@ int get_collection(mongoc_client_t *client, char *dbName, char *collection) {
 int init_mongo_client(mongoc_client_t **client) {
   mongoc_uri_t *uri;
   bson_error_t error = {0};
-  const char *uri_string = "mongodb://root:secret@127.0.0.1:27017/?authMechanism=DEFAULT";
+  const char *uri_string = "mongodb://root:secret@mongodb";
+  //mongodb://db:27017/demo
+  //"mongodb://root:secret@127.0.0.1:27017/?authMechanism=DEFAULT"
+  //"mongodb://mongonetwork:root_secrect@mongo:27017"
 
   //Initialize the MongoDB C Driver.
   mongoc_init();
