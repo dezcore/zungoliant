@@ -2,9 +2,12 @@
 
 int print_res(const bson_t *reply) {
   char *str;
-  
+
+  /*
+  * Print the result as JSON.
+  */
   BSON_ASSERT(reply);
-  str = bson_as_canonical_extended_json (reply, NULL);
+  str = bson_as_canonical_extended_json(reply, NULL);
   printf ("%s\n", str);
   bson_free (str);
 
@@ -54,7 +57,7 @@ int get_collection(mongoc_client_t *client, char *dbName, char *collection) {
   
   if(client != NULL) {
     coll = mongoc_client_get_collection(client, dbName, collection);
-    cmd = BCON_NEW ("ping", BCON_INT32 (1));
+    cmd = BCON_NEW("ping", BCON_INT32 (1));
 
     if(mongoc_collection_command_simple(coll, cmd, NULL, &reply, &error)) {
       str = bson_as_canonical_extended_json(&reply, NULL);
@@ -65,18 +68,151 @@ int get_collection(mongoc_client_t *client, char *dbName, char *collection) {
     }
   }
 
-  bson_destroy (&reply);
-  bson_destroy (cmd);
+  bson_destroy(&reply);
+  bson_destroy(cmd);
   mongoc_collection_destroy(coll);
   return 0;
 }
+
+int find_and_update(mongoc_client_t *client, char *dbName, char *collection) {
+  bson_t *query;
+  bson_t *update;
+  bson_t reply;
+  bson_error_t error = {0};
+  mongoc_collection_t *coll;
+
+  coll = mongoc_client_get_collection(client, dbName, collection);
+  /*
+  * Build our query, {"cmpxchg": 1}
+  */
+  query = BCON_NEW("cmpxchg", BCON_INT32 (1));
+
+   /*
+    * Build our update. {"$set": {"cmpxchg": 2}}
+  */
+  update = BCON_NEW("$set", "{", "cmpxchg", BCON_INT32(2), "}");
+
+  /*
+  * Submit the findAndModify.
+  */
+  if(!mongoc_collection_find_and_modify(coll, query, NULL, update, NULL, false, false, true, &reply, &error)) {
+    fprintf (stderr, "find_and_modify() failure: %s\n", error.message);
+    return EXIT_FAILURE;
+  }
+
+  print_res(&reply);
+
+  bson_destroy(query);
+  bson_destroy(update);
+  bson_destroy(&reply);
+  mongoc_collection_destroy(coll);
+
+  return 0;
+}
+
+int find_document(mongoc_client_t *client, char *dbName, char *collection) {
+  char *to_str;
+  const bson_t *next_doc;
+  mongoc_cursor_t *cursor;
+  mongoc_collection_t *coll;
+  bson_t *selector = BCON_NEW ("_id", "{", "$gt", BCON_INT32(0), "}");
+
+  coll = mongoc_client_get_collection(client, dbName, collection);
+  cursor = mongoc_collection_find_with_opts(coll, selector, NULL, NULL);
+  BSON_ASSERT(mongoc_cursor_next(cursor, &next_doc));
+  printf("after update, collection has the following document:\n");
+
+  to_str = bson_as_relaxed_extended_json (next_doc, NULL);
+  printf("%s\n", to_str);
+
+  //BSON_ASSERT(mongoc_collection_drop (coll, NULL));
+  bson_free(to_str);
+  bson_destroy(selector);
+  mongoc_collection_destroy(coll);
+  return 0;
+}
+
+int update_document(mongoc_client_t *client, char *dbName, char *collection) {
+  bson_t *update;
+  bson_error_t error = {0};
+  mongoc_collection_t *coll;
+  bson_t *selector = BCON_NEW("_id", "{", "$gt", BCON_INT32 (0), "}");
+
+  coll = mongoc_client_get_collection(client, dbName, collection);
+  /*
+    * Build our update. {"$set": {"x": 1}}
+  */
+  update = BCON_NEW("$set", "{", "x", BCON_INT32 (1), "}");
+
+  if(!mongoc_collection_update_one(coll, selector, update, NULL, NULL, &error)) {
+    fprintf(stderr, "update failed: %s\n", error.message);
+    return EXIT_FAILURE;
+  }
+
+  bson_destroy(update);
+  bson_destroy(selector);
+  mongoc_collection_destroy(coll);
+
+  return 0;
+}
+
+int insert_document(mongoc_client_t *client, char *dbName, char *collection) {
+  char *to_str;
+  bson_error_t error = {0};
+  mongoc_collection_t *coll;
+  bson_t *to_insert = BCON_NEW("_id", BCON_INT32 (1));
+
+  coll = mongoc_client_get_collection(client, dbName, collection);
+
+  mongoc_client_set_error_api(client, 2);
+
+  /* insert a document */
+  if(!mongoc_collection_insert_one(coll, to_insert, NULL, NULL, &error)) {
+    fprintf (stderr, "insert failed: %s\n", error.message);
+    return EXIT_FAILURE;
+  }
+
+  to_str = bson_as_relaxed_extended_json(to_insert, NULL);
+  printf("inserted: %s\n", to_str);
+  bson_free(to_str);
+
+  bson_destroy(to_insert);
+  mongoc_collection_destroy(coll);
+
+  return 0;
+}
+
+int create_collection(mongoc_client_t *client, char *collectionName, char *dbName) {
+  bson_error_t error;
+  mongoc_database_t *database = NULL;
+  mongoc_collection_t *collection = NULL;
+
+  database = mongoc_client_get_database(client, dbName);
+
+  /* inserting into a nonexistent collection normally creates it, but a
+  * collection can't be created in a transaction; create it now */
+  collection = mongoc_database_create_collection(database, collectionName, NULL, &error);
+
+  if(!collection) {
+    /* code 48 is NamespaceExists, see error_codes.err in mongodb source */
+    if(error.code == 48) {
+      collection = mongoc_database_get_collection(database, "collection");
+    } else {
+      MONGOC_ERROR ("Failed to create collection: %s", error.message);
+      //goto done;
+    }
+  }
+
+  mongoc_collection_destroy(collection);
+  mongoc_database_destroy(database);
+  
+  return 0;
+}
+
 int init_mongo_client(mongoc_client_t **client) {
   mongoc_uri_t *uri;
   bson_error_t error = {0};
   const char *uri_string = "mongodb://root:secret@mongodb";
-  //mongodb://db:27017/demo
-  //"mongodb://root:secret@127.0.0.1:27017/?authMechanism=DEFAULT"
-  //"mongodb://mongonetwork:root_secrect@mongo:27017"
 
   //Initialize the MongoDB C Driver.
   mongoc_init();
