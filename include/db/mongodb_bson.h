@@ -6,4 +6,5 @@
 #include <bson/bson.h>
 
 int init_serie();
+int test_zbcon();
 #endif
