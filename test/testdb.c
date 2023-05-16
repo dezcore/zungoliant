@@ -7,9 +7,9 @@ int test_ping_mongodb() {
     ping_mongodb(client);
     //get_collection(client, "maboke", "view");
     //insert_document(client, "maboke", "test");
-    //init_serie();
+    init_serie();
     //test_zbcon();
-    test_zjosn();
+    //test_zjosn();
     free_mongo_client(client);
     //while(1);
     return 0;

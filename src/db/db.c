@@ -209,6 +209,26 @@ int create_collection(mongoc_client_t *client, char *collectionName, char *dbNam
   return 0;
 }
 
+int delete_document(mongoc_client_t *client, char *collectionName, char *dbName) {
+  bson_t *doc;//filter
+  bson_error_t error;
+  mongoc_collection_t *collection;
+  mongoc_database_t *database = NULL;
+
+  doc = bson_new ();
+  database = mongoc_client_get_database(client, dbName);
+  collection = mongoc_database_create_collection(database, collectionName, NULL, &error);
+  //BSON_APPEND_OID(doc, "_id", &oid);
+  if(!mongoc_collection_delete_one(collection, doc, NULL, NULL, &error)) {
+    fprintf (stderr, "Delete failed: %s\n", error.message);
+  }
+  
+  bson_destroy(doc);
+  mongoc_collection_destroy(collection);
+  mongoc_database_destroy(database);
+
+  return 0;
+}
 int init_mongo_client(mongoc_client_t **client) {
   mongoc_uri_t *uri;
   bson_error_t error = {0};
