@@ -7,4 +7,5 @@
 
 int init_serie();
 int test_zbcon();
+int test_zjosn();
 #endif
