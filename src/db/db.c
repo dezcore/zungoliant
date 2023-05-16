@@ -202,7 +202,7 @@ int create_collection(mongoc_client_t *client, char *collectionName, char *dbNam
       //goto done;
     }
   }
-
+  
   mongoc_collection_destroy(collection);
   mongoc_database_destroy(database);
   

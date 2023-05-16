@@ -21,12 +21,13 @@ jsonDep = $(IDIR)/json.h $(SRC_DIR)/json.c
 fifoDep = $(IDIR)/fifo.h $(SRC_DIR)/fifo.c
 pageDep = $(IDIR)/page.h $(SRC_DIR)/page.c
 
-dbDep = $(IDIR)/utility.h $(DB_IDIR)/db.h $(SRC_DB_DIR)/db.c
 fileDep = $(IDIR)/utility.h $(IDIR)/file.h $(SRC_DIR)/file.c
 ybotDep = $(IDIR)/utility.h $(IDIR)/ybot.h $(SRC_DIR)/ybot.c
 zregexDep = $(IDIR)/file.h $(IDIR)/zregex.h $(SRC_DIR)/zregex.c
 parserDep = $(IDIR)/file.h $(IDIR)/parser.h $(SRC_DIR)/parser.c
 curlDep = $(IDIR)/utility.h $(IDIR)/curl.h $(SRC_DIR)/curl.c 
+mongodbbsonDep = $(DB_IDIR)/mongodb_bson.h $(SRC_DB_DIR)/mongodb_bson.c
+dbDep = $(IDIR)/utility.h $(DB_IDIR)/mongodb_bson.h $(DB_IDIR)/db.h $(SRC_DB_DIR)/db.c
 utilityDep = $(IDIR)/parser.h $(IDIR)/fifo.h $(IDIR)/json.h $(IDIR)/curl.h $(IDIR)/file.h $(IDIR)/zregex.h $(IDIR)/page.h $(DB_IDIR)/db.h $(IDIR)/utility.h $(SRC_DIR)/utility.c
 
 mainDep = $(IDIR)/ybot.h $(SRC_DIR)/main.c
@@ -38,7 +39,7 @@ testfileDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h  $(IDIR)/file.h $(I
 testDep = $(IDIR)/testzregex.h $(IDIR)/testfile.h  $(IDIR)/testfifo.h $(TEST_DIR)/main.c
 testyDep = $(IDIR)/utility.h $(IDIR)/testy.h $(TEST_DIR)/testy.c
 testzregexDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h $(IDIR)/file.h $(IDIR)/json.h $(IDIR)/zregex.h $(IDIR)/utility.h $(IDIR)/testzregex.h $(TEST_DIR)/testzregex.c
-testObjs = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/utility.o $(ODIR)/curl.o $(ODIR)/page.o $(ODIR)/db.o
+testObjs = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/utility.o $(ODIR)/curl.o $(ODIR)/page.o $(ODIR)/mongodb_bson.o $(ODIR)/db.o
 testObj = $(testObjs) $(ODIR)/testy.o $(ODIR)/testzregex.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/testdb.o $(ODIR)/test.o
 
 all: $(BIN_DIR)/main
@@ -90,6 +91,10 @@ $(ODIR)/file.o: $(fileDep)
 $(ODIR)/db.o: $(dbDep)
 	@mkdir -p $(ODIR)
 	$(CC) -c $(SRC_DB_DIR)/db.c -o $(ODIR)/db.o $(CFLAGS) $(LDFLAGS)
+
+$(ODIR)/mongodb_bson.o: $(mongodbbsonDep)
+	@mkdir -p $(ODIR)
+	$(CC) -c $(SRC_DB_DIR)/mongodb_bson.c -o $(ODIR)/mongodb_bson.o $(CFLAGS) $(LDFLAGS)
 
 $(ODIR)/zregex.o: $(zregexDep)
 	@mkdir -p $(ODIR)
