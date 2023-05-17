@@ -1,18 +1,32 @@
 #include "./../../include/db/db.h"
 
-int print_res(const bson_t *reply) {
-  char *str;
 
-  /*
-  * Print the result as JSON.
-  */
-  BSON_ASSERT(reply);
-  str = bson_as_canonical_extended_json(reply, NULL);
-  printf ("%s\n", str);
-  bson_free (str);
+int print_bson(bson_t *bson) {
+  char *str;
+  
+  if(bson != NULL) {
+    str = bson_as_canonical_extended_json(bson, NULL);
+    printf("%s\n", str);
+    bson_free(str);
+  }
 
   return 0;
-} 
+}
+
+int print_cursor(mongoc_cursor_t *cursor) {
+  char *str;
+  const bson_t *next_doc;
+
+  if(cursor != NULL) {
+    while (mongoc_cursor_next(cursor, &next_doc)) {
+      str = bson_as_relaxed_extended_json(next_doc, NULL);
+      printf("%s\n", str);
+      bson_free(str);
+    }
+  }
+
+  return 0;
+}
 
 int ping_mongodb(mongoc_client_t *client) {
   bson_error_t error = {0};
@@ -100,7 +114,7 @@ int find_and_update(mongoc_client_t *client, char *dbName, char *collection) {
     return EXIT_FAILURE;
   }
 
-  print_res(&reply);
+  print_bson(&reply);
 
   bson_destroy(query);
   bson_destroy(update);
@@ -110,24 +124,15 @@ int find_and_update(mongoc_client_t *client, char *dbName, char *collection) {
   return 0;
 }
 
-int find_document(mongoc_client_t *client, char *dbName, char *collection) {
-  char *to_str;
-  const bson_t *next_doc;
-  mongoc_cursor_t *cursor;
+int find_document(mongoc_client_t *client, char *dbName, char *collection, bson_t *selector,  mongoc_cursor_t **cursor) {
   mongoc_collection_t *coll;
-  bson_t *selector = BCON_NEW ("_id", "{", "$gt", BCON_INT32(0), "}");
-
+  //bson_t *selector = BCON_NEW("_id", "{", "$gt", BCON_INT32(0), "}");
   coll = mongoc_client_get_collection(client, dbName, collection);
-  cursor = mongoc_collection_find_with_opts(coll, selector, NULL, NULL);
-  BSON_ASSERT(mongoc_cursor_next(cursor, &next_doc));
-  printf("after update, collection has the following document:\n");
 
-  to_str = bson_as_relaxed_extended_json (next_doc, NULL);
-  printf("%s\n", to_str);
-
-  //BSON_ASSERT(mongoc_collection_drop (coll, NULL));
-  bson_free(to_str);
-  bson_destroy(selector);
+  if(coll != NULL) {
+    *cursor = mongoc_collection_find_with_opts(coll, selector, NULL, NULL);
+  }
+  
   mongoc_collection_destroy(coll);
   return 0;
 }
@@ -157,7 +162,6 @@ int update_document(mongoc_client_t *client, char *dbName, char *collection) {
 }
 
 int insert_document(mongoc_client_t *client, char *dbName, char *collection, bson_t *to_insert) {
-  char *to_str;
   bson_error_t error = {0};
   mongoc_collection_t *coll;
 
@@ -166,15 +170,10 @@ int insert_document(mongoc_client_t *client, char *dbName, char *collection, bso
 
   /* insert a document */
   if(!mongoc_collection_insert_one(coll, to_insert, NULL, NULL, &error)) {
-    fprintf (stderr, "insert failed: %s\n", error.message);
+    fprintf(stderr, "insert failed: %s\n", error.message);
     return EXIT_FAILURE;
   }
 
-  to_str = bson_as_relaxed_extended_json(to_insert, NULL);
-  printf("inserted: %s\n", to_str);
-  bson_free(to_str);
-
-  bson_destroy(to_insert);
   mongoc_collection_destroy(coll);
 
   return 0;
@@ -207,26 +206,24 @@ int create_collection(mongoc_client_t *client, char *collectionName, char *dbNam
   return 0;
 }
 
-int delete_document(mongoc_client_t *client, char *collectionName, char *dbName) {
-  bson_t *doc;//filter
+int delete_document(mongoc_client_t *client, char *collectionName, char *dbName, bson_t *doc) {
   bson_error_t error;
   mongoc_collection_t *collection;
   mongoc_database_t *database = NULL;
 
-  doc = bson_new ();
   database = mongoc_client_get_database(client, dbName);
   collection = mongoc_database_create_collection(database, collectionName, NULL, &error);
-  //BSON_APPEND_OID(doc, "_id", &oid);
+
   if(!mongoc_collection_delete_one(collection, doc, NULL, NULL, &error)) {
     fprintf (stderr, "Delete failed: %s\n", error.message);
   }
-  
-  bson_destroy(doc);
+
   mongoc_collection_destroy(collection);
   mongoc_database_destroy(database);
 
   return 0;
 }
+
 int init_mongo_client(mongoc_client_t **client) {
   mongoc_uri_t *uri;
   bson_error_t error = {0};

@@ -35,6 +35,7 @@ int print_serie(SERIE *serie) {
   }
   return 0;
 }
+
 int free_serie(SERIE *serie) {
   if(serie != NULL) {
     if(serie->keys != NULL)
@@ -227,13 +228,15 @@ int init_keys_and_values(bson_t **bson, char **keys, char **values, size_t len) 
   return 0;
 }
 
-int init_serie(bson_t **document) {
-  size_t len = 4;
+int serie_to_bson(bson_t **document, SERIE *serie) {
   bson_t director, producer, studio, cast;
-  char *keys[] = {"title", "img", "category", "summary"};
-  char *values[] = {"Serie title", "Serie img",  "Serie category", "Serie summary"};
+  //char *keys[] = {"title", "img", "category", "summary"};
+  //char *values[] = {"Serie title", "Serie img",  "Serie category", "Serie summary"};
 
-  init_keys_and_values(&(*document), keys, values, len); 
+  if(serie != NULL) {
+    init_keys_and_values(&(*document),serie->keys->elements, serie->values->elements, serie->keys->length); 
+  }
+
   int_date(&(*document), "year");
   BSON_APPEND_DOCUMENT_BEGIN(*document, "director", &director);
   init_director(&director);
@@ -333,7 +336,7 @@ int init_movie() {
   */
   str = bson_as_canonical_extended_json (document, NULL);
   printf ("%s\n", str);
-  bson_free (str);
+  bson_free(str);
   /*
   * Clean up allocated bson documents.
   */
@@ -344,7 +347,7 @@ int init_movie() {
 int josn_tobson(char *json, bson_t **bson) {
   bson_error_t error;
 
-  *bson = bson_new_from_json ((const uint8_t *)json, -1, &error);
+  *bson = bson_new_from_json((const uint8_t *)json, -1, &error);
   if(!*bson) {
     fprintf (stderr, "%s\n", error.message);
     return EXIT_FAILURE;

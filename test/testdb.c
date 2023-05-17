@@ -11,25 +11,6 @@ int test_str_to_bson() {
     return 0;
 }
 
-int test_insert_document() {
-    char *str;
-    bson_t *document = bson_new();
-    mongoc_client_t *client = NULL;
-
-    init_mongo_client(&client);
-    init_serie(&document);
-
-    str = bson_as_canonical_extended_json(document, NULL);
-    printf("%s\n", str);
-    /*
-    * Clean up allocated bson documents.
-    */
-    bson_free(str);
-    bson_destroy(document);
-    free_mongo_client(client);
-    return 0;
-}
-
 int test_ping_mongodb() {
     printf("Test_ping_mongodb : \n");
     mongoc_client_t *client = NULL;
@@ -44,6 +25,22 @@ int test_ping_mongodb() {
     return 0;
 }
 
+int test_insert_document(SERIE *serie) {
+    bson_t *document = bson_new();
+    mongoc_client_t *client = NULL;
+
+    init_mongo_client(&client);
+    serie_to_bson(&document, serie);
+    
+    if(document != NULL && client != NULL) {
+        insert_document(client, "maboke", "serie_test", document);
+    }
+
+    bson_destroy(document);
+    free_mongo_client(client);
+    return 0;
+}
+
 int test_matching_title() {
     SERIE *serie = NULL;
     ARRAY *array = NULL;
@@ -53,11 +50,10 @@ int test_matching_title() {
     char *keys[] = {"title", "img", "category", "summary"};
 
     titles_fifo = init();
-    
+
     if(titles_fifo != NULL) {
         init_fifo(&titles_fifo, "/data/file/titles");
         init_file_to_array("/data/file/titles_regex", &array);
-        //char *keys[] = {"title", "img", "category", "summary"};
 
         //print_array(array);
         //display(titles_fifo);
@@ -71,7 +67,8 @@ int test_matching_title() {
                         init_serie_struct(serie, keysLen);
                         add_value(&(serie)->keys, keys[0], 0);
                         add_value(&(serie)->values, title->value, 0);
-                        print_serie(serie);
+                        test_insert_document(serie);
+                        //print_serie(serie);
                         free_serie(serie);
                     } else {
                         displayElement(title);
@@ -90,5 +87,67 @@ int test_matching_title() {
         free_array(array);
     }
 
+    return 0;
+}
+
+int test_find_document() {
+    bson_t *selector;
+    mongoc_cursor_t *cursor = NULL;
+    mongoc_client_t *client = NULL;
+
+    init_mongo_client(&client);
+    if(client != NULL) {
+        josn_tobson("{\"title\" : \"Groupe Kin Malebo - Molongo Molayi 1-2 (Théâtre Congolais) (2008)\" }", &selector);
+
+        if(selector != NULL) {
+           
+            find_document(client, "maboke", "serie_test", selector, &cursor);
+            if(cursor != NULL) {
+                print_cursor(cursor);
+                bson_free(cursor);
+            }
+            //print_bson(selector);
+            bson_destroy(selector);
+        }
+        free_mongo_client(client);
+    }
+    return 0;
+}
+
+int test_find_document_by_regex() {
+    bson_t *selector;
+    mongoc_cursor_t *cursor = NULL;
+    mongoc_client_t *client = NULL;
+
+    init_mongo_client(&client);
+    if(client != NULL) {
+        josn_tobson("{ \"title\": { \"$regex\" : \".*(T|t)h(é|e)(a|â)tre.*(C|c)(O|o)(N|n)(G|g)(O|o)(L|l).*\"}}", &selector);
+        if(selector != NULL) {
+            find_document(client, "maboke", "serie_test", selector, &cursor);
+            if(cursor != NULL) {
+                print_cursor(cursor);
+                bson_free(cursor);
+            }
+            //print_bson(selector);
+            bson_destroy(selector);
+        }
+        free_mongo_client(client);
+    }
+    return 0;
+}
+
+int test_delete_document() {
+    bson_t *selector;
+    mongoc_client_t *client = NULL;
+    
+    init_mongo_client(&client);
+    if(client != NULL) {
+        josn_tobson("{\"title\" : \"Groupe Kin Malebo - Molongo Molayi 1-2 (Théâtre Congolais) (2008)\" }", &selector);
+        if(selector != NULL) {
+            delete_document(client,"maboke", "serie_test", selector);
+            bson_free(selector);
+        }
+        free_mongo_client(client);
+    }
     return 0;
 }

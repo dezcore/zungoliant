@@ -40,8 +40,11 @@ int test_json() {
 int test_db() {
     //test_ping_mongodb();
     //test_str_to_bson();
-    //test_insert_document();
-    test_matching_title();
+    //test_insert_document(NULL);
+    //test_matching_title();
+    //test_find_document();
+    //test_find_document_by_regex();
+    test_delete_document();
     return 0;
 }
 
