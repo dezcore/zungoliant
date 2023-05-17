@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <bson/bson.h>
 
-int init_serie();
-int test_zbcon();
-int test_zjosn();
+int init_movie();
+int init_serie(bson_t **document);
+int josn_tobson(char *json, bson_t **bson);
 #endif

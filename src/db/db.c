@@ -156,14 +156,12 @@ int update_document(mongoc_client_t *client, char *dbName, char *collection) {
   return 0;
 }
 
-int insert_document(mongoc_client_t *client, char *dbName, char *collection) {
+int insert_document(mongoc_client_t *client, char *dbName, char *collection, bson_t *to_insert) {
   char *to_str;
   bson_error_t error = {0};
   mongoc_collection_t *coll;
-  bson_t *to_insert = BCON_NEW("_id", BCON_INT32 (1));
 
   coll = mongoc_client_get_collection(client, dbName, collection);
-
   mongoc_client_set_error_api(client, 2);
 
   /* insert a document */

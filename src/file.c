@@ -176,16 +176,44 @@ int fileToFifo(char *filePath, File *file) {
     
     if(fptr != NULL) {
         line =(char *) malloc(STR_LEN * sizeof(char));
-
         while(fgets(line, STR_LEN, fptr)) {
             line[strcspn(line, "\n")] = 0;
             push(file, line);
         }
-
         free(line);
         fclose(fptr);
     } else {
         exit(EXIT_FAILURE);
+    }
+
+    return 0;
+}
+
+int fileToArray(char *filePath, ARRAY **array) {
+    int cpt = 0;
+    File *fifo = NULL;
+    Element *element = NULL;
+    fifo = init();
+
+    if(fifo != NULL) {
+        fileToFifo(filePath, fifo);
+        if(fifo != NULL) {
+            init_array(&(*array), fifo->size, 5, "");
+            if(*array != NULL) {
+                while(0 < fifo->size) {
+                    element = pop(fifo);
+                    //displayElement(element);
+                    (*array)->elements[cpt] = (char*) realloc((*array)->elements[cpt], (strlen(element->value)+1) * sizeof(char));
+                    if((*array)->elements[cpt] != NULL) {
+                        sprintf((*array)->elements[cpt], "%s", element->value);
+                    } 
+                    freeElement(element);
+                    element = NULL;
+                    cpt++;
+                }
+            }
+            freeFile(fifo);
+        }
     }
 
     return 0;

@@ -175,36 +175,6 @@ int save_channel_page_home(struct json_object *json, Yfile **data_fifo) {
     return 0;
 }
 
-int match_pattern(char *str, char *pattern) {
-    int exist = 0;
-    regex_t reg;
-    size_t nmatch;
-
-    if(str != NULL && pattern != NULL && !regcomp(&reg, pattern, REG_EXTENDED)) {
-        nmatch = reg.re_nsub;
-        regmatch_t m[nmatch + 1];
-
-        if(!regexec(&reg, str, nmatch + 1, m, 0)) {
-            exist = 1;
-        }
-    }
-
-    return exist;
-}
-
-int init_urls(File **urls_fifo,  char **urlsFileSrc) {
-    char *urlsFile =  NULL;
-
-    get_pwd(&urlsFile, URLS_FILE);
-
-    if(urlsFile != NULL) {
-        fileToFifo(urlsFile, *urls_fifo);
-        *urlsFileSrc = urlsFile;
-    }
-
-    return 0;
-}
-
 int init_env() {
     char *parseDir = NULL;
     char *regexDir = NULL;

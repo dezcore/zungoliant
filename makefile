@@ -21,25 +21,27 @@ jsonDep = $(IDIR)/json.h $(SRC_DIR)/json.c
 fifoDep = $(IDIR)/fifo.h $(SRC_DIR)/fifo.c
 pageDep = $(IDIR)/page.h $(SRC_DIR)/page.c
 
-fileDep = $(IDIR)/utility.h $(IDIR)/file.h $(SRC_DIR)/file.c
+arrayDep = $(IDIR)/array.h $(SRC_DIR)/array.c
+fileDep = $(IDIR)/array.h $(IDIR)/utility.h $(IDIR)/file.h $(SRC_DIR)/file.c
 ybotDep = $(IDIR)/utility.h $(IDIR)/ybot.h $(SRC_DIR)/ybot.c
 zregexDep = $(IDIR)/file.h $(IDIR)/zregex.h $(SRC_DIR)/zregex.c
 parserDep = $(IDIR)/file.h $(IDIR)/parser.h $(SRC_DIR)/parser.c
 curlDep = $(IDIR)/utility.h $(IDIR)/curl.h $(SRC_DIR)/curl.c 
 mongodbbsonDep = $(DB_IDIR)/mongodb_bson.h $(SRC_DB_DIR)/mongodb_bson.c
 dbDep = $(IDIR)/utility.h $(DB_IDIR)/mongodb_bson.h $(DB_IDIR)/db.h $(SRC_DB_DIR)/db.c
-utilityDep = $(IDIR)/parser.h $(IDIR)/fifo.h $(IDIR)/json.h $(IDIR)/curl.h $(IDIR)/file.h $(IDIR)/zregex.h $(IDIR)/page.h $(DB_IDIR)/db.h $(IDIR)/utility.h $(SRC_DIR)/utility.c
+utilityDep = $(IDIR)/parser.h $(IDIR)/fifo.h $(IDIR)/json.h $(IDIR)/curl.h $(IDIR)/array.h $(IDIR)/file.h $(IDIR)/zregex.h $(IDIR)/page.h $(DB_IDIR)/db.h $(IDIR)/utility.h $(SRC_DIR)/utility.c
 
 mainDep = $(IDIR)/ybot.h $(SRC_DIR)/main.c
-mainObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/utility.o $(ODIR)/ybot.o $(ODIR)/page.o $(ODIR)/db.o $(ODIR)/main.o
+mainObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/array.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/utility.o $(ODIR)/ybot.o $(ODIR)/page.o $(ODIR)/db.o $(ODIR)/main.o
 
-testdbDep = $(DB_IDIR)/db.h $(TEST_IDIR)/testdb.h $(TEST_DIR)/testdb.c
+testdbDep = $(IDIR)/utility.h $(TEST_IDIR)/testdb.h $(TEST_DIR)/testdb.c
 testfifoDep = $(IDIR)/fifo.h $(IDIR)/testfifo.h $(TEST_DIR)/testfifo.c
 testfileDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h  $(IDIR)/file.h $(IDIR)/testfile.h $(TEST_DIR)/testfile.c
 testDep = $(IDIR)/testzregex.h $(IDIR)/testfile.h  $(IDIR)/testfifo.h $(TEST_DIR)/main.c
 testyDep = $(IDIR)/utility.h $(IDIR)/testy.h $(TEST_DIR)/testy.c
 testzregexDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h $(IDIR)/file.h $(IDIR)/json.h $(IDIR)/zregex.h $(IDIR)/utility.h $(IDIR)/testzregex.h $(TEST_DIR)/testzregex.c
-testObjs = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/utility.o $(ODIR)/curl.o $(ODIR)/page.o $(ODIR)/mongodb_bson.o $(ODIR)/db.o
+
+testObjs = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/array.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/page.o $(ODIR)/mongodb_bson.o $(ODIR)/db.o $(ODIR)/utility.o
 testObj = $(testObjs) $(ODIR)/testy.o $(ODIR)/testzregex.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/testdb.o $(ODIR)/test.o
 
 all: $(BIN_DIR)/main
@@ -83,6 +85,10 @@ $(ODIR)/json.o: $(jsonDep)
 $(ODIR)/ybot.o: $(ybotDep)
 	@mkdir -p $(ODIR)
 	$(CC) -c $(SRC_DIR)/ybot.c -o $(ODIR)/ybot.o $(CFLAGS)
+
+$(ODIR)/array.o: $(arrayDep)
+	@mkdir -p $(ODIR)
+	$(CC) -c $(SRC_DIR)/array.c -o $(ODIR)/array.o $(CFLAGS)
 
 $(ODIR)/file.o: $(fileDep)
 	@mkdir -p $(ODIR)

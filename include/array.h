@@ -4,12 +4,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
 typedef struct _ARRAY {
     char **elements;
-    size_t number_of_elements;
+    size_t length;
 } ARRAY;
 
 int free_array(ARRAY *array);
-int init_array(ARRAY *array, size_t number_of_elements, size_t element_size);
+int print_array(ARRAY *array);
+int init_array(ARRAY **array, size_t length, size_t element_size, char *defaultValue);
 #endif

@@ -163,3 +163,7 @@ cython_debug/
 ./data/.mongodb
 ./data/journal
 ./data/diagnostic.data
+
+#data
+data/file/titles
+data/file/titles_regex

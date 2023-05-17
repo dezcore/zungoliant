@@ -21,6 +21,8 @@
 #include "./../include/zregex.h"
 #include "./../include/page.h"
 #include "./../include/db/db.h"
+#include "./../include/array.h"
+
 #define PWD_STR_LEN 100
 
 #define YINITDATA_VAR "ytInitialData"
@@ -29,7 +31,10 @@
 
 int trim(char **str);
 int get_pwd(char **res, char *concatPath);
+int init_fifo(File **fifo, char *filePath);
+int match_pattern(char *str, char *pattern);
+int init_urls(File **urls_fifo,  char **urlsFileSrc);
+int init_file_to_array(char *filePath, ARRAY **array);
 int downloadPage_and_replace(char *parseContent, YPage *page);
 int extract_htmlpagedata(char *html_file_path, char *saveFilePath, YPage *page);
-
 #endif

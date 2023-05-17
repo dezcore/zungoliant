@@ -1,12 +1,30 @@
 #include "./../include/array.h"
 
-int init_array(ARRAY *array, size_t number_of_elements, size_t element_size) {
-    array->elements = malloc(number_of_elements * sizeof(char*));
-    array->number_of_elements = number_of_elements;
+int print_array(ARRAY *array) {
+    if(array != NULL) {
+        printf("[");
+        for(int i = 0; i < array->length; i++) {
+            if(array->elements[i] != NULL) {
+                printf("%s\n", array->elements[i]);
+            }
+        }
+        printf("]\n");
+    }
+    return 0;
+}
 
-    for(int i = 0; i < number_of_elements; i++) {
-        array->elements[i] = malloc((element_size + 1) * sizeof(char));
-        sprintf(array->elements[i], "%s", "");
+int init_array(ARRAY **array, size_t length, size_t element_size, char *defaultValue) {
+    *array = malloc(sizeof(*array));
+    
+    if(*array != NULL) {
+        (*array)->elements = malloc(length * sizeof(char*));
+        for(int i = 0; i < length; i++) {
+            (*array)->elements[i] = (char*) calloc(element_size, sizeof(char));
+            if((*array)->elements[i] != NULL && defaultValue != NULL) {
+                sprintf((*array)->elements[i], "%s", defaultValue);
+            }
+        }
+        (*array)->length = length;
     }
 
     return 0;
@@ -14,10 +32,14 @@ int init_array(ARRAY *array, size_t number_of_elements, size_t element_size) {
 
 int free_array(ARRAY *array) {
     if(array != NULL) {
-        for(int i = 0; i < array->number_of_elements; i++) {
-            free(array->elements[i]);
+        for(int i = 0; i < array->length; i++) {
+            if(array->elements[i] != NULL) {
+                free(array->elements[i]);
+            }
         }
         free(array->elements);
+        free(array);
     }
+
     return 0;
 }

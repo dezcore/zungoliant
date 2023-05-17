@@ -93,3 +93,57 @@ int downloadPage_and_replace(char *parseContent, YPage *page) {
 
     return 0;
 }
+
+int match_pattern(char *str, char *pattern) {
+    int match = 0;
+    regex_t reg;
+    size_t nmatch;
+
+    if(str != NULL && pattern != NULL && !regcomp(&reg, pattern, REG_EXTENDED)) {
+        nmatch = reg.re_nsub;
+        regmatch_t m[nmatch + 1];
+
+        if(!regexec(&reg, str, nmatch + 1, m, 0)) {
+            match = 1;
+        }
+    }
+
+    return match;
+}
+
+int init_fifo(File **fifo, char *filePath) {
+    char *file =  NULL;
+    get_pwd(&file, filePath);
+
+    if(file != NULL) {
+        fileToFifo(file, *fifo);
+        free(file);
+    }
+    
+    return 0;
+}
+
+int init_file_to_array(char *filePath, ARRAY **array) {
+    char *file =  NULL;
+    get_pwd(&file, filePath);
+
+    if(file != NULL) {
+        fileToArray(file, &(*array));
+        free(file);
+    }
+
+    return 0;
+}
+
+int init_urls(File **urls_fifo,  char **urlsFileSrc) {
+    char *urlsFile =  NULL;
+
+    get_pwd(&urlsFile, URLS_FILE);
+
+    if(urlsFile != NULL) {
+        fileToFifo(urlsFile, *urls_fifo);
+        *urlsFileSrc = urlsFile;
+    }
+
+    return 0;
+}

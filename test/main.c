@@ -37,10 +37,18 @@ int test_json() {
     return 0;
 }
 
+int test_db() {
+    //test_ping_mongodb();
+    //test_str_to_bson();
+    //test_insert_document();
+    test_matching_title();
+    return 0;
+}
+
 int main() {
     //while(1);    
     //test_regex();
     //test_json();
-    test_ping_mongodb();
+    test_db();
     return 0;
 }

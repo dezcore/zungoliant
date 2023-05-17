@@ -10,6 +10,7 @@
 
 //Regex
 //https://en.wikibooks.org/wiki/Regular_Expressions/POSIX_Basic_Regular_Expressions
+
 #define DEFAULT_PATTERNS_LEN 2
 #define CONTENTS_PATTERNS_LEN 2
 #define CONTENT_REGEX "\"contents\".+\"header\""
