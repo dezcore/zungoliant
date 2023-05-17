@@ -30,6 +30,17 @@ int init_array(ARRAY **array, size_t length, size_t element_size, char *defaultV
     return 0;
 }
 
+int add_value(ARRAY **array, char *value, int index) {
+    if(*array != NULL) {
+        (*array)->elements[index] = (char*) realloc((*array)->elements[index], (strlen(value)+1) * sizeof(char));
+        if((*array)->elements[index] != NULL) {
+            sprintf((*array)->elements[index], "%s", value);
+        } 
+    }
+
+    return 0;
+}
+
 int free_array(ARRAY *array) {
     if(array != NULL) {
         for(int i = 0; i < array->length; i++) {

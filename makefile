@@ -27,7 +27,7 @@ ybotDep = $(IDIR)/utility.h $(IDIR)/ybot.h $(SRC_DIR)/ybot.c
 zregexDep = $(IDIR)/file.h $(IDIR)/zregex.h $(SRC_DIR)/zregex.c
 parserDep = $(IDIR)/file.h $(IDIR)/parser.h $(SRC_DIR)/parser.c
 curlDep = $(IDIR)/utility.h $(IDIR)/curl.h $(SRC_DIR)/curl.c 
-mongodbbsonDep = $(DB_IDIR)/mongodb_bson.h $(SRC_DB_DIR)/mongodb_bson.c
+mongodbbsonDep = $(IDIR)/array.h $(DB_IDIR)/mongodb_bson.h $(SRC_DB_DIR)/mongodb_bson.c
 dbDep = $(IDIR)/utility.h $(DB_IDIR)/mongodb_bson.h $(DB_IDIR)/db.h $(SRC_DB_DIR)/db.c
 utilityDep = $(IDIR)/parser.h $(IDIR)/fifo.h $(IDIR)/json.h $(IDIR)/curl.h $(IDIR)/array.h $(IDIR)/file.h $(IDIR)/zregex.h $(IDIR)/page.h $(DB_IDIR)/db.h $(IDIR)/utility.h $(SRC_DIR)/utility.c
 

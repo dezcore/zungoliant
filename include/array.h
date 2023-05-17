@@ -11,5 +11,6 @@ typedef struct _ARRAY {
 
 int free_array(ARRAY *array);
 int print_array(ARRAY *array);
+int add_value(ARRAY **array, char *value, int index);
 int init_array(ARRAY **array, size_t length, size_t element_size, char *defaultValue);
 #endif

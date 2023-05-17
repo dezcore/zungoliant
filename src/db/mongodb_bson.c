@@ -1,5 +1,56 @@
 #include "./../../include/db/mongodb_bson.h"
 
+int init_serie_struct(SERIE *serie, size_t array_size) {
+  if(serie != NULL) {
+    serie->keys = NULL;
+    serie->values = NULL;
+    serie->director = NULL;
+    serie->pproducer = NULL;
+    serie->studio = NULL;
+    serie->cats = NULL;
+    serie->contentTag = NULL;
+
+    init_array(&(serie->keys), array_size, 5, "");
+    init_array(&(serie->values), array_size, 5, "");
+    init_array(&(serie->contentTag), array_size, 5, "");
+  }  
+  return 0;
+}
+
+int print_serie(SERIE *serie) {
+  if(serie != NULL) {
+    printf("Serie : {\n");
+
+    for(int i = 0; i < serie->keys->length; i++) {
+      printf("\t%s : %s", serie->keys->elements[i],  serie->values->elements[i]);
+
+      if(i < serie->keys->length -1)
+        printf(",\n");
+      else
+       printf("\n");
+    }
+
+    printf("}\n");
+
+  }
+  return 0;
+}
+int free_serie(SERIE *serie) {
+  if(serie != NULL) {
+    if(serie->keys != NULL)
+      free_array(serie->keys);
+
+    if(serie->values != NULL)
+      free_array(serie->values);
+
+    if(serie->contentTag != NULL)
+      free_array(serie->contentTag);
+
+    free(serie);
+  }
+  return 0;
+}
+
 int int_date(bson_t **bson, char *field) {
   struct tm year = { 0 };
   /*

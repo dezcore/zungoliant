@@ -45,27 +45,50 @@ int test_ping_mongodb() {
 }
 
 int test_matching_title() {
+    SERIE *serie = NULL;
     ARRAY *array = NULL;
     File *titles_fifo = NULL;
     Element *title = NULL;
+    size_t keysLen = 1;
+    char *keys[] = {"title", "img", "category", "summary"};
+
     titles_fifo = init();
     
     if(titles_fifo != NULL) {
         init_fifo(&titles_fifo, "/data/file/titles");
         init_file_to_array("/data/file/titles_regex", &array);
+        //char *keys[] = {"title", "img", "category", "summary"};
+
         //print_array(array);
+        //display(titles_fifo);
         while(0 < titles_fifo->size) {
+            
             title = pop(titles_fifo);
             for(int i = 0; i < array->length; i++) {
                 if(match_pattern(title->value, array->elements[i])) {
-                    displayElement(title);
+                    serie = malloc(sizeof(*serie));
+                    if(serie != NULL) {
+                        init_serie_struct(serie, keysLen);
+                        add_value(&(serie)->keys, keys[0], 0);
+                        add_value(&(serie)->values, title->value, 0);
+                        print_serie(serie);
+                        free_serie(serie);
+                    } else {
+                        displayElement(title);
+                    }
+                    
+                    break;
                 }
             }
             freeElement(title);
             title = NULL;
+            serie = NULL;
         }
+
         freeFile(titles_fifo);
+       
         free_array(array);
     }
+
     return 0;
 }
