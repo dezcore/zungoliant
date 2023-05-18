@@ -115,36 +115,35 @@ int get_match(char *str, char *pattern) {
     char *res; 
     regex_t reg;
     size_t nmatch;
-    int start, end = 0;
+    int start, end, curs = 0;
+    File *fifo = init();
+    char *strCpy = (char *) malloc(strlen(str) * sizeof(char));
 
-    if(str != NULL && pattern != NULL && !regcomp(&reg, pattern, REG_EXTENDED)) {
+    if(fifo != NULL && str != NULL && pattern != NULL && !regcomp(&reg, pattern, REG_EXTENDED)) {
         nmatch = reg.re_nsub;
         regmatch_t m[nmatch + 1];
+        sprintf(strCpy, "%s", str);
 
-        while(!regexec(&reg, str, nmatch + 1, m, end)) {
+        while(!regexec(&reg, strCpy, nmatch + 1, m, 0)) {
             start = m[0].rm_so;
             end = m[0].rm_eo;
-            res = (char*) malloc( 100 * sizeof(char));
+            curs += m[0].rm_eo;
+            res = (char*) malloc((end - start + 1) * sizeof(char));
+
             if(res != NULL) {
-                strncpy(res, &str[start], end-start);
-                //res[end-start] = '\0';
-                printf("Test match : %s\n", res);
+                strncpy(res, &strCpy[start], end-start);
+                res[strlen(res)] = '\0';
+
+                memcpy(strCpy, &str[curs], (strlen(str)-curs));
+                strCpy[(strlen(str)-curs)] = '\0';
+                push(fifo, res);
+                //printf("Test match : %s, %s\n", res, strCpy);
                 free(res);
             }
         }
-
-        /*if(!regexec(&reg, str, nmatch + 1, m, 0)) {
-            start = m[0].rm_so;
-            end = m[0].rm_eo;
-            res = (char*) malloc( 100 * sizeof(char));
-
-            if(res != NULL) {
-                strncpy(res, &str[start], end-start);
-                //res[end-start] = '\0';
-                printf("Test match : %s, %d\n", res,  m[1].rm_so);
-                free(res);
-            }
-        }*/
+        display(fifo);
+        free(strCpy);
+        freeFile(fifo);
     }
 
     return 0;

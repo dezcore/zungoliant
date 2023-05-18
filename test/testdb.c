@@ -58,7 +58,6 @@ int test_matching_title() {
         //print_array(array);
         //display(titles_fifo);
         while(0 < titles_fifo->size) {
-            
             title = pop(titles_fifo);
             for(int i = 0; i < array->length; i++) {
                 if(match_pattern(title->value, array->elements[i])) {
@@ -175,6 +174,6 @@ int test_update_document() {
 
 int test_match_patterns() {
     //if(match_pattern(title->value, array->elements[i]))
-    get_match("TIKA COMPLEXE 1 I FILM CONGOLAIS I NOUVEAUTÉ 2023", "[A-Za-z ]*[^0-9]*");
+    get_match("TOURBILLONS Ep3 | Film Congolais 2023 | Sila Bisalu | SBproduction.", "[^0-9]+");
     return 0;
 }
