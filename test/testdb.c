@@ -173,7 +173,43 @@ int test_update_document() {
 }
 
 int test_match_patterns() {
-    //if(match_pattern(title->value, array->elements[i]))
-    get_match("TOURBILLONS Ep3 | Film Congolais 2023 | Sila Bisalu | SBproduction.", "[^0-9]+");
+    char *regex = NULL;
+    File *fifo = NULL;
+    bson_t *selector;
+    mongoc_cursor_t *cursor = NULL;
+    mongoc_client_t *client = NULL;
+
+    init_mongo_client(&client);
+    get_match("TOURBILLONS Ep5 | Film congolais 2023 | Sila Bisalu | SBproduction.", "[A-Za-z]+[ ]+[A-Za-z]+", &fifo);//[^0-9 ]+ or [A-Za-z]+
+
+    if(fifo != NULL && client != NULL) {
+        //display(fifo);
+        join_file_element(fifo, &regex, ".*", 1);
+
+        if(regex != NULL) {
+            //printf("Regex : %s\n", regex);
+            selector =  BCON_NEW(
+                "title", "{",
+                    "$regex", BCON_UTF8(regex),
+                    "$options", BCON_UTF8("i"),
+                "}"
+            );
+            
+            if(selector != NULL) {
+                find_document(client, "maboke", "serie", selector, &cursor);
+                if(cursor != NULL) {
+                    print_cursor(cursor);
+                    bson_free(cursor);
+                }
+                //print_bson(selector);
+                bson_destroy(selector);
+            }
+            free(regex);
+        }
+
+        freeFile(fifo);
+        free_mongo_client(client);
+    }
+
     return 0;
 }

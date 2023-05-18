@@ -111,15 +111,16 @@ int match_pattern(char *str, char *pattern) {
     return match;
 }
 
-int get_match(char *str, char *pattern) {
+int get_match(char *str, char *pattern, File **fifo) {
     char *res; 
     regex_t reg;
     size_t nmatch;
     int start, end, curs = 0;
-    File *fifo = init();
+    
+    *fifo = init();
     char *strCpy = (char *) malloc(strlen(str) * sizeof(char));
 
-    if(fifo != NULL && str != NULL && pattern != NULL && !regcomp(&reg, pattern, REG_EXTENDED)) {
+    if(*fifo != NULL && str != NULL && pattern != NULL && !regcomp(&reg, pattern, REG_EXTENDED)) {
         nmatch = reg.re_nsub;
         regmatch_t m[nmatch + 1];
         sprintf(strCpy, "%s", str);
@@ -133,17 +134,33 @@ int get_match(char *str, char *pattern) {
             if(res != NULL) {
                 strncpy(res, &strCpy[start], end-start);
                 res[strlen(res)] = '\0';
-
                 memcpy(strCpy, &str[curs], (strlen(str)-curs));
                 strCpy[(strlen(str)-curs)] = '\0';
-                push(fifo, res);
-                //printf("Test match : %s, %s\n", res, strCpy);
+                push(*fifo, res);
                 free(res);
             }
         }
-        display(fifo);
         free(strCpy);
-        freeFile(fifo);
+    }
+
+    return 0;
+}
+
+int join_file_element(File *file, char **str, char *delimiter, int start_delimiter) {
+    Element *current;
+
+    if(file != NULL) {
+        *str = (char*) calloc(JOIN_STR_LEN, sizeof(char));
+        current = file->head;
+
+        if(start_delimiter)
+            sprintf(*str, "%s", delimiter);
+
+        while(current != NULL) {
+            strcat(*str, current->value);
+            strcat(*str, delimiter);
+            current = current->next;
+        }
     }
 
     return 0;

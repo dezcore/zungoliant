@@ -24,18 +24,20 @@
 #include "./../include/array.h"
 
 #define PWD_STR_LEN 100
+#define JOIN_STR_LEN 100
 
 #define YINITDATA_VAR "ytInitialData"
 #define DOWNLOAD_TEST_FILE "/data/test/download/test.html"
 #define YINITDATA_FILE_PATH "/data/file/ytInitialData"
 
 int trim(char **str);
-int get_match(char *str, char *pattern);
 int get_pwd(char **res, char *concatPath);
 int init_fifo(File **fifo, char *filePath);
 int match_pattern(char *str, char *pattern);
 int init_urls(File **urls_fifo,  char **urlsFileSrc);
 int init_file_to_array(char *filePath, ARRAY **array);
+int get_match(char *str, char *pattern,  File **fifo);
 int downloadPage_and_replace(char *parseContent, YPage *page);
 int extract_htmlpagedata(char *html_file_path, char *saveFilePath, YPage *page);
+int join_file_element(File *file, char **str, char *delimiter, int start_delimiter);
 #endif
