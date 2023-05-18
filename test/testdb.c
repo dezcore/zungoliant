@@ -4,7 +4,7 @@ int test_str_to_bson() {
     char  *string;
     bson_t *bson;
     char *json = "{\"name\": {\"first\":\"Grace\", \"last\":\"Hopper\"}}";
-    josn_tobson(json, &bson);
+    json_tobson(json, &bson);
     string = bson_as_canonical_extended_json (bson, NULL);
     printf ("%s\n", string);
     bson_free(string);
@@ -33,7 +33,7 @@ int test_insert_document(SERIE *serie) {
     serie_to_bson(&document, serie);
     
     if(document != NULL && client != NULL) {
-        insert_document(client, "maboke", "serie_test", document);
+        insert_document(client, "maboke", "serie", document);
     }
 
     bson_destroy(document);
@@ -97,7 +97,7 @@ int test_find_document() {
 
     init_mongo_client(&client);
     if(client != NULL) {
-        josn_tobson("{\"title\" : \"Groupe Kin Malebo - Molongo Molayi 1-2 (Théâtre Congolais) (2008)\" }", &selector);
+        json_tobson("{\"title\" : \"Groupe Kin Malebo - Molongo Molayi 1-2 (Théâtre Congolais) (2008)\" }", &selector);
 
         if(selector != NULL) {
            
@@ -121,7 +121,7 @@ int test_find_document_by_regex() {
 
     init_mongo_client(&client);
     if(client != NULL) {
-        josn_tobson("{ \"title\": { \"$regex\" : \".*(T|t)h(é|e)(a|â)tre.*(C|c)(O|o)(N|n)(G|g)(O|o)(L|l).*\"}}", &selector);
+        json_tobson("{ \"title\": { \"$regex\" : \".*(T|t)h(é|e)(a|â)tre.*(C|c)(O|o)(N|n)(G|g)(O|o)(L|l).*\"}}", &selector);
         if(selector != NULL) {
             find_document(client, "maboke", "serie_test", selector, &cursor);
             if(cursor != NULL) {
@@ -139,12 +139,33 @@ int test_find_document_by_regex() {
 int test_delete_document() {
     bson_t *selector;
     mongoc_client_t *client = NULL;
-    
+
     init_mongo_client(&client);
     if(client != NULL) {
-        josn_tobson("{\"title\" : \"Groupe Kin Malebo - Molongo Molayi 1-2 (Théâtre Congolais) (2008)\" }", &selector);
+        json_tobson("{\"title\" : \"Groupe Kin Malebo - Molongo Molayi 1-2 (Théâtre Congolais) (2008)\" }", &selector);
         if(selector != NULL) {
             delete_document(client,"maboke", "serie_test", selector);
+            bson_free(selector);
+        }
+        free_mongo_client(client);
+    }
+    return 0;
+}
+
+int test_update_document() {
+    bson_t *selector, *update;
+    mongoc_client_t *client = NULL;
+
+    init_mongo_client(&client);
+    if(client != NULL) {
+        selector = BCON_NEW("title", BCON_UTF8("\"BILAN NÉGATIF\" EPISODE 9 ET FIN"));
+        json_tobson("{\"$set\" : {\"contentTag\" : [\"testtag1\", \"testtag2\", \"testtag3\"]}}", &update); 
+
+        if(selector != NULL && update != NULL) {
+            update_document(client,"maboke", "serie_test", selector, update);
+            //print_bson(selector);
+            //print_bson(update);
+            bson_free(update);
             bson_free(selector);
         }
         free_mongo_client(client);

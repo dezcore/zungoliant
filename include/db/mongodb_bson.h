@@ -41,7 +41,7 @@ typedef struct _SERIE {
 int init_movie();
 int free_serie(SERIE *serie);
 int print_serie(SERIE *serie);
-int josn_tobson(char *json, bson_t **bson);
+int json_tobson(char *json, bson_t **bson);
 int serie_to_bson(bson_t **document, SERIE *serie);
 int init_serie_struct(SERIE *serie, size_t array_size);
 #endif

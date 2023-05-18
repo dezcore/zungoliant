@@ -96,19 +96,9 @@ int find_and_update(mongoc_client_t *client, char *dbName, char *collection) {
   mongoc_collection_t *coll;
 
   coll = mongoc_client_get_collection(client, dbName, collection);
-  /*
-  * Build our query, {"cmpxchg": 1}
-  */
   query = BCON_NEW("cmpxchg", BCON_INT32 (1));
-
-   /*
-    * Build our update. {"$set": {"cmpxchg": 2}}
-  */
   update = BCON_NEW("$set", "{", "cmpxchg", BCON_INT32(2), "}");
 
-  /*
-  * Submit the findAndModify.
-  */
   if(!mongoc_collection_find_and_modify(coll, query, NULL, update, NULL, false, false, true, &reply, &error)) {
     fprintf (stderr, "find_and_modify() failure: %s\n", error.message);
     return EXIT_FAILURE;
@@ -126,38 +116,29 @@ int find_and_update(mongoc_client_t *client, char *dbName, char *collection) {
 
 int find_document(mongoc_client_t *client, char *dbName, char *collection, bson_t *selector,  mongoc_cursor_t **cursor) {
   mongoc_collection_t *coll;
-  //bson_t *selector = BCON_NEW("_id", "{", "$gt", BCON_INT32(0), "}");
   coll = mongoc_client_get_collection(client, dbName, collection);
 
   if(coll != NULL) {
     *cursor = mongoc_collection_find_with_opts(coll, selector, NULL, NULL);
   }
-  
+
   mongoc_collection_destroy(coll);
   return 0;
 }
 
-int update_document(mongoc_client_t *client, char *dbName, char *collection) {
-  bson_t *update;
+int update_document(mongoc_client_t *client, char *dbName, char *collection, bson_t *selector, bson_t *update) {
   bson_error_t error = {0};
   mongoc_collection_t *coll;
-  bson_t *selector = BCON_NEW("_id", "{", "$gt", BCON_INT32 (0), "}");
 
   coll = mongoc_client_get_collection(client, dbName, collection);
-  /*
-    * Build our update. {"$set": {"x": 1}}
-  */
-  update = BCON_NEW("$set", "{", "x", BCON_INT32 (1), "}");
 
   if(!mongoc_collection_update_one(coll, selector, update, NULL, NULL, &error)) {
     fprintf(stderr, "update failed: %s\n", error.message);
     return EXIT_FAILURE;
   }
 
-  bson_destroy(update);
-  bson_destroy(selector);
   mongoc_collection_destroy(coll);
-
+  
   return 0;
 }
 
@@ -179,24 +160,19 @@ int insert_document(mongoc_client_t *client, char *dbName, char *collection, bso
   return 0;
 }
 
-int create_collection(mongoc_client_t *client, char *collectionName, char *dbName) {
+int create_collection(mongoc_client_t *client, char *dbName, char *collectionName) {
   bson_error_t error;
   mongoc_database_t *database = NULL;
   mongoc_collection_t *collection = NULL;
 
   database = mongoc_client_get_database(client, dbName);
-
-  /* inserting into a nonexistent collection normally creates it, but a
-  * collection can't be created in a transaction; create it now */
   collection = mongoc_database_create_collection(database, collectionName, NULL, &error);
 
   if(!collection) {
-    /* code 48 is NamespaceExists, see error_codes.err in mongodb source */
     if(error.code == 48) {
       collection = mongoc_database_get_collection(database, "collection");
     } else {
       MONGOC_ERROR ("Failed to create collection: %s", error.message);
-      //goto done;
     }
   }
   
@@ -206,13 +182,13 @@ int create_collection(mongoc_client_t *client, char *collectionName, char *dbNam
   return 0;
 }
 
-int delete_document(mongoc_client_t *client, char *collectionName, char *dbName, bson_t *doc) {
+int delete_document(mongoc_client_t *client, char *dbName, char *collectionName, bson_t *doc) {
   bson_error_t error;
   mongoc_collection_t *collection;
   mongoc_database_t *database = NULL;
 
   database = mongoc_client_get_database(client, dbName);
-  collection = mongoc_database_create_collection(database, collectionName, NULL, &error);
+  collection = mongoc_client_get_collection(client, dbName, collectionName);
 
   if(!mongoc_collection_delete_one(collection, doc, NULL, NULL, &error)) {
     fprintf (stderr, "Delete failed: %s\n", error.message);

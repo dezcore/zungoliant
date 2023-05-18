@@ -9,6 +9,7 @@ int test_ping_mongodb();
 int test_find_document(); 
 int test_matching_title();
 int test_delete_document();
+int test_update_document();
 int test_find_document_by_regex();
 int test_insert_document(SERIE *serie);
 #endif

@@ -61,9 +61,11 @@ int int_date(bson_t **bson, char *field) {
   year.tm_year = 6;  /* years are 1900-based */
   year.tm_mon = 11;  /* months are 0-based */
   year.tm_mday = 9;
-
+  year.tm_hour = 12;
+  year.tm_min = 28;
+  year.tm_sec = 28;
   BSON_APPEND_DATE_TIME(*bson, field, mktime(&year) * 1000);
-
+  
   return 0;
 }
 
@@ -344,7 +346,7 @@ int init_movie() {
   return 0;
 }
 
-int josn_tobson(char *json, bson_t **bson) {
+int json_tobson(char *json, bson_t **bson) {
   bson_error_t error;
 
   *bson = bson_new_from_json((const uint8_t *)json, -1, &error);
