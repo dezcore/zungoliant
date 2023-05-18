@@ -172,3 +172,9 @@ int test_update_document() {
     }
     return 0;
 }
+
+int test_match_patterns() {
+    //if(match_pattern(title->value, array->elements[i]))
+    get_match("TIKA COMPLEXE 1 I FILM CONGOLAIS I NOUVEAUTÉ 2023", "[A-Za-z ]*[^0-9]*");
+    return 0;
+}

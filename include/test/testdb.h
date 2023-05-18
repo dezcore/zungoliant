@@ -7,6 +7,7 @@
 int test_str_to_bson();
 int test_ping_mongodb();
 int test_find_document(); 
+int test_match_patterns();
 int test_matching_title();
 int test_delete_document();
 int test_update_document();

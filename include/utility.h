@@ -30,6 +30,7 @@
 #define YINITDATA_FILE_PATH "/data/file/ytInitialData"
 
 int trim(char **str);
+int get_match(char *str, char *pattern);
 int get_pwd(char **res, char *concatPath);
 int init_fifo(File **fifo, char *filePath);
 int match_pattern(char *str, char *pattern);

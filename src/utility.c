@@ -111,6 +111,45 @@ int match_pattern(char *str, char *pattern) {
     return match;
 }
 
+int get_match(char *str, char *pattern) {
+    char *res; 
+    regex_t reg;
+    size_t nmatch;
+    int start, end = 0;
+
+    if(str != NULL && pattern != NULL && !regcomp(&reg, pattern, REG_EXTENDED)) {
+        nmatch = reg.re_nsub;
+        regmatch_t m[nmatch + 1];
+
+        while(!regexec(&reg, str, nmatch + 1, m, end)) {
+            start = m[0].rm_so;
+            end = m[0].rm_eo;
+            res = (char*) malloc( 100 * sizeof(char));
+            if(res != NULL) {
+                strncpy(res, &str[start], end-start);
+                //res[end-start] = '\0';
+                printf("Test match : %s\n", res);
+                free(res);
+            }
+        }
+
+        /*if(!regexec(&reg, str, nmatch + 1, m, 0)) {
+            start = m[0].rm_so;
+            end = m[0].rm_eo;
+            res = (char*) malloc( 100 * sizeof(char));
+
+            if(res != NULL) {
+                strncpy(res, &str[start], end-start);
+                //res[end-start] = '\0';
+                printf("Test match : %s, %d\n", res,  m[1].rm_so);
+                free(res);
+            }
+        }*/
+    }
+
+    return 0;
+}
+
 int init_fifo(File **fifo, char *filePath) {
     char *file =  NULL;
     get_pwd(&file, filePath);
