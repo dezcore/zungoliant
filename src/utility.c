@@ -133,7 +133,7 @@ int get_match(char *str, char *pattern, File **fifo) {
 
             if(res != NULL) {
                 strncpy(res, &strCpy[start], end-start);
-                res[strlen(res)] = '\0';
+                res[end-start] = '\0';
                 memcpy(strCpy, &str[curs], (strlen(str)-curs));
                 strCpy[(strlen(str)-curs)] = '\0';
                 push(*fifo, res);
@@ -141,6 +141,32 @@ int get_match(char *str, char *pattern, File **fifo) {
             }
         }
         free(strCpy);
+    }
+
+    return 0;
+}
+
+int get_str_match(char *str, char *pattern, char **match) {
+    char *res; 
+    regex_t reg;
+    size_t nmatch;
+    int start, end;
+
+    if(str != NULL && pattern != NULL && !regcomp(&reg, pattern, REG_EXTENDED)) {
+        nmatch = reg.re_nsub;
+        regmatch_t m[nmatch + 1];
+
+        if(!regexec(&reg, str, nmatch + 1, m, 0)) {
+            start = m[0].rm_so;
+            end = m[0].rm_eo;
+            res = (char*) malloc((end-start+1) * sizeof(char));
+
+            if(res != NULL) {
+                strncpy(res, &str[start], end-start);
+                res[end-start] = '\0';
+                *match = res;
+            }
+        }
     }
 
     return 0;
@@ -201,4 +227,43 @@ int init_urls(File **urls_fifo,  char **urlsFileSrc) {
     }
 
     return 0;
+}
+
+int fifoToArray(File *fifo, ARRAY **array) {
+    int cpt = 0;
+    Element *current;
+
+    if(fifo != NULL) {
+        current = fifo->head;
+        init_array(&(*array), fifo->size, 5, "");
+
+        while(current != NULL) {
+            (*array)->elements[cpt] = (char*) realloc((*array)->elements[cpt], (strlen(current->value)+1) * sizeof(char));
+            if((*array)->elements[cpt] != NULL) {
+                sprintf((*array)->elements[cpt], "%s", current->value);
+            } 
+            cpt++;
+            current = current->next;
+        }
+    }
+
+    return 0;
+}
+
+int parseDate(char *str_date, char *datePartRegex, char *datePartDelimiter, ARRAY **array) {
+    File *fifo = NULL;
+    char *part = NULL;
+    get_str_match(str_date, datePartRegex, &part); 
+
+    if(part != NULL) {
+        get_match(part, datePartDelimiter, &fifo);
+        if(fifo != NULL) {
+            //display(fifo);
+            fifoToArray(fifo, &(*array));
+            freeFile(fifo);
+        }
+        free(part);
+    }
+
+  return 0;
 }

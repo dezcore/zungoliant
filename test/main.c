@@ -46,7 +46,8 @@ int test_db() {
     //test_find_document_by_regex();
     //test_delete_document();
     //test_update_document();
-    test_match_patterns();
+    //test_match_patterns();
+    test_parse_date();
     return 0;
 }
 

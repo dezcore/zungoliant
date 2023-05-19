@@ -214,3 +214,25 @@ int test_match_patterns() {
 
     return 0;
 }
+
+int test_parse_date() {
+    ARRAY *datePartArray = NULL;
+    ARRAY *hoursPartArray = NULL;
+    const char *date = "2014-01-01T08:15:39.736Z";
+
+    parseDate(date, "[0-9]{2}:[0-9]{2}:[0-9]{2}", "[0-9]{2}", &hoursPartArray);
+
+    if(hoursPartArray != NULL) {
+        print_array(hoursPartArray);
+        free_array(hoursPartArray);   
+    }
+
+    parseDate(date, "[0-9]{4}-[0-9]{2}-[0-9]{2}", "[0-9]+", &datePartArray);
+
+    if(datePartArray != NULL) {
+        print_array(datePartArray);
+        free_array(datePartArray);   
+    }
+
+    return 0;
+}

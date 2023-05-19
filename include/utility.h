@@ -40,4 +40,5 @@ int get_match(char *str, char *pattern,  File **fifo);
 int downloadPage_and_replace(char *parseContent, YPage *page);
 int extract_htmlpagedata(char *html_file_path, char *saveFilePath, YPage *page);
 int join_file_element(File *file, char **str, char *delimiter, int start_delimiter);
+int parseDate(char *str_date, char *datePartRegex, char *datePartDelimiter, ARRAY **array);
 #endif
