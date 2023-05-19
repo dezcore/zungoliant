@@ -18,7 +18,7 @@ int test_ping_mongodb() {
     ping_mongodb(client);
     //get_collection(client, "maboke", "view");
     //insert_document(client, "maboke", "test");
-    //init_movie();
+    init_movie();
     //test_zjosn();
     free_mongo_client(client);
     //while(1);
@@ -33,6 +33,7 @@ int test_insert_document(SERIE *serie) {
     serie_to_bson(&document, serie);
     
     if(document != NULL && client != NULL) {
+        //print_bson(document);
         insert_document(client, "maboke", "serie", document);
     }
 
@@ -194,7 +195,7 @@ int test_match_patterns() {
                     "$options", BCON_UTF8("i"),
                 "}"
             );
-            
+
             if(selector != NULL) {
                 find_document(client, "maboke", "serie", selector, &cursor);
                 if(cursor != NULL) {

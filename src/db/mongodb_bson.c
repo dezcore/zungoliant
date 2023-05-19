@@ -53,33 +53,21 @@ int free_serie(SERIE *serie) {
 }
 
 int int_date(bson_t **bson, char *field) {
-  struct tm year = { 0 };
-  /*
-    * Append { "born" : ISODate("1906-12-09") } to the document.
-    * Passing -1 for the length argument tells libbson to calculate the string length.
-  */
-  year.tm_year = 6;  /* years are 1900-based */
-  year.tm_mon = 11;  /* months are 0-based */
-  year.tm_mday = 9;
-  year.tm_hour = 12;
-  year.tm_min = 28;
-  year.tm_sec = 28;
-  BSON_APPEND_DATE_TIME(*bson, field, mktime(&year) * 1000);
-  
+  bson_t date;
+
+  BSON_APPEND_DOCUMENT_BEGIN(*bson, field, &date);
+  BSON_APPEND_UTF8(&date, "$date", "2019-01-31T10:42:00Z");
+  bson_append_document_end(*bson, &date);
+
   return 0;
 }
 
 int int_date_(bson_t *bson, char *field) {
-  struct tm year = { 0 };
-  /*
-    * Append { "born" : ISODate("1906-12-09") } to the document.
-    * Passing -1 for the length argument tells libbson to calculate the string length.
-  */
-  year.tm_year = 6;  /* years are 1900-based */
-  year.tm_mon = 11;  /* months are 0-based */
-  year.tm_mday = 9;
+  bson_t date;
 
-  BSON_APPEND_DATE_TIME(bson, field, mktime(&year) * 1000);
+  BSON_APPEND_DOCUMENT_BEGIN(bson, field, &date);
+  BSON_APPEND_UTF8(&date, "$date", "2019-01-31T10:42:00Z");
+  bson_append_document_end(bson, &date);
 
   return 0;
 }
@@ -258,58 +246,40 @@ int serie_to_bson(bson_t **document, SERIE *serie) {
   return 0;
 }
 
-int init_date__(struct tm date) {
-  date.tm_year = 6;
-  date.tm_mon = 11;
-  date.tm_mday = 9;
-  return 0;
-}
-
 int init_movie() {
-  struct tm startYear = {0};
-  struct tm endYear = {0};
-  struct tm birthYear = {0};
-  struct tm deathYear = {0};
-  struct tm created_at = {0};
   bson_t  *document;
   char *str;
-
-  init_date__(startYear);
-  init_date__(endYear);
-  init_date__(birthYear);
-  init_date__(deathYear);
-  init_date__(created_at);
 
   document = BCON_NEW(
     "director", "{",
       "name", BCON_UTF8("Director name"),
-      "startYear", BCON_DATE_TIME(mktime (&startYear) * 1000),
-      "endYear", BCON_DATE_TIME(mktime (&endYear) * 1000),
-      "birthYear", BCON_DATE_TIME(mktime (&birthYear) * 1000),
+      "startYear", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
+      "endYear", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
+      "birthYear", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
     "}",
     "producer", "{",
       "name", BCON_UTF8("Producer name"),
-      "startYear", BCON_DATE_TIME(mktime (&startYear) * 1000),
-      "endYear", BCON_DATE_TIME(mktime (&endYear) * 1000),
-      "birthYear", BCON_DATE_TIME(mktime (&birthYear) * 1000),
+      "startYear", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
+      "endYear", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
+      "birthYear", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
     "}",
     "studio", "{",
       "name", BCON_UTF8("Studio name"),
       "city", BCON_UTF8("Studio city"),
       "country", BCON_UTF8("Studio country"),
-      "startYear", BCON_DATE_TIME(mktime (&startYear) * 1000),
-      "endYear", BCON_DATE_TIME(mktime (&endYear) * 1000),
-      "birthYear", BCON_DATE_TIME(mktime (&birthYear) * 1000),
+      "startYear", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
+      "endYear", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
+      "birthYear", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
       "fonder", BCON_UTF8("Studio fonder"),
     "}",
      "cast", "{",
         "actors", "[",
           "{", 
             "name", BCON_UTF8 ("Actor name"), 
-            "startYear", BCON_DATE_TIME(mktime (&startYear) * 1000),
-            "endYear", BCON_DATE_TIME(mktime (&endYear) * 1000),
-            "birthYear", BCON_DATE_TIME(mktime (&birthYear) * 1000),
-            "deathYear", BCON_DATE_TIME(mktime (&deathYear) * 1000),
+            "startYear", "{", "$regex", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
+            "endYear", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
+            "birthYear", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
+            "deathYear", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
             "gender", BCON_UTF8 ("Actor gender"), 
           "}",
         "]",
@@ -328,9 +298,9 @@ int init_movie() {
       "url", BCON_UTF8("Video url"),
       "length", BCON_UTF8("Video length"),
       "censor_rating", BCON_UTF8("Video censor_rating"),
-      "created_at", BCON_DATE_TIME(mktime (&created_at) * 1000),
-      "endYear", BCON_DATE_TIME(mktime (&endYear) * 1000),
-      "birthYear", BCON_DATE_TIME(mktime (&birthYear) * 1000),
+      "created_at", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
+      "endYear", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
+      "birthYear", "{", "$date", BCON_UTF8("2019-01-31T10:42:00Z"), "}",
       "fonder", BCON_UTF8("Studio fonder"),
   "}");
   /*
