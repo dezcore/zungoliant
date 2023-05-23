@@ -27,12 +27,12 @@ ybotDep = $(IDIR)/utility.h $(IDIR)/ybot.h $(SRC_DIR)/ybot.c
 zregexDep = $(IDIR)/file.h $(IDIR)/zregex.h $(SRC_DIR)/zregex.c
 parserDep = $(IDIR)/file.h $(IDIR)/parser.h $(SRC_DIR)/parser.c
 curlDep = $(IDIR)/utility.h $(IDIR)/curl.h $(SRC_DIR)/curl.c 
-mongodbbsonDep = $(IDIR)/array.h $(DB_IDIR)/mongodb_bson.h $(SRC_DB_DIR)/mongodb_bson.c
+mongodbbsonDep = $(IDIR)/utility.h $(DB_IDIR)/mongodb_bson.h $(SRC_DB_DIR)/mongodb_bson.c
 dbDep = $(IDIR)/utility.h $(DB_IDIR)/mongodb_bson.h $(DB_IDIR)/db.h $(SRC_DB_DIR)/db.c
-utilityDep = $(IDIR)/parser.h $(IDIR)/fifo.h $(IDIR)/json.h $(IDIR)/curl.h $(IDIR)/array.h $(IDIR)/file.h $(IDIR)/zregex.h $(IDIR)/page.h $(DB_IDIR)/db.h $(IDIR)/utility.h $(SRC_DIR)/utility.c
+utilityDep = $(IDIR)/parser.h $(IDIR)/fifo.h $(IDIR)/json.h $(IDIR)/curl.h $(IDIR)/array.h $(IDIR)/file.h $(IDIR)/zregex.h $(IDIR)/page.h $(DB_IDIR)/mongodb_bson.h $(DB_IDIR)/db.h $(IDIR)/utility.h $(SRC_DIR)/utility.c
 
 mainDep = $(IDIR)/ybot.h $(SRC_DIR)/main.c
-mainObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/array.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/utility.o $(ODIR)/ybot.o $(ODIR)/page.o $(ODIR)/db.o $(ODIR)/main.o
+mainObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/array.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/utility.o $(ODIR)/ybot.o $(ODIR)/page.o $(ODIR)/mongodb_bson.o $(ODIR)/db.o $(ODIR)/main.o
 
 testdbDep = $(IDIR)/utility.h $(TEST_IDIR)/testdb.h $(TEST_DIR)/testdb.c
 testfifoDep = $(IDIR)/fifo.h $(IDIR)/testfifo.h $(TEST_DIR)/testfifo.c

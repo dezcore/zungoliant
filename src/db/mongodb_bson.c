@@ -1,5 +1,198 @@
 #include "./../../include/db/mongodb_bson.h"
 
+int json_tobson(char *json, bson_t **bson) {
+  bson_error_t error;
+
+  *bson = bson_new_from_json((const uint8_t *)json, -1, &error);
+  if(!*bson) {
+    fprintf (stderr, "%s\n", error.message);
+    return EXIT_FAILURE;
+  }
+
+  return 0;
+}
+
+int init_video_struct(VIDEO *video) {
+  if(video != NULL) {
+    video->title = (char*)malloc(sizeof(char));
+    video->category = (char*)malloc(sizeof(char));
+    video->summary = (char*)malloc(sizeof(char));
+    video->url = (char*)malloc(sizeof(char));
+    video->length = (char*)malloc(sizeof(char));
+    video->censor_rating = (char*)malloc(sizeof(char));
+  }
+  return 0;
+}
+
+int set_video_title(VIDEO *video, char *title) {
+  char *new_title;
+  if(video != NULL && title != NULL) {
+    new_title = (char*) realloc(video->title, (strlen(title)+1) * sizeof(char));
+    if(new_title != NULL) {
+      video->title = new_title;
+      sprintf(video->title, "%s", title);
+    }
+  }
+  return 0;
+}
+
+int set_video_category(VIDEO *video, char *category) {
+  char *new_category;
+  if(video != NULL && category != NULL) {
+    new_category = (char*) realloc(video->category, (strlen(category)+1) * sizeof(char));
+    if(new_category != NULL) {
+      video->category = new_category;
+      sprintf(video->category, "%s", category);
+    }
+  }
+  return 0;
+}
+
+int set_video_summary(VIDEO *video, char *summary) {
+  char *new_summary;
+  if(video != NULL && summary != NULL) {
+    new_summary = (char*) realloc(video->summary, (strlen(summary)+1) * sizeof(char));
+    if(new_summary != NULL) {
+      video->summary = new_summary;
+      sprintf(video->summary, "%s", summary);
+    }
+  }
+  return 0;
+}
+
+int set_video_url(VIDEO *video, char *url) {
+  char *new_url;
+  if(video != NULL && url != NULL) {
+    new_url = (char*) realloc(video->url, (strlen(url)+1) * sizeof(char));
+    if(new_url != NULL) {
+      video->url = new_url;
+      sprintf(video->url, "%s", url);
+    }
+  }
+  return 0;
+}
+
+int set_video_length(VIDEO *video, char *length) {
+  char *new_length;
+  if(video != NULL && length != NULL) {
+    new_length = (char*) realloc(video->length, (strlen(length)+1) * sizeof(char));
+    if(new_length != NULL) {
+      video->length = new_length;
+      sprintf(video->length, "%s", length);
+    }
+  }
+  return 0;
+}
+
+int set_video_censor_rating(VIDEO *video, char *censor_rating) {
+  char *new_censor_rating;
+  if(video != NULL && censor_rating != NULL) {
+    new_censor_rating = (char*) realloc(video->censor_rating, (strlen(censor_rating)+1) * sizeof(char));
+    if(new_censor_rating != NULL) {
+      video->censor_rating = new_censor_rating;
+      sprintf(video->censor_rating, "%s", censor_rating);
+    }
+  }
+  return 0;
+}
+
+int print_video(VIDEO *video) {
+  if(video != NULL) {
+    printf("Video : {\n");
+    printf("\t\"Title\" : \"%s\",\n", video->title);
+    printf("\t\"Category\" : \"%s\",\n", video->category);
+    printf("\t\"Summary\" : \"%s\"\n", video->summary);
+    printf("\t\"Url\" : \"%s\"\n", video->url);
+    printf("\t\"Length\" : \"%s\"\n", video->length);
+    printf("\t\"Censor_rating\" : \"%s\"\n", video->censor_rating);
+    printf("}\n");
+  }
+  return 0;
+}
+
+int free_video_struct(VIDEO *video) {
+  if(video != NULL) {
+    free(video->title);
+    free(video->category);
+    free(video->summary);
+    free(video->url);
+    free(video->length);
+    free(video->censor_rating);
+    free(video);
+  }
+  return 0;
+}
+
+int init_video_array_struct(VIDEO_ARRAY *array, size_t length) {
+    if(array != NULL) {
+        array->elements = malloc(length * sizeof(array->elements));
+        for(int i = 0; i < length; i++) {
+          array->elements[i] = (VIDEO *) malloc(sizeof(VIDEO*));
+          init_video_struct(array->elements[i]);
+        }
+        array->length = length;
+    }
+
+    return 0;
+}
+
+int free_video_array_struct(VIDEO_ARRAY *array) {
+  if(array != NULL) {
+    printf("Size : %ld\n", array->length);
+    /*for(int i = 0; i <  array->length; i++) {
+      free_video_struct(array->elements[i]);
+    }*/
+    //free(array->elements);
+    //free(array);
+  }
+
+  return 0;
+}
+
+int init_season_struct(SEASON *season) {
+  if(season != NULL) {
+    season->title = (char*)malloc(sizeof(char));
+    season->date = (char*)malloc(sizeof(char));
+    season->summary = (char*)malloc(sizeof(char));
+    season->number = 0;
+  }
+  return 0;
+}
+
+int free_season_struct(SEASON *season) {
+  if(season != NULL) {
+    free(season->title);
+    free(season->date);
+    free(season->summary);
+    free(season);
+  }
+  return 0;
+}
+
+int init_season_array_struct(SEASON_ARRAY *array, size_t length) {
+  if(array != NULL) {
+    array->elements = malloc(length * sizeof(array->elements));
+    for(int i = 0; i < length; i++) {
+      array->elements[i] = (SEASON*) malloc(sizeof(SEASON*));
+      init_season_struct(array->elements[i]);
+    }
+    array->length = length;
+  }
+  return 0;
+}
+
+int free_season_array_struct(SEASON_ARRAY *array) {
+  if(array != NULL) {
+    for(int i = 0; i <  array->length; i++) {
+      free_season_struct(array->elements[i]);
+    }
+    free(array->elements);
+    free(array);
+  }
+
+  return 0;
+}
+
 int init_serie_struct(SERIE *serie, size_t array_size) {
   if(serie != NULL) {
     serie->keys = NULL;
@@ -343,14 +536,157 @@ int init_movie() {
   return 0;
 }
 
-int json_tobson(char *json, bson_t **bson) {
-  bson_error_t error;
+int create_season(struct json_object *serie) {
+  if(serie != NULL) {
+    printf("create_season\n");
+    //json_object_set_string(tmp, SHORT);
+    //init_season(bson_t *season) 
+  }
+  return 0;
+}
 
-  *bson = bson_new_from_json((const uint8_t *)json, -1, &error);
-  if(!*bson) {
-    fprintf (stderr, "%s\n", error.message);
-    return EXIT_FAILURE;
+int get_seasontitle(char *title, char **season_title) {
+  if(title != NULL) {
+    get_str_match(title, "([sS]aison)[ ]*[0-9]", &(*season_title));
+
+    if(*season_title == NULL) {
+      *season_title = (char*) calloc(20, sizeof(char));
+      sprintf(*season_title, "%s", "Season 1\0");
+    }
   }
 
+  return 0;
+}
+
+int exist_season(char *title, struct json_object *serie) {
+  int exist = 0;
+  char *season_title = NULL;
+  struct json_object *seasons, *season, *titleObj;
+  get_seasontitle(title, &season_title);
+
+  if(serie != NULL && season_title != NULL) {
+    seasons = getObj_rec(serie, "/seasons");
+    if(seasons != NULL) {
+      for(int i = 0; i < json_object_array_length(seasons); i++) {
+        season = json_object_array_get_idx(seasons, i);
+        titleObj = getObj_rec(season, "/title");
+
+        if(titleObj != NULL && strcmp((char*)json_object_get_string(titleObj), season_title) == 0) {
+          exist = 1;
+          break;
+          //printf("Title : %s, %s\n", season_title, (char*)json_object_get_string(titleObj));
+        }
+        printJson(season);
+        
+      }
+    }
+
+    free(season_title);
+  }
+
+  return exist;
+}
+
+int exist_serie(char *title, struct json_object **json) {
+  char *str;
+  char *regex = NULL;
+  const bson_t *document;
+  bson_t *selector = NULL;
+  mongoc_client_t *client = NULL;
+  File *fifo = malloc(sizeof(*fifo));
+  mongoc_cursor_t *cursor = NULL;
+
+  fifo_init(fifo);
+
+  if(title != NULL) {
+    init_mongo_client(&client);
+    get_match(title, "[A-Za-z]+[ ]+[A-Za-z]+", fifo);
+    join_file_element(fifo, &regex, ".*", 1);
+    //printf("Regex : %s\n", regex);
+    if(regex != NULL && client != NULL) {
+      selector =  BCON_NEW(
+        "title", "{",
+          "$regex", BCON_UTF8(regex),
+          "$options", BCON_UTF8("i"),
+        "}"
+      );
+
+      if(selector != NULL) {
+        //print_bson(selector);
+        find_document(client, "maboke", "serie", selector, &cursor);
+        if(cursor != NULL && mongoc_cursor_next(cursor, &document)) {
+          str = bson_as_relaxed_extended_json(document, NULL);
+          *json = getJson(str);
+          bson_free(str);
+          //printf("%s\n", str);
+          //print_cursor(cursor);       
+        }
+      }
+      
+    }
+  }
+
+  free(regex);
+  freeFile(fifo);
+  bson_free(cursor);
+  bson_destroy(selector);
+  free_mongo_client(client);
+
+  return 0;
+}
+
+int check_beforeinsert(SERIE *serie) {
+  bson_t *document = bson_new();
+  mongoc_client_t *client = NULL;
+
+  if(serie != NULL) {
+    print_serie(serie);
+    init_mongo_client(&client);
+    //serie_to_bson(&document, serie);
+    if(document != NULL && client != NULL) {
+      print_bson(document);
+      //insert_document(client, "maboke", "serie", document);
+    }
+  }
+
+  bson_destroy(document);
+  free_mongo_client(client);
+
+  return 0;
+}
+
+int save_serie(struct json_object *video) {
+  SERIE *serie = NULL;
+  size_t keysLen = 3;
+  struct json_object *titleObj,  *imgObj, *videoObj;
+  serie = malloc(sizeof(*serie));
+
+  if(serie != NULL && video != NULL) {
+    printf("SaveSerie : \n");
+    titleObj = getObj_rec(video, TITLE_FIELD);
+    imgObj = getObj_rec(video, IMG_FIELD);
+    videoObj = getObj_rec(video, VIDEOID_FIELD);
+    
+    init_serie_struct(serie, keysLen);
+    add_value(&(serie)->keys, "videoId", 0);
+    add_value(&(serie)->keys, "title", 1);
+    add_value(&(serie)->keys, "img", 2);
+
+    add_value(&(serie)->values, (char *)json_object_get_string(videoObj), 0);
+    add_value(&(serie)->values, (char *)json_object_get_string(titleObj), 1);
+    add_value(&(serie)->values, (char *)json_object_get_string(imgObj), 2);
+    //check_beforeinsert(serie, (char *)json_object_get_string(titleObj));
+    //exist_serie((char *)json_object_get_string(titleObj));
+  }
+
+  free_serie(serie);
+  
+  return 0;
+}
+
+int save_video(struct json_object *video, const char *title) {
+  if(video != NULL && title != NULL) {
+    save_serie(video); 
+  } 
   return 0;
 }

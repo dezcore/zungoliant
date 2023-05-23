@@ -47,7 +47,10 @@ int test_db() {
     //test_delete_document();
     //test_update_document();
     //test_match_patterns();
-    test_parse_date();
+    //test_parse_date();
+    //test_exist();
+    //test_video_struct();
+    test_video_array();
     return 0;
 }
 

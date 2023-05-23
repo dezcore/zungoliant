@@ -111,16 +111,14 @@ int match_pattern(char *str, char *pattern) {
     return match;
 }
 
-int get_match(char *str, char *pattern, File **fifo) {
+int get_match(char *str, char *pattern, File *fifo) {
     char *res; 
     regex_t reg;
     size_t nmatch;
     int start, end, curs = 0;
-    
-    *fifo = init();
     char *strCpy = (char *) malloc(strlen(str) * sizeof(char));
 
-    if(*fifo != NULL && str != NULL && pattern != NULL && !regcomp(&reg, pattern, REG_EXTENDED)) {
+    if(fifo != NULL && str != NULL && pattern != NULL && !regcomp(&reg, pattern, REG_EXTENDED)) {
         nmatch = reg.re_nsub;
         regmatch_t m[nmatch + 1];
         sprintf(strCpy, "%s", str);
@@ -136,7 +134,7 @@ int get_match(char *str, char *pattern, File **fifo) {
                 res[end-start] = '\0';
                 memcpy(strCpy, &str[curs], (strlen(str)-curs));
                 strCpy[(strlen(str)-curs)] = '\0';
-                push(*fifo, res);
+                push(fifo, res);
                 free(res);
             }
         }
@@ -251,12 +249,12 @@ int fifoToArray(File *fifo, ARRAY **array) {
 }
 
 int parseDate(char *str_date, char *datePartRegex, char *datePartDelimiter, ARRAY **array) {
-    File *fifo = NULL;
     char *part = NULL;
+    File *fifo = malloc(sizeof(*fifo));
     get_str_match(str_date, datePartRegex, &part); 
-
+    fifo_init(fifo);
     if(part != NULL) {
-        get_match(part, datePartDelimiter, &fifo);
+        get_match(part, datePartDelimiter, fifo);
         if(fifo != NULL) {
             //display(fifo);
             fifoToArray(fifo, &(*array));

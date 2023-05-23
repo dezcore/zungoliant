@@ -31,8 +31,10 @@ File* init();
 size_t size(File *file);
 int push(File *file, char *value);
 Element* pop(File *file);
+
 int display(File *file);
 int freeFile(File *file);
+int fifo_init(File *fifo);
 int freeElement(Element *element);
 int displayElement(Element *element);
 
@@ -44,5 +46,4 @@ int print_yfile(Yfile *file);
 size_t y_file_size(Yfile *file);
 int pop_yfile(Yfile **file, Ydata **data);
 int push_ydata(Yfile **file, const char *title, const char *img, const char *videoId);
-
 #endif

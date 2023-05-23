@@ -7,6 +7,14 @@ File* init() {
     return file;
 }
 
+int fifo_init(File *fifo) {
+    if(fifo != NULL) {
+        fifo->size = 0;
+        fifo->head = NULL;
+    }
+    return 0;
+}
+
 int init_yfile(Yfile **file) {
     *file = malloc(sizeof(*file));
     (*file)->size = 0;
@@ -173,18 +181,20 @@ int free_ydata(Ydata *data) {
 }
 
 int freeFile(File *file) {
-    Element * elementToDelete;
-    Element * current = file->head;
+    Element *current;
+    Element *elementToDelete;
+    
+    if(file != NULL) {
+        current = file->head;
+        while(current != NULL) {
+            elementToDelete = current;
+            current = current->next;
+            freeElement(elementToDelete);
+        }
 
-    while(current != NULL) {
-        elementToDelete = current;
-        current = current->next;
-        freeElement(elementToDelete);
+        file->head = NULL;
+        free(file);
     }
-
-    file->head = NULL;
-    free(file);
-
     return 0;
 }
 

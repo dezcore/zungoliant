@@ -16,9 +16,9 @@ int print_bson(bson_t *bson) {
 int print_cursor(mongoc_cursor_t *cursor) {
   char *str;
   const bson_t *next_doc;
-
+  
   if(cursor != NULL) {
-    while (mongoc_cursor_next(cursor, &next_doc)) {
+    while(mongoc_cursor_next(cursor, &next_doc)) {
       str = bson_as_relaxed_extended_json(next_doc, NULL);
       printf("%s\n", str);
       bson_free(str);

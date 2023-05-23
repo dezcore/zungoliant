@@ -21,26 +21,26 @@ int free_ybot(Ybot *bot) {
     return 0;
 }
 
-int save_data(struct json_object *json, Yfile **data_fifo) {
-    unsigned int ii;
+int save_data(struct json_object *json,  ARRAY *titlesRegex) {
+    unsigned int i;
     struct json_object *results;
-    struct json_object *video, *titleObj, *videoObj, *imgObj;
+    struct json_object *video, *titleObj;
 
-    if(json != NULL && *data_fifo != NULL) {
+    if(json != NULL) {
         results = getObj_rec(json, YRESULTS_FIELDS);
-
         if(results != NULL) {
-            for(ii = 0; ii < json_object_array_length(results); ii++){
-		        video = json_object_array_get_idx(results, ii);
+            for(i = 0; i < json_object_array_length(results); i++) {
+		        video = json_object_array_get_idx(results, i);
                 titleObj = getObj_rec(video, TITLE_FIELD);
-                videoObj =  getObj_rec(video, VIDEOID_FIELD);
-                imgObj = getObj_rec(video, IMG_FIELD);
 
-                if(videoObj != NULL && titleObj != NULL && imgObj != NULL) {
-                    push_ydata( &(*data_fifo), 
-                    json_object_get_string(titleObj), 
-                    json_object_get_string(imgObj), 
-                    json_object_get_string(videoObj)); 
+                if(titleObj != NULL) {
+                    for(int i = 0; i < titlesRegex->length; i++) {
+                        if(match_pattern((char *)json_object_get_string(titleObj), titlesRegex->elements[i])) {
+                            save_video(video, json_object_get_string(titleObj));
+                            break;
+                        }
+                    } 
+                    
                 }
 	        }
         }
@@ -197,20 +197,55 @@ int init_env() {
     return 0;
 }
 
+int videopage_handler(YPage *page, ARRAY *titlesRegex, char *url, char* parseFile) {
+    struct json_object *json = NULL;
+
+    if(url != NULL && titlesRegex) {
+        //printf("VideoPage : %s\n", url);
+        set_url(page, url);
+        //print_page(page);
+        downloadPage_and_replace(parseFile, page);
+        file_tojson(parseFile, &json);
+        save_data(json, titlesRegex);
+    }
+
+    json_object_put(json);
+
+    return 0;
+}
+
+int channelpage_handler(Ybot **bot, YPage *page1 , struct json_object **json, char *url, char* parseFile) {
+    if(url != NULL) {
+        printf("channelsPage : %s\n", url);
+        //set_url(page1, url);
+        //downloadPage_and_replace(parseFile, page1);
+        //file_tojson(parseFile, &(*json));
+        //save_channel_page_home(*json, &(*bot)->data_fifo);
+    }
+    return 0;
+}
+
 int run_ybot() {
     Ybot *bot = NULL;
     Element *url = NULL; 
     char* parseFile = NULL;
-    struct json_object *json;
     char *urlsFileSrc =  NULL;
+    struct json_object *json = NULL;
     YPage *page = malloc(sizeof(*page));
     YPage *page1 = malloc(sizeof(*page1));
+
+    //Regex
+    ARRAY *titlesRegex = NULL;
 
     init_env();
     init_ybot(&bot);
     init_urls(&bot->urls_fifo, &urlsFileSrc);
     get_pwd(&parseFile, PARSE_FILE_PATH);
 
+    //Regex
+    init_file_to_array("/data/file/titles_regex", &titlesRegex);
+
+    //Pages
     init_yPage(page, 0, "", " ");
     init_yPage(page1, 1, "", " ");
 
@@ -219,18 +254,9 @@ int run_ybot() {
             url = pop(bot->urls_fifo);
             if(url != NULL) {
                 if(match_pattern(url->value, ".+watch\\?v.*")) {//VIDEOPAGE
-                    printf("VideoPage : %s\n", url->value);
-                    //set_url(page, url->value);
-                    //print_page(page);
-                    //downloadPage_and_replace(parseFile, page);
-                    //file_tojson(parseFile, &json);
-                    //save_data(json, &bot->data_fifo);
+                    videopage_handler(page, titlesRegex, url->value, parseFile); 
                 } else if(match_pattern(url->value, "@.+")) {// Channel page
-                    printf("channels : %s\n", url->value);
-                    set_url(page1, url->value);
-                    downloadPage_and_replace(parseFile, page1);
-                    file_tojson(parseFile, &json);
-                    save_channel_page_home(json, &bot->data_fifo);
+                    channelpage_handler(&bot, page1 , &json, url->value, parseFile);
                 }
                 //print_yfile(bot->data_fifo);
                 json_object_put(json);
@@ -245,8 +271,8 @@ int run_ybot() {
         free_yPage(page1);
     }
 
-    if(bot != NULL)
-        free_ybot(bot);
-    
+    free_array(titlesRegex);
+    free_ybot(bot);
+
     return 0;
 }

@@ -175,13 +175,14 @@ int test_update_document() {
 
 int test_match_patterns() {
     char *regex = NULL;
-    File *fifo = NULL;
     bson_t *selector;
     mongoc_cursor_t *cursor = NULL;
     mongoc_client_t *client = NULL;
+    File *fifo = malloc(sizeof(*fifo));
 
+    fifo_init(fifo);
     init_mongo_client(&client);
-    get_match("TOURBILLONS Ep5 | Film congolais 2023 | Sila Bisalu | SBproduction.", "[A-Za-z]+[ ]+[A-Za-z]+", &fifo);//[^0-9 ]+ or [A-Za-z]+
+    get_match("TOURBILLONS Ep5 | Film congolais 2023 | Sila Bisalu | SBproduction.", "[A-Za-z]+[ ]+[A-Za-z]+", fifo);//[^0-9 ]+ or [A-Za-z]+
 
     if(fifo != NULL && client != NULL) {
         //display(fifo);
@@ -220,19 +221,61 @@ int test_parse_date() {
     ARRAY *hoursPartArray = NULL;
     const char *date = "2014-01-01T08:15:39.736Z";
 
-    parseDate(date, "[0-9]{2}:[0-9]{2}:[0-9]{2}", "[0-9]{2}", &hoursPartArray);
+    parseDate((char*)date, "[0-9]{2}:[0-9]{2}:[0-9]{2}", "[0-9]{2}", &hoursPartArray);
 
     if(hoursPartArray != NULL) {
         print_array(hoursPartArray);
         free_array(hoursPartArray);   
     }
 
-    parseDate(date, "[0-9]{4}-[0-9]{2}-[0-9]{2}", "[0-9]+", &datePartArray);
+    parseDate((char *)date, "[0-9]{4}-[0-9]{2}-[0-9]{2}", "[0-9]+", &datePartArray);
 
     if(datePartArray != NULL) {
         print_array(datePartArray);
         free_array(datePartArray);   
     }
 
+    return 0;
+}
+
+int test_exist() {
+    struct json_object *serie;
+    const char *title = "TOURBILLONS Ep1 | Film Congolais 2023 | Sila Bisalu | SBproduction.";
+    //"TOURBILLONS Ep1 | Film Congolais 2023 | Sila Bisalu | SBproduction.";
+    //"Saison 2 || VICTIME D’AMOUR || Ep 1 || Série Congolaise || DDtv || Janvier 2023"
+
+    exist_serie((char*)title, &serie);
+
+    if(serie != NULL) {
+        //printJson(json);
+        exist_season((char*)title, serie);
+        json_object_put(serie);
+    }
+
+    return 0;
+}
+
+int test_video_struct() {
+    VIDEO *video = malloc(sizeof(*video));
+    if(video != NULL) {
+        init_video_struct(video);
+        set_video_title(video, "Hello world !");
+        set_video_category(video,"Video category");
+        set_video_summary(video, "Video summary");
+        set_video_url(video, "Video url");
+        set_video_length(video, "Video length");
+        set_video_censor_rating(video, "Video censor_rating");
+        print_video(video);
+    }
+    free_video_struct(video);
+    return 0;
+}
+
+int test_video_array() {
+    VIDEO_ARRAY *array  = malloc(sizeof(*array));
+    if(array != NULL) {
+        init_video_array_struct(array, 2);
+    }
+    free_video_array_struct(array);
     return 0;
 }
