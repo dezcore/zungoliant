@@ -265,17 +265,51 @@ int test_video_struct() {
         set_video_url(video, "Video url");
         set_video_length(video, "Video length");
         set_video_censor_rating(video, "Video censor_rating");
-        print_video(video);
+        print_video(video, "");
     }
     free_video_struct(video);
+    return 0;
+}
+
+int test_set_video(VIDEO *video) {
+    if(video != NULL) {
+        set_video_title(video, "Hello world !");
+        set_video_category(video,"Video category");
+        set_video_summary(video, "Video summary");
+        set_video_url(video, "Video url");
+        set_video_length(video, "Video length");
+        set_video_censor_rating(video, "Video censor_rating");
+    }
     return 0;
 }
 
 int test_video_array() {
     VIDEO_ARRAY *array  = malloc(sizeof(*array));
     if(array != NULL) {
-        init_video_array_struct(array, 2);
+        init_video_array_struct(array, 3);
+        for(int i = 0; i < array->length; i++) {
+            test_set_video(&(array->elements[i]));
+        }
+        print_array_video(array, "", "\t");
     }
     free_video_array_struct(array);
+    return 0;
+}
+
+int test_season_struct() {
+    SEASON *season = malloc(sizeof(*season));
+    if(season != NULL) {
+        init_season_struct(season, 3);
+        set_season_title(season, "Seson title");
+        set_season_date(season, "Season date");
+        set_season_summary(season, "Season summary");
+
+        for(int i = 0; i < season->videos->length; i++) {
+            test_set_video(&(season->videos->elements[i]));
+        }
+
+        print_season(season, "");
+    }
+    free_season_struct(season);
     return 0;
 }

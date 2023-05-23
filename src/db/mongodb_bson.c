@@ -96,15 +96,23 @@ int set_video_censor_rating(VIDEO *video, char *censor_rating) {
   return 0;
 }
 
-int print_video(VIDEO *video) {
+int print_video(VIDEO *video, char *tabs) {
   if(video != NULL) {
-    printf("Video : {\n");
+    printf("%s", tabs);
+    printf("\"Video\" : {\n");
+    printf("%s", tabs);
     printf("\t\"Title\" : \"%s\",\n", video->title);
+    printf("%s", tabs);
     printf("\t\"Category\" : \"%s\",\n", video->category);
+    printf("%s", tabs);
     printf("\t\"Summary\" : \"%s\"\n", video->summary);
+    printf("%s", tabs);
     printf("\t\"Url\" : \"%s\"\n", video->url);
+    printf("%s", tabs);
     printf("\t\"Length\" : \"%s\"\n", video->length);
+    printf("%s", tabs);
     printf("\t\"Censor_rating\" : \"%s\"\n", video->censor_rating);
+    printf("%s", tabs);
     printf("}\n");
   }
   return 0;
@@ -125,10 +133,10 @@ int free_video_struct(VIDEO *video) {
 
 int init_video_array_struct(VIDEO_ARRAY *array, size_t length) {
     if(array != NULL) {
-        array->elements = malloc(length * sizeof(array->elements));
+        array->elements = malloc(length * sizeof(*array->elements));
         for(int i = 0; i < length; i++) {
-          array->elements[i] = (VIDEO *) malloc(sizeof(VIDEO*));
-          init_video_struct(array->elements[i]);
+          //array->elements[i] = (VIDEO *) malloc(sizeof(VIDEO*));
+          init_video_struct(&(array->elements[i]));
         }
         array->length = length;
     }
@@ -138,23 +146,37 @@ int init_video_array_struct(VIDEO_ARRAY *array, size_t length) {
 
 int free_video_array_struct(VIDEO_ARRAY *array) {
   if(array != NULL) {
-    printf("Size : %ld\n", array->length);
-    /*for(int i = 0; i <  array->length; i++) {
-      free_video_struct(array->elements[i]);
-    }*/
-    //free(array->elements);
-    //free(array);
+    free(array->elements);
+    free(array);
   }
 
   return 0;
 }
 
-int init_season_struct(SEASON *season) {
+int print_array_video(VIDEO_ARRAY *array, char *tabs, char* subtabs) {
+  if(array != NULL) {
+    printf("%s", tabs);
+    printf("\"VideoArray\" : [\n");
+    for(int i = 0; i < array->length; i++) {
+      print_video(&(array->elements[i]), subtabs);
+      if(i < array->length -1) 
+        printf("%s,\n", subtabs);
+    }
+    printf("%s]\n", tabs);
+  }
+  return 0;
+}
+
+int init_season_struct(SEASON *season, size_t videoLen) {
   if(season != NULL) {
     season->title = (char*)malloc(sizeof(char));
     season->date = (char*)malloc(sizeof(char));
     season->summary = (char*)malloc(sizeof(char));
     season->number = 0;
+    season->videos =  malloc(sizeof(*season->videos));
+    if(season->videos != NULL) {
+      init_video_array_struct(season->videos, videoLen);
+    }
   }
   return 0;
 }
@@ -164,7 +186,62 @@ int free_season_struct(SEASON *season) {
     free(season->title);
     free(season->date);
     free(season->summary);
+    free_video_array_struct(season->videos);
     free(season);
+  }
+  return 0;
+}
+
+int set_season_title(SEASON *season, char *title) {
+  char *new_title;
+  if(season != NULL && title != NULL) {
+    new_title = (char*) realloc(season->title, (strlen(title)+1) * sizeof(char));
+    if(new_title != NULL) {
+      season->title = new_title;
+      sprintf(season->title, "%s", title);
+    }
+  }
+  return 0;
+}
+
+int set_season_date(SEASON *season, char *date) {
+  char *new_date;
+  if(season != NULL && date != NULL) {
+    new_date = (char*) realloc(season->date, (strlen(date)+1) * sizeof(char));
+    if(new_date != NULL) {
+      season->date = new_date;
+      sprintf(season->date, "%s", date);
+    }
+  }
+  return 0;
+}
+
+int set_season_summary(SEASON *season, char *summary) {
+  char *new_summary;
+  if(season != NULL && summary != NULL) {
+    new_summary = (char*) realloc(season->summary, (strlen(summary)+1) * sizeof(char));
+    if(new_summary != NULL) {
+      season->summary = new_summary;
+      sprintf(season->summary, "%s", summary);
+    }
+  }
+  return 0;
+}
+
+int print_season(SEASON *season, char *tabs) {
+  if(season != NULL) {
+    printf("%s", tabs);
+    printf("Season : {\n");
+    printf("%s", tabs);
+    printf("\t\"Title\" : \"%s\",\n", season->title);
+    printf("%s", tabs);
+    printf("\t\"Date\" : \"%s\",\n", season->date);
+    printf("%s", tabs);
+    printf("\t\"Summary\" : \"%s\",\n", season->summary);
+    printf("%s", tabs);
+    print_array_video(season->videos, "\t", "\t\t");
+    printf("%s", tabs);
+    printf("}\n");
   }
   return 0;
 }
@@ -174,7 +251,7 @@ int init_season_array_struct(SEASON_ARRAY *array, size_t length) {
     array->elements = malloc(length * sizeof(array->elements));
     for(int i = 0; i < length; i++) {
       array->elements[i] = (SEASON*) malloc(sizeof(SEASON*));
-      init_season_struct(array->elements[i]);
+      //init_season_struct(array->elements[i]);
     }
     array->length = length;
   }
