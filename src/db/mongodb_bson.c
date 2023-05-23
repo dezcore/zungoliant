@@ -135,7 +135,6 @@ int init_video_array_struct(VIDEO_ARRAY *array, size_t length) {
     if(array != NULL) {
         array->elements = malloc(length * sizeof(*array->elements));
         for(int i = 0; i < length; i++) {
-          //array->elements[i] = (VIDEO *) malloc(sizeof(VIDEO*));
           init_video_struct(&(array->elements[i]));
         }
         array->length = length;
@@ -228,7 +227,7 @@ int set_season_summary(SEASON *season, char *summary) {
   return 0;
 }
 
-int print_season(SEASON *season, char *tabs) {
+int print_season(SEASON *season, char *tabs, char *videos_tabs, char *videos_subtabs) {
   if(season != NULL) {
     printf("%s", tabs);
     printf("Season : {\n");
@@ -238,31 +237,28 @@ int print_season(SEASON *season, char *tabs) {
     printf("\t\"Date\" : \"%s\",\n", season->date);
     printf("%s", tabs);
     printf("\t\"Summary\" : \"%s\",\n", season->summary);
-    printf("%s", tabs);
-    print_array_video(season->videos, "\t", "\t\t");
+    //printf("%s", tabs);
+    print_array_video(season->videos, videos_tabs, videos_subtabs);
     printf("%s", tabs);
     printf("}\n");
   }
   return 0;
 }
 
-int init_season_array_struct(SEASON_ARRAY *array, size_t length) {
-  if(array != NULL) {
-    array->elements = malloc(length * sizeof(array->elements));
-    for(int i = 0; i < length; i++) {
-      array->elements[i] = (SEASON*) malloc(sizeof(SEASON*));
-      //init_season_struct(array->elements[i]);
+int init_season_array_struct(SEASON_ARRAY *array, size_t length, size_t videosLen) {
+    if(array != NULL) {
+        array->elements = malloc(length * sizeof(*array->elements));
+        for(int i = 0; i < length; i++) {
+          init_season_struct(&(array->elements[i]), videosLen);
+        }
+        array->length = length;
     }
-    array->length = length;
-  }
-  return 0;
+
+    return 0;
 }
 
 int free_season_array_struct(SEASON_ARRAY *array) {
   if(array != NULL) {
-    for(int i = 0; i <  array->length; i++) {
-      free_season_struct(array->elements[i]);
-    }
     free(array->elements);
     free(array);
   }
@@ -270,54 +266,153 @@ int free_season_array_struct(SEASON_ARRAY *array) {
   return 0;
 }
 
-int init_serie_struct(SERIE *serie, size_t array_size) {
-  if(serie != NULL) {
-    serie->keys = NULL;
-    serie->values = NULL;
-    serie->director = NULL;
-    serie->pproducer = NULL;
-    serie->studio = NULL;
-    serie->cats = NULL;
-    serie->contentTag = NULL;
-
-    init_array(&(serie->keys), array_size, 5, "");
-    init_array(&(serie->values), array_size, 5, "");
-    init_array(&(serie->contentTag), array_size, 5, "");
-  }  
+int print_array_season(SEASON_ARRAY *array, char *tabs, char* subtabs, char *season_tabs, char *season_subtabs) {
+  if(array != NULL) {
+    printf("%s", tabs);
+    printf("\"SeasonArray\" : [\n");
+    for(int i = 0; i < array->length; i++) {
+      print_season(&(array->elements[i]), subtabs, season_tabs, season_subtabs);
+      if(i < array->length -1) 
+        printf("%s,\n", subtabs);
+    }
+    printf("%s]\n", tabs);
+  }
   return 0;
 }
 
-int print_serie(SERIE *serie) {
+int init_key_value(KEY_VALUE *key_value) {
+  if(key_value != NULL) {
+    key_value->key = (char*) malloc(sizeof(char));
+    key_value->value = (char*) malloc(sizeof(char));
+  }
+  return 0;
+}
+
+int set_key_value_key(KEY_VALUE *key_value, char *key) {
+  char *new_key;
+  if(key_value != NULL && key != NULL) {
+    new_key = (char*) realloc(key_value->key, (strlen(key)+1) * sizeof(char));
+    if(new_key != NULL) {
+      key_value->key = new_key;
+      sprintf(key_value->key, "%s", key);
+    }
+  }
+  return 0;
+}
+
+int set_key_value_value(KEY_VALUE *key_value, char *value) {
+  char *new_value;
+  if(key_value != NULL && value != NULL) {
+    new_value = (char*) realloc(key_value->value, (strlen(value)+1) * sizeof(char));
+    if(new_value != NULL) {
+      key_value->value = new_value;
+      sprintf(key_value->value, "%s", value);
+    }
+  }
+  return 0;
+}
+
+int set_key_value(KEY_VALUE *key_value, char *key, char *value) {
+  if(key_value != NULL && key != NULL && value != NULL) {
+    set_key_value_key(key_value, key);
+    set_key_value_value(key_value, value);
+  }
+  return 0;
+}
+
+int print_key_value(KEY_VALUE *key_value, char *kv_tabs, char *kv_subtabs) {
+  if(key_value != NULL) {
+    printf(kv_tabs);
+    printf("Key_value : {\n");
+    printf(kv_subtabs);
+    printf("%s : %s\n", key_value->key, key_value->value);
+    printf(kv_tabs);
+    printf("}\n");
+  }
+  return 0;
+}
+
+int init_key_value_array_struct(KEY_VALUE_ARRAY *array, size_t length) {
+    if(array != NULL) {
+        array->elements = malloc(length * sizeof(*array->elements));
+        for(int i = 0; i < length; i++) {
+          init_key_value(&(array->elements[i]));
+        }
+        array->length = length;
+    }
+    return 0;
+}
+
+int free_key_value_array_struct(KEY_VALUE_ARRAY *array) {
+  if(array != NULL) {
+    free(array->elements);
+    free(array);
+  }
+  return 0;
+}
+
+int print_array_key_value(KEY_VALUE_ARRAY *array, char *tabs, char* subtabs, char *kv_tabs, char *kv_subtabs) {
+  if(array != NULL) {
+    printf("%s", tabs);
+    printf("\"Key_Value_Array\" : [\n");
+    for(int i = 0; i < array->length; i++) {
+      print_key_value(&(array->elements[i]), kv_tabs, kv_subtabs);
+      if(i < array->length -1) 
+        printf("%s,\n", subtabs);
+    }
+    printf("%s]\n", tabs);
+  }
+  return 0;
+}
+
+int free_key_value(KEY_VALUE *key_value) {
+  if(key_value != NULL) {
+    free(key_value->key);
+    free(key_value->value);
+    free(key_value);
+  }
+  return 0;
+}
+
+int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes) {
   if(serie != NULL) {
-    printf("Serie : {\n");
+    //serie->director = NULL;
+    //serie->producer = NULL;
+    //serie->studio = NULL;
+    //serie->cats = NULL;
+    serie->key_value_array = malloc(sizeof(*serie->key_value_array));
+    serie->seasons =  malloc(sizeof(*serie->seasons));
 
-    for(int i = 0; i < serie->keys->length; i++) {
-      printf("\t%s : %s", serie->keys->elements[i],  serie->values->elements[i]);
-
-      if(i < serie->keys->length -1)
-        printf(",\n");
-      else
-       printf("\n");
+    if(serie->key_value_array != NULL) {
+      init_key_value_array_struct(serie->key_value_array, keys_values_size);
     }
 
-    printf("}\n");
-
-  }
+    if(serie->seasons != NULL) {
+      init_season_array_struct(serie->seasons, number_of_season, number_of_episodes); 
+    }
+    //init_array(&(serie->contentTag), array_size, 5, "");
+  }  
   return 0;
 }
 
 int free_serie(SERIE *serie) {
   if(serie != NULL) {
-    if(serie->keys != NULL)
-      free_array(serie->keys);
-
-    if(serie->values != NULL)
-      free_array(serie->values);
-
-    if(serie->contentTag != NULL)
-      free_array(serie->contentTag);
-
+    //free_array(serie->keys);
+    //free_array(serie->values);
+    //free_array(serie->contentTag);
+     free_key_value_array_struct(serie->key_value_array);
+    free_season_array_struct(serie->seasons);
     free(serie);
+  }
+  return 0;
+}
+
+int print_serie(SERIE *serie) {
+  if(serie != NULL) {
+    printf("\"Serie\" : {\n");
+    print_array_key_value(serie->key_value_array,"\t", "\t\t", "\t\t", "\t\t\t");
+    print_array_season(serie->seasons, "\t", "\t\t", "\t\t\t", "\t\t\t\t");
+    printf("}\n");
   }
   return 0;
 }
@@ -503,9 +598,9 @@ int serie_to_bson(bson_t **document, SERIE *serie) {
   //char *keys[] = {"title", "img", "category", "summary"};
   //char *values[] = {"Serie title", "Serie img",  "Serie category", "Serie summary"};
 
-  if(serie != NULL) {
+  /*if(serie != NULL) {
     init_keys_and_values(&(*document),serie->keys->elements, serie->values->elements, serie->keys->length); 
-  }
+  }*/
 
   int_date(&(*document), "year");
   BSON_APPEND_DOCUMENT_BEGIN(*document, "director", &director);
@@ -734,24 +829,23 @@ int check_beforeinsert(SERIE *serie) {
 
 int save_serie(struct json_object *video) {
   SERIE *serie = NULL;
-  size_t keysLen = 3;
-  struct json_object *titleObj,  *imgObj, *videoObj;
+  //size_t keysLen = 3;
+  //struct json_object *titleObj,  *imgObj, *videoObj;
   serie = malloc(sizeof(*serie));
 
   if(serie != NULL && video != NULL) {
     printf("SaveSerie : \n");
-    titleObj = getObj_rec(video, TITLE_FIELD);
+    /*titleObj = getObj_rec(video, TITLE_FIELD);
     imgObj = getObj_rec(video, IMG_FIELD);
-    videoObj = getObj_rec(video, VIDEOID_FIELD);
-    
-    init_serie_struct(serie, keysLen);
-    add_value(&(serie)->keys, "videoId", 0);
-    add_value(&(serie)->keys, "title", 1);
-    add_value(&(serie)->keys, "img", 2);
+    videoObj = getObj_rec(video, VIDEOID_FIELD);*/
 
-    add_value(&(serie)->values, (char *)json_object_get_string(videoObj), 0);
-    add_value(&(serie)->values, (char *)json_object_get_string(titleObj), 1);
-    add_value(&(serie)->values, (char *)json_object_get_string(imgObj), 2);
+    //init_serie_struct(serie, keysLen);
+    //add_value(&(serie)->keys, "videoId", 0);
+    //add_value(&(serie)->keys, "title", 1);
+    //add_value(&(serie)->keys, "img", 2);
+    //add_value(&(serie)->values, (char *)json_object_get_string(videoObj), 0);
+    //add_value(&(serie)->values, (char *)json_object_get_string(titleObj), 1);
+    //add_value(&(serie)->values, (char *)json_object_get_string(imgObj), 2);
     //check_beforeinsert(serie, (char *)json_object_get_string(titleObj));
     //exist_serie((char *)json_object_get_string(titleObj));
   }

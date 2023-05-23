@@ -48,7 +48,7 @@ int test_matching_title() {
     File *titles_fifo = NULL;
     Element *title = NULL;
     size_t keysLen = 1;
-    char *keys[] = {"title", "img", "category", "summary"};
+    //char *keys[] = {"title", "img", "category", "summary"};
 
     titles_fifo = init();
 
@@ -64,9 +64,9 @@ int test_matching_title() {
                 if(match_pattern(title->value, array->elements[i])) {
                     serie = malloc(sizeof(*serie));
                     if(serie != NULL) {
-                        init_serie_struct(serie, keysLen);
-                        add_value(&(serie)->keys, keys[0], 0);
-                        add_value(&(serie)->values, title->value, 0);
+                        init_serie_struct(serie, keysLen, 0, 0);
+                        //add_value(&(serie)->keys, keys[0], 0);
+                        //add_value(&(serie)->values, title->value, 0);
                         test_insert_document(serie);
                         //print_serie(serie);
                         free_serie(serie);
@@ -307,9 +307,96 @@ int test_season_struct() {
         for(int i = 0; i < season->videos->length; i++) {
             test_set_video(&(season->videos->elements[i]));
         }
-
-        print_season(season, "");
+        print_season(season, "", "\t", "\t\t");
     }
     free_season_struct(season);
+    return 0;
+}
+
+int test_set_seson(SEASON *season) {
+    if(season != NULL) {
+        set_season_title(season, "Seson title");
+        set_season_date(season, "Season date");
+        set_season_summary(season, "Season summary");
+
+        for(int i = 0; i < season->videos->length; i++) {
+            test_set_video(&(season->videos->elements[i]));
+        }
+    }
+    return 0;
+}
+
+int set_season_array(SEASON_ARRAY *array) {
+    if(array != NULL) {
+        for(int i = 0; i < array->length; i++) {
+            test_set_seson(&(array->elements[i]));
+        }
+    }
+    return 0;
+}
+
+int test_season_array() {
+    SEASON_ARRAY *array  = malloc(sizeof(*array));
+    if(array != NULL) {
+        init_season_array_struct(array, 2, 5); 
+        for(int i = 0; i < array->length; i++) {
+            test_set_seson(&(array->elements[i]));
+        }
+        print_array_season(array, "", "\t",  "\t\t", "\t\t\t");
+
+    }
+    free_season_array_struct(array);
+    return 0;
+}
+
+int test_key_value() {
+    KEY_VALUE *key_value = malloc(sizeof(*key_value));
+    if(key_value != NULL) {
+        init_key_value(key_value);
+        set_key_value(key_value, "key", "value");
+        print_key_value(key_value, "", "\t");
+    }
+    free_key_value(key_value);
+    return 0;
+}
+
+int test_set_key_value(KEY_VALUE *key_value, char *key, char *value) {
+    if(key_value != NULL) {
+        set_key_value(key_value, key, value);
+    }
+    return 0;
+}
+
+int test_key_value_array() {
+    KEY_VALUE_ARRAY *array  = malloc(sizeof(*array));
+    if(array != NULL) {
+        init_key_value_array_struct(array, 2);
+        for(int i = 0; i < array->length; i++) {
+            test_set_key_value(&(array->elements[i]), "key", "value");
+        }
+        print_array_key_value(array,"", "\t", "\t", "\t\t") ;
+    }
+    free_key_value_array_struct(array);
+    return 0;
+}
+
+int set_key_value_array(KEY_VALUE_ARRAY *array) {
+    if(array != NULL) {
+        for(int i = 0; i < array->length; i++) {
+            test_set_key_value(&(array->elements[i]), "key", "value");
+        }
+    }
+    return 0;
+}
+
+int test_serie() {
+    SERIE *serie = malloc(sizeof(*serie));
+    if(serie != NULL) {
+        init_serie_struct(serie, 2, 1, 2);
+        set_season_array(serie->seasons);
+        set_key_value_array(serie->key_value_array);
+        print_serie(serie);
+    }
+    free_serie(serie);
     return 0;
 }
