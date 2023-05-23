@@ -12,6 +12,102 @@ int json_tobson(char *json, bson_t **bson) {
   return 0;
 }
 
+int init_director_struct(DIRECTOR *director) {
+  if(director != NULL) {
+    director->name = (char*)malloc(sizeof(char));
+    director->startYear = (char*)malloc(sizeof(char));
+    director->endYear = (char*)malloc(sizeof(char));
+    director->bithYear = (char*)malloc(sizeof(char));
+  }
+  return 0;
+}
+
+int set_director_name(DIRECTOR *director, char *name) {
+  char *new_name;
+  if(director != NULL && name != NULL) {
+    new_name = (char*) realloc(director->name, (strlen(name)+1) * sizeof(char));
+    if(new_name != NULL) {
+      director->name = new_name;
+      sprintf(director->name, "%s", name);
+    }
+  }
+  return 0;
+}
+
+int set_director_startYear(DIRECTOR *director, char *date) {
+  char *new_data;
+  if(director != NULL && date != NULL) {
+    new_data = (char*) realloc(director->startYear, (strlen(date)+1) * sizeof(char));
+    if(new_data != NULL) {
+      director->startYear = new_data;
+      sprintf(director->startYear, "%s", date);
+    }
+  }
+  return 0;
+}
+
+int set_director_endYear(DIRECTOR *director, char *date) {
+  char *new_data;
+  if(director != NULL && date != NULL) {
+    new_data = (char*) realloc(director->endYear, (strlen(date)+1) * sizeof(char));
+    if(new_data != NULL) {
+      director->endYear = new_data;
+      sprintf(director->endYear, "%s", date);
+    }
+  }
+  return 0;
+}
+
+int set_director_bithYear(DIRECTOR *director, char *date) {
+  char *new_data;
+  if(director != NULL && date != NULL) {
+    new_data = (char*) realloc(director->bithYear, (strlen(date)+1) * sizeof(char));
+    if(new_data != NULL) {
+      director->bithYear = new_data;
+      sprintf(director->bithYear, "%s", date);
+    }
+  }
+  return 0;
+}
+
+int set_director(DIRECTOR *director, char *name, char *startYear, char *endYear, char *bithYear) {
+  if(director != NULL) {
+    set_director_name(director, name);
+    set_director_startYear(director, startYear);
+    set_director_endYear(director, endYear);
+    set_director_bithYear(director, bithYear);
+  }
+  return 0;
+}
+
+int free_director(DIRECTOR *director) {
+  if(director != NULL) {
+    free(director->name);
+    free(director->startYear);
+    free(director->endYear);
+    free(director->bithYear);
+  }
+  return 0;
+}
+
+int print_director(DIRECTOR *director, char *tabs, char *subtabs) {
+  if(director != NULL) {
+    printf(tabs);
+    printf("\"Director\" : {\n");
+    printf(subtabs);
+    printf("Name : %s,\n", director->name);
+    printf(subtabs);
+    printf("StartYear : %s,\n", director->startYear);
+    printf(subtabs);
+    printf("EndYear : %s,\n", director->endYear);
+    printf(subtabs);
+    printf("BithYear : %s\n", director->bithYear);
+    printf(tabs);
+    printf("}\n");
+  }
+  return 0;
+}
+
 int init_video_struct(VIDEO *video) {
   if(video != NULL) {
     video->title = (char*)malloc(sizeof(char));
@@ -376,20 +472,24 @@ int free_key_value(KEY_VALUE *key_value) {
 
 int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes) {
   if(serie != NULL) {
-    //serie->director = NULL;
-    //serie->producer = NULL;
+    serie->director = malloc(sizeof(*serie->director));
+    serie->producer = malloc(sizeof(*serie->producer));
     //serie->studio = NULL;
-    //serie->cats = NULL;
+    //serie->cats = NULL; 
     serie->key_value_array = malloc(sizeof(*serie->key_value_array));
     serie->seasons =  malloc(sizeof(*serie->seasons));
 
-    if(serie->key_value_array != NULL) {
-      init_key_value_array_struct(serie->key_value_array, keys_values_size);
-    }
+    if(serie->director != NULL)
+      init_director_struct(serie->director);
 
-    if(serie->seasons != NULL) {
+    if(serie->producer != NULL)
+      init_director_struct(serie->producer);
+
+    if(serie->key_value_array != NULL)
+      init_key_value_array_struct(serie->key_value_array, keys_values_size);
+
+    if(serie->seasons != NULL)
       init_season_array_struct(serie->seasons, number_of_season, number_of_episodes); 
-    }
     //init_array(&(serie->contentTag), array_size, 5, "");
   }  
   return 0;
@@ -397,10 +497,10 @@ int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_se
 
 int free_serie(SERIE *serie) {
   if(serie != NULL) {
-    //free_array(serie->keys);
-    //free_array(serie->values);
     //free_array(serie->contentTag);
-     free_key_value_array_struct(serie->key_value_array);
+    free_director(serie->director);
+    free_director(serie->producer);
+    free_key_value_array_struct(serie->key_value_array);
     free_season_array_struct(serie->seasons);
     free(serie);
   }
@@ -410,6 +510,9 @@ int free_serie(SERIE *serie) {
 int print_serie(SERIE *serie) {
   if(serie != NULL) {
     printf("\"Serie\" : {\n");
+    print_director(serie->director, "\t", "\t\t");
+    //printf(",");
+    print_director(serie->producer,  "\t", "\t\t");
     print_array_key_value(serie->key_value_array,"\t", "\t\t", "\t\t", "\t\t\t");
     print_array_season(serie->seasons, "\t", "\t\t", "\t\t\t", "\t\t\t\t");
     printf("}\n");

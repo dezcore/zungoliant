@@ -31,6 +31,7 @@ typedef struct _DIRECTOR {
     char *endYear;
     char *bithYear;
 } DIRECTOR;
+
 typedef struct _VIDEO {
     char *title;
     char *category;
@@ -70,8 +71,8 @@ typedef struct _KEY_VALUE_ARRAY {
 } KEY_VALUE_ARRAY;
 
 typedef struct _SERIE {
-    //DIRECTOR *director;
-    //DIRECTOR *producer;
+    DIRECTOR *director;
+    DIRECTOR *producer;
     //STUDIO *studio;
     //CAST *cats;
     //ARRAY *contentTag;
@@ -84,12 +85,14 @@ int free_serie(SERIE *serie);
 int print_serie(SERIE *serie);
 int init_video_struct(VIDEO *video);
 int free_video_struct(VIDEO *video);
+int free_director(DIRECTOR *director);
 int free_season_struct(SEASON *season);
 int free_key_value(KEY_VALUE *key_value);
 int init_key_value(KEY_VALUE *key_value);
 int print_video(VIDEO *video, char *tabs);
 int set_video_url(VIDEO *video, char *url);
 int json_tobson(char *json, bson_t **bson);
+int init_director_struct(DIRECTOR *director);
 int set_video_title(VIDEO *video, char *title);
 int set_season_date(SEASON *season, char *date);
 int free_video_array_struct(VIDEO_ARRAY *array);
@@ -108,11 +111,13 @@ int save_video(struct json_object *video, const char *title);
 int set_video_censor_rating(VIDEO *video, char *censor_rating);
 int init_video_array_struct(VIDEO_ARRAY *array, size_t length);
 int set_key_value(KEY_VALUE *key_value, char *key, char *value);
+int print_director(DIRECTOR *director, char *tabs, char *subtabs);
 int print_array_video(VIDEO_ARRAY *array, char *tabs, char* subtabs);
 int init_key_value_array_struct(KEY_VALUE_ARRAY *array, size_t length);
 int print_key_value(KEY_VALUE *key_value, char *kv_tabs, char *kv_subtabs);
 int init_season_array_struct(SEASON_ARRAY *array, size_t length, size_t videosLen);
 int print_season(SEASON *season, char *tabs, char *videos_tabs, char *videos_subtabs);
+int set_director(DIRECTOR *director, char *name, char *startYear, char *endYear, char *bithYear);
 int print_array_key_value(KEY_VALUE_ARRAY *array, char *tabs, char* subtabs, char *kv_tabs, char *kv_subtabs);
 int print_array_season(SEASON_ARRAY *array, char *tabs, char* subtabs, char *season_tabs, char *season_subtabs);
 int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes);

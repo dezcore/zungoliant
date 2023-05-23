@@ -389,10 +389,23 @@ int set_key_value_array(KEY_VALUE_ARRAY *array) {
     return 0;
 }
 
+int test_director() {
+    DIRECTOR *director = malloc(sizeof(*director));
+    if(director != NULL) {
+        init_director_struct(director);
+        set_director(director, "Director name","startYear", "endYear", "bithYear");
+        print_director(director,  "", "\t");
+    }
+    free_director(director);
+    return 0;
+}
+
 int test_serie() {
     SERIE *serie = malloc(sizeof(*serie));
     if(serie != NULL) {
         init_serie_struct(serie, 2, 1, 2);
+        set_director(serie->director, "Director name","startYear", "endYear", "bithYear");
+        set_director(serie->producer, "Producer name","startYear", "endYear", "bithYear");
         set_season_array(serie->seasons);
         set_key_value_array(serie->key_value_array);
         print_serie(serie);

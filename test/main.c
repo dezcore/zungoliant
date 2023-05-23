@@ -55,6 +55,7 @@ int test_db() {
     //test_season_array();
     //test_key_value();
     //test_key_value_array();
+    //test_director();
     test_serie();
     return 0;
 }
