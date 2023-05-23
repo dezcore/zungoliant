@@ -12,6 +12,137 @@ int json_tobson(char *json, bson_t **bson) {
   return 0;
 }
 
+int init_studio_struct(STUDIO *studio) {
+  if(studio != NULL) {
+    studio->name = (char*)malloc(sizeof(char));
+    studio->startYear = (char*)malloc(sizeof(char));
+    studio->endYear = (char*)malloc(sizeof(char));
+    studio->bithYear = (char*)malloc(sizeof(char));
+    studio->city = (char*)malloc(sizeof(char));
+    studio->fonder = (char*)malloc(sizeof(char));
+  }
+  return 0;
+}
+
+int set_studio_name(STUDIO *studio, char *name) {
+  char *new_name;
+  if(studio != NULL && name != NULL) {
+    new_name = (char*) realloc(studio->name, (strlen(name)+1) * sizeof(char));
+    if(new_name != NULL) {
+      studio->name = new_name;
+      sprintf(studio->name, "%s", name);
+    }
+  }
+  return 0;
+}
+
+int set_studio_city(STUDIO *studio, char *city) {
+  char *new_city;
+  if(studio != NULL && city != NULL) {
+    new_city = (char*) realloc(studio->city, (strlen(city)+1) * sizeof(char));
+    if(new_city != NULL) {
+      studio->city = new_city;
+      sprintf(studio->city, "%s", city);
+    }
+  }
+  return 0;
+}
+
+int set_studio_fonder(STUDIO *studio, char *fonder) {
+  char *new_fonder;
+  if(studio != NULL && fonder != NULL) {
+    new_fonder = (char*) realloc(studio->fonder, (strlen(fonder)+1) * sizeof(char));
+    if(new_fonder != NULL) {
+      studio->fonder = new_fonder;
+      sprintf(studio->fonder, "%s", fonder);
+    }
+  }
+  return 0;
+}
+
+int set_studio_startYear(STUDIO *studio, char *date) {
+  char *new_data;
+  if(studio != NULL && date != NULL) {
+    new_data = (char*) realloc(studio->startYear, (strlen(date)+1) * sizeof(char));
+    if(new_data != NULL) {
+      studio->startYear = new_data;
+      sprintf(studio->startYear, "%s", date);
+    }
+  }
+  return 0;
+}
+
+int set_studio_endYear(STUDIO *studio, char *date) {
+  char *new_data;
+  if(studio != NULL && date != NULL) {
+    new_data = (char*) realloc(studio->endYear, (strlen(date)+1) * sizeof(char));
+    if(new_data != NULL) {
+      studio->endYear = new_data;
+      sprintf(studio->endYear, "%s", date);
+    }
+  }
+  return 0;
+}
+
+int set_studio_bithYear(STUDIO *studio, char *date) {
+  char *new_data;
+  if(studio != NULL && date != NULL) {
+    new_data = (char*) realloc(studio->bithYear, (strlen(date)+1) * sizeof(char));
+    if(new_data != NULL) {
+      studio->bithYear = new_data;
+      sprintf(studio->bithYear, "%s", date);
+    }
+  }
+  return 0;
+}
+
+int set_studio(STUDIO *studio, char *name, char *city, char *fonder, char *startYear, char *endYear, char *bithYear) {
+  if(studio != NULL) {
+    set_studio_name(studio, name);
+    set_studio_city(studio, city);
+    set_studio_fonder(studio, fonder);
+    set_studio_startYear(studio, startYear);
+    set_studio_endYear(studio, endYear);
+    set_studio_bithYear(studio, bithYear);
+  }
+  return 0;
+}
+
+int free_studio(STUDIO *studio) {
+  if(studio != NULL) {
+    free(studio->name);
+    free(studio->city);
+    free(studio->fonder);
+    free(studio->startYear);
+    free(studio->endYear);
+    free(studio->bithYear);
+    free(studio);
+  }
+  return 0;
+}
+
+int print_studio(STUDIO *studio, char *tabs, char *subtabs) {
+  if(studio != NULL) {
+    printf(tabs);
+    printf("\"Studio\" : {\n");
+    printf(subtabs);
+    printf("Name : %s,\n", studio->name);
+    printf(subtabs);
+    printf("City : %s,\n", studio->city);
+    printf(subtabs);
+    printf("Fonder : %s,\n", studio->fonder);
+    printf(subtabs);
+    printf("StartYear : %s,\n", studio->startYear);
+    printf(subtabs);
+    printf("EndYear : %s,\n", studio->endYear);
+    printf(subtabs);
+    printf("BithYear : %s\n", studio->bithYear);
+    printf(tabs);
+    printf("}\n");
+  }
+  return 0;
+}
+
 int init_director_struct(DIRECTOR *director) {
   if(director != NULL) {
     director->name = (char*)malloc(sizeof(char));
@@ -86,6 +217,7 @@ int free_director(DIRECTOR *director) {
     free(director->startYear);
     free(director->endYear);
     free(director->bithYear);
+    free(director);
   }
   return 0;
 }
@@ -474,7 +606,7 @@ int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_se
   if(serie != NULL) {
     serie->director = malloc(sizeof(*serie->director));
     serie->producer = malloc(sizeof(*serie->producer));
-    //serie->studio = NULL;
+    serie->studio =  malloc(sizeof(*serie->studio));
     //serie->cats = NULL; 
     serie->key_value_array = malloc(sizeof(*serie->key_value_array));
     serie->seasons =  malloc(sizeof(*serie->seasons));
@@ -484,6 +616,9 @@ int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_se
 
     if(serie->producer != NULL)
       init_director_struct(serie->producer);
+
+    if(serie->studio != NULL)
+      init_studio_struct(serie->studio);
 
     if(serie->key_value_array != NULL)
       init_key_value_array_struct(serie->key_value_array, keys_values_size);
@@ -500,6 +635,7 @@ int free_serie(SERIE *serie) {
     //free_array(serie->contentTag);
     free_director(serie->director);
     free_director(serie->producer);
+    free_studio(serie->studio);
     free_key_value_array_struct(serie->key_value_array);
     free_season_array_struct(serie->seasons);
     free(serie);
@@ -511,8 +647,8 @@ int print_serie(SERIE *serie) {
   if(serie != NULL) {
     printf("\"Serie\" : {\n");
     print_director(serie->director, "\t", "\t\t");
-    //printf(",");
     print_director(serie->producer,  "\t", "\t\t");
+    print_studio(serie->studio, "\t", "\t\t");
     print_array_key_value(serie->key_value_array,"\t", "\t\t", "\t\t", "\t\t\t");
     print_array_season(serie->seasons, "\t", "\t\t", "\t\t\t", "\t\t\t\t");
     printf("}\n");

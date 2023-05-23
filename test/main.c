@@ -56,6 +56,7 @@ int test_db() {
     //test_key_value();
     //test_key_value_array();
     //test_director();
+    //test_studio();
     test_serie();
     return 0;
 }

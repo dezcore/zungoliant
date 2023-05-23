@@ -400,12 +400,31 @@ int test_director() {
     return 0;
 }
 
+int test_studio() {
+    STUDIO *studio = malloc(sizeof(*studio));
+    if(studio != NULL) {
+        init_studio_struct(studio);
+        set_studio(studio, "Studio name", "City", "Fonder","StartYear", "EndYear", "BithYear");
+        print_studio(studio, "", "\t");
+    }
+    free_studio(studio);
+    return 0;
+}
+
+int test_set_studio(STUDIO *studio) {
+    if(studio != NULL) {
+        set_studio(studio, "Studio name", "City", "Fonder","StartYear", "EndYear", "BithYear");
+    }
+    return 0;
+}
+
 int test_serie() {
     SERIE *serie = malloc(sizeof(*serie));
     if(serie != NULL) {
         init_serie_struct(serie, 2, 1, 2);
         set_director(serie->director, "Director name","startYear", "endYear", "bithYear");
         set_director(serie->producer, "Producer name","startYear", "endYear", "bithYear");
+        test_set_studio(serie->studio);
         set_season_array(serie->seasons);
         set_key_value_array(serie->key_value_array);
         print_serie(serie);

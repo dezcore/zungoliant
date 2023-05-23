@@ -6,6 +6,7 @@
 
 int test_exist();
 int test_serie();
+int test_studio();
 int test_director();
 int test_key_value();
 int test_parse_date();

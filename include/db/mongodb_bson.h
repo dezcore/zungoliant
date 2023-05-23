@@ -73,7 +73,7 @@ typedef struct _KEY_VALUE_ARRAY {
 typedef struct _SERIE {
     DIRECTOR *director;
     DIRECTOR *producer;
-    //STUDIO *studio;
+    STUDIO *studio;
     //CAST *cats;
     //ARRAY *contentTag;
     KEY_VALUE_ARRAY *key_value_array;
@@ -83,10 +83,12 @@ typedef struct _SERIE {
 int init_movie();
 int free_serie(SERIE *serie);
 int print_serie(SERIE *serie);
+int free_studio(STUDIO *studio);
 int init_video_struct(VIDEO *video);
 int free_video_struct(VIDEO *video);
 int free_director(DIRECTOR *director);
 int free_season_struct(SEASON *season);
+int init_studio_struct(STUDIO *studio);
 int free_key_value(KEY_VALUE *key_value);
 int init_key_value(KEY_VALUE *key_value);
 int print_video(VIDEO *video, char *tabs);
@@ -107,6 +109,7 @@ int free_key_value_array_struct(KEY_VALUE_ARRAY *array);
 int init_season_struct(SEASON *season, size_t videoLen);
 int exist_serie(char *title, struct json_object **json);
 int exist_season(char *title, struct json_object *serie);
+int print_studio(STUDIO *studio, char *tabs, char *subtabs);
 int save_video(struct json_object *video, const char *title);
 int set_video_censor_rating(VIDEO *video, char *censor_rating);
 int init_video_array_struct(VIDEO_ARRAY *array, size_t length);
@@ -121,4 +124,5 @@ int set_director(DIRECTOR *director, char *name, char *startYear, char *endYear,
 int print_array_key_value(KEY_VALUE_ARRAY *array, char *tabs, char* subtabs, char *kv_tabs, char *kv_subtabs);
 int print_array_season(SEASON_ARRAY *array, char *tabs, char* subtabs, char *season_tabs, char *season_subtabs);
 int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes);
+int set_studio(STUDIO *studio, char *name, char *city, char *fonder, char *startYear, char *endYear, char *bithYear);
 #endif
