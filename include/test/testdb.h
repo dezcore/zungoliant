@@ -4,10 +4,12 @@
 #include <stdlib.h>
 #include "./../../include/utility.h"
 
+int test_str();
 int test_exist();
 int test_serie();
 int test_studio();
 int test_director();
+int test_str_array();
 int test_key_value();
 int test_parse_date();
 int test_video_array();

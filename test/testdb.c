@@ -64,7 +64,7 @@ int test_matching_title() {
                 if(match_pattern(title->value, array->elements[i])) {
                     serie = malloc(sizeof(*serie));
                     if(serie != NULL) {
-                        init_serie_struct(serie, keysLen, 0, 0);
+                        init_serie_struct(serie, keysLen, 0, 0, 0);
                         //add_value(&(serie)->keys, keys[0], 0);
                         //add_value(&(serie)->values, title->value, 0);
                         test_insert_document(serie);
@@ -418,14 +418,48 @@ int test_set_studio(STUDIO *studio) {
     return 0;
 }
 
+int test_str() {
+    STR *str = malloc(sizeof(*str));
+    if(str != NULL) {
+        init_str_struct(str);
+        set_str_value(str, "Hello world !");
+        print_str(str, "", "\t");
+    }
+    free_str(str);
+    return 0;
+}
+
+int test_str_array() {
+    STR_ARRAY *array = malloc(sizeof(*array));
+    if(array != NULL) {
+        init_str_array_struct(array, 2);
+        for(int i = 0; i < array->length; i++) {
+            set_str_value(&(array->elements[i]), "Hello world !");
+        }
+        print_array_str(array, "", "\t", "\t", "\t\t");
+    }
+    free_str_array_struct(array);
+    return 0;
+}
+
+int set_str_array(STR_ARRAY *array) {
+    if(array != NULL) {
+        for(int i = 0; i < array->length; i++) {
+            set_str_value(&(array->elements[i]), "Hello world !");
+        }
+    }
+    return 0;
+}
+
 int test_serie() {
     SERIE *serie = malloc(sizeof(*serie));
     if(serie != NULL) {
-        init_serie_struct(serie, 2, 1, 2);
+        init_serie_struct(serie, 2, 1, 2, 2);
         set_director(serie->director, "Director name","startYear", "endYear", "bithYear");
         set_director(serie->producer, "Producer name","startYear", "endYear", "bithYear");
         test_set_studio(serie->studio);
         set_season_array(serie->seasons);
+        set_str_array(serie->contentTag);
         set_key_value_array(serie->key_value_array);
         print_serie(serie);
     }

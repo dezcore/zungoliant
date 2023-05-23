@@ -602,11 +602,86 @@ int free_key_value(KEY_VALUE *key_value) {
   return 0;
 }
 
-int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes) {
+int init_str_struct(STR *str) {
+  if(str != NULL) {
+    str->value =(char*) malloc(sizeof(char));
+  }
+  return 0;
+}
+
+int set_str_value(STR *str, char *value) {
+  char *new_value;
+
+  if(str != NULL && value != NULL) {
+    new_value = (char*) realloc(str->value, (strlen(value)+1) * sizeof(char));
+    if(new_value != NULL) {
+      str->value = new_value;
+      sprintf(str->value, "%s", value);
+    }
+  }
+
+  return 0;
+}
+
+int free_str(STR *str) {
+  if(str != NULL) {
+    free(str->value);
+    free(str);
+  }
+  return 0;
+}
+
+int init_str_array_struct(STR_ARRAY *array, size_t length) {
+    if(array != NULL) {
+        array->elements = malloc(length * sizeof(*array->elements));
+        for(int i = 0; i < length; i++) {
+          init_str_struct(&(array->elements[i]));
+        }
+        array->length = length;
+    }
+    return 0;
+}
+
+int free_str_array_struct(STR_ARRAY *array) {
+  if(array != NULL) {
+    free(array->elements);
+    free(array);
+  }
+  return 0;
+}
+
+int print_array_str(STR_ARRAY *array, char *tabs, char* subtabs, char *str_tabs, char *str_subtabs) {
+  if(array != NULL) {
+    printf("%s", tabs);
+    printf("\"STR_Array\" : [\n");
+    for(int i = 0; i < array->length; i++) {
+      print_str(&(array->elements[i]), str_tabs, str_subtabs);
+      if(i < array->length -1) 
+        printf("%s,\n", subtabs);
+    }
+    printf("%s]\n", tabs);
+  }
+  return 0;
+}
+
+int print_str(STR *str, char *tabs, char *subtabs) {
+  if(str != NULL) {
+    printf(tabs);
+    printf("\"Str\" : {\n");
+    printf(subtabs);
+    printf("Value : %s\n", str->value);
+    printf(tabs);
+    printf("}\n");
+  }
+  return 0;
+}
+
+int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes, int content_tags) {
   if(serie != NULL) {
     serie->director = malloc(sizeof(*serie->director));
     serie->producer = malloc(sizeof(*serie->producer));
     serie->studio =  malloc(sizeof(*serie->studio));
+    serie->contentTag =  malloc(sizeof(*serie->contentTag));
     //serie->cats = NULL; 
     serie->key_value_array = malloc(sizeof(*serie->key_value_array));
     serie->seasons =  malloc(sizeof(*serie->seasons));
@@ -619,6 +694,9 @@ int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_se
 
     if(serie->studio != NULL)
       init_studio_struct(serie->studio);
+
+    if(serie->contentTag != NULL)
+      init_str_array_struct(serie->contentTag, content_tags);
 
     if(serie->key_value_array != NULL)
       init_key_value_array_struct(serie->key_value_array, keys_values_size);
@@ -636,6 +714,7 @@ int free_serie(SERIE *serie) {
     free_director(serie->director);
     free_director(serie->producer);
     free_studio(serie->studio);
+    free_str_array_struct(serie->contentTag);
     free_key_value_array_struct(serie->key_value_array);
     free_season_array_struct(serie->seasons);
     free(serie);
@@ -649,6 +728,7 @@ int print_serie(SERIE *serie) {
     print_director(serie->director, "\t", "\t\t");
     print_director(serie->producer,  "\t", "\t\t");
     print_studio(serie->studio, "\t", "\t\t");
+    print_array_str(serie->contentTag, "\t", "\t\t", "\t\t", "\t\t\t");
     print_array_key_value(serie->key_value_array,"\t", "\t\t", "\t\t", "\t\t\t");
     print_array_season(serie->seasons, "\t", "\t\t", "\t\t\t", "\t\t\t\t");
     printf("}\n");
