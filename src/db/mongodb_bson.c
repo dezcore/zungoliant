@@ -602,82 +602,9 @@ int free_key_value(KEY_VALUE *key_value) {
   return 0;
 }
 
-int init_str_struct(STR *str) {
-  if(str != NULL) {
-    str->value =(char*) malloc(sizeof(char));
-  }
-  return 0;
-}
-
-int set_str_value(STR *str, char *value) {
-  char *new_value;
-
-  if(str != NULL && value != NULL) {
-    new_value = (char*) realloc(str->value, (strlen(value)+1) * sizeof(char));
-    if(new_value != NULL) {
-      str->value = new_value;
-      sprintf(str->value, "%s", value);
-    }
-  }
-
-  return 0;
-}
-
-int free_str(STR *str) {
-  if(str != NULL) {
-    free(str->value);
-    free(str);
-  }
-  return 0;
-}
-
-int init_str_array_struct(STR_ARRAY *array, size_t length) {
-    if(array != NULL) {
-        array->elements = malloc(length * sizeof(*array->elements));
-        for(int i = 0; i < length; i++) {
-          init_str_struct(&(array->elements[i]));
-        }
-        array->length = length;
-    }
-    return 0;
-}
-
-int free_str_array_struct(STR_ARRAY *array) {
-  if(array != NULL) {
-    free(array->elements);
-    free(array);
-  }
-  return 0;
-}
-
-int print_array_str(STR_ARRAY *array, char *tabs, char* subtabs, char *str_tabs, char *str_subtabs) {
-  if(array != NULL) {
-    printf("%s", tabs);
-    printf("\"STR_Array\" : [\n");
-    for(int i = 0; i < array->length; i++) {
-      print_str(&(array->elements[i]), str_tabs, str_subtabs);
-      if(i < array->length -1) 
-        printf("%s,\n", subtabs);
-    }
-    printf("%s]\n", tabs);
-  }
-  return 0;
-}
-
-int print_str(STR *str, char *tabs, char *subtabs) {
-  if(str != NULL) {
-    printf(tabs);
-    printf("\"Str\" : {\n");
-    printf(subtabs);
-    printf("Value : %s\n", str->value);
-    printf(tabs);
-    printf("}\n");
-  }
-  return 0;
-}
-
 int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes, int content_tags) {
   if(serie != NULL) {
+    serie->year = (char*) malloc(sizeof(char));
     serie->director = malloc(sizeof(*serie->director));
     serie->producer = malloc(sizeof(*serie->producer));
     serie->studio =  malloc(sizeof(*serie->studio));
@@ -708,9 +635,24 @@ int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_se
   return 0;
 }
 
+int set_serie_year(SERIE *serie, char *year) {
+  char *new_year;
+
+  if(serie != NULL && year != NULL) {
+    new_year = (char*) realloc(serie->year, (strlen(year)+1) * sizeof(char));
+    if(new_year != NULL) {
+      serie->year = new_year;
+      sprintf(serie->year, "%s", year);
+    }
+  }
+
+  return 0;
+}
+
 int free_serie(SERIE *serie) {
   if(serie != NULL) {
     //free_array(serie->contentTag);
+    free(serie->year);
     free_director(serie->director);
     free_director(serie->producer);
     free_studio(serie->studio);
@@ -725,6 +667,7 @@ int free_serie(SERIE *serie) {
 int print_serie(SERIE *serie) {
   if(serie != NULL) {
     printf("\"Serie\" : {\n");
+    printf("\tYear : %s,\n", serie->year);
     print_director(serie->director, "\t", "\t\t");
     print_director(serie->producer,  "\t", "\t\t");
     print_studio(serie->studio, "\t", "\t\t");
@@ -736,12 +679,26 @@ int print_serie(SERIE *serie) {
   return 0;
 }
 
+
+/*int parse_date() {
+    ARRAY *datePartArray = NULL;
+    ARRAY *hoursPartArray = NULL;
+    const char *date = "2014-01-01T08:15:39.736Z";
+    parseDate((char*)date, "[0-9]{2}:[0-9]{2}:[0-9]{2}", "[0-9]{2}", &hoursPartArray);
+    if(hoursPartArray != NULL) {
+        print_array(hoursPartArray);
+        free_array(hoursPartArray);   
+    }
+    parseDate((char *)date, "[0-9]{4}-[0-9]{2}-[0-9]{2}", "[0-9]+", &datePartArray);
+    if(datePartArray != NULL) {
+        print_array(datePartArray);
+        free_array(datePartArray);   
+    }
+    return 0;
+}*/
+
 int int_date(bson_t **bson, char *field) {
   struct tm year = { 0 };
-  /*
-    * Append { "born" : ISODate("1906-12-09") } to the document.
-    * Passing -1 for the length argument tells libbson to calculate the string length.
-  */
   year.tm_year = 6;  /* years are 1900-based */
   year.tm_mon = 11;  /* months are 0-based */
   year.tm_mday = 9;
@@ -917,25 +874,21 @@ int serie_to_bson(bson_t **document, SERIE *serie) {
   //char *keys[] = {"title", "img", "category", "summary"};
   //char *values[] = {"Serie title", "Serie img",  "Serie category", "Serie summary"};
 
-  /*if(serie != NULL) {
-    init_keys_and_values(&(*document),serie->keys->elements, serie->values->elements, serie->keys->length); 
-  }*/
-
-  int_date(&(*document), "year");
-  BSON_APPEND_DOCUMENT_BEGIN(*document, "director", &director);
-  init_director(&director);
-  bson_append_document_end(*document, &director);
-  BSON_APPEND_DOCUMENT_BEGIN(*document, "producer", &producer);
-  init_director(&producer);
-  bson_append_document_end(*document, &producer);
-  BSON_APPEND_DOCUMENT_BEGIN(*document, "studio", &studio);
-  init_studio(&studio);
-  bson_append_document_end(*document, &studio);
-  BSON_APPEND_DOCUMENT_BEGIN(*document, "cast", &cast);
-  init_cast(&cast);
-  bson_append_document_end(*document, &cast);
-  init_content_tag(&(*document));
-  init_seasons(&(*document));
+  int_date(&(*document), serie->year);
+  //BSON_APPEND_DOCUMENT_BEGIN(*document, "director", &director);
+  //init_director(&director);
+  //bson_append_document_end(*document, &director);
+  //BSON_APPEND_DOCUMENT_BEGIN(*document, "producer", &producer);
+  //init_director(&producer);
+  //bson_append_document_end(*document, &producer);
+  //BSON_APPEND_DOCUMENT_BEGIN(*document, "studio", &studio);
+  //init_studio(&studio);
+  //bson_append_document_end(*document, &studio);
+  //BSON_APPEND_DOCUMENT_BEGIN(*document, "cast", &cast);
+  //init_cast(&cast);
+  //bson_append_document_end(*document, &cast);
+  //init_content_tag(&(*document));
+  //init_seasons(&(*document));
   return 0;
 }
 

@@ -1,5 +1,80 @@
 #include "./../include/utility.h"
 
+int init_str_struct(STR *str) {
+  if(str != NULL) {
+    str->value =(char*) malloc(sizeof(char));
+  }
+  return 0;
+}
+
+int set_str_value(STR *str, char *value) {
+  char *new_value;
+
+  if(str != NULL && value != NULL) {
+    new_value = (char*) realloc(str->value, (strlen(value)+1) * sizeof(char));
+    if(new_value != NULL) {
+      str->value = new_value;
+      sprintf(str->value, "%s", value);
+    }
+  }
+
+  return 0;
+}
+
+int free_str(STR *str) {
+  if(str != NULL) {
+    free(str->value);
+    free(str);
+  }
+  return 0;
+}
+
+int print_str(STR *str, char *tabs, char *subtabs) {
+  if(str != NULL) {
+    printf(tabs);
+    printf("\"Str\" : {\n");
+    printf(subtabs);
+    printf("Value : %s\n", str->value);
+    printf(tabs);
+    printf("}\n");
+  }
+  return 0;
+}
+
+int init_str_array_struct(STR_ARRAY *array, size_t length) {
+    if(array != NULL) {
+        array->elements = malloc(length * sizeof(*array->elements));
+        for(int i = 0; i < length; i++) {
+          init_str_struct(&(array->elements[i]));
+        }
+        array->length = length;
+    }
+    return 0;
+}
+
+int free_str_array_struct(STR_ARRAY *array) {
+  if(array != NULL) {
+    free(array->elements);
+    free(array);
+  }
+  return 0;
+}
+
+
+int print_array_str(STR_ARRAY *array, char *tabs, char* subtabs, char *str_tabs, char *str_subtabs) {
+  if(array != NULL) {
+    printf("%s", tabs);
+    printf("\"STR_Array\" : [\n");
+    for(int i = 0; i < array->length; i++) {
+      print_str(&(array->elements[i]), str_tabs, str_subtabs);
+      if(i < array->length -1) 
+        printf("%s,\n", subtabs);
+    }
+    printf("%s]\n", tabs);
+  }
+  return 0;
+}
+
 int get_matchIndex(char **str, char *pattern, int *start, int *end, int target) {
     regex_t reg;
     size_t nmatch;

@@ -6,9 +6,7 @@
 #include <json.h>
 
 #include <bson/bson.h>
-//#include "./db.h"
-//#include "../array.h"
-//#include "../yfields.h"
+#include "../db/db.h"
 #include "../utility.h"
 
 typedef struct _CAST {
@@ -70,16 +68,10 @@ typedef struct _KEY_VALUE_ARRAY {
     size_t length;
 } KEY_VALUE_ARRAY;
 
-typedef struct _STR {
-    char *value;
-} STR;
 
-typedef struct _STR_ARRAY {
-    STR *elements;
-    size_t length;
-} STR_ARRAY;
 
 typedef struct _SERIE {
+    char *year;
     DIRECTOR *director;
     DIRECTOR *producer;
     STUDIO *studio;
@@ -93,21 +85,18 @@ int init_movie();
 int free_str(STR *str);
 int free_serie(SERIE *serie);
 int print_serie(SERIE *serie);
-int init_str_struct(STR *str);
 int free_studio(STUDIO *studio);
 int init_video_struct(VIDEO *video);
 int free_video_struct(VIDEO *video);
 int free_director(DIRECTOR *director);
 int free_season_struct(SEASON *season);
 int init_studio_struct(STUDIO *studio);
-int set_str_value(STR *str, char *value);
 int free_key_value(KEY_VALUE *key_value);
 int init_key_value(KEY_VALUE *key_value);
 int print_video(VIDEO *video, char *tabs);
 int set_video_url(VIDEO *video, char *url);
 int json_tobson(char *json, bson_t **bson);
-int free_str_array_struct(STR_ARRAY *array);
-int free_str_array_struct(STR_ARRAY *array);
+int set_serie_year(SERIE *serie, char *year);
 int init_director_struct(DIRECTOR *director);
 int set_video_title(VIDEO *video, char *title);
 int set_season_date(SEASON *season, char *date);
@@ -115,7 +104,6 @@ int free_video_array_struct(VIDEO_ARRAY *array);
 int set_video_length(VIDEO *video, char *length);
 int set_season_title(SEASON *season, char *title);
 int free_season_array_struct(SEASON_ARRAY *array);
-int print_str(STR *str, char *tabs, char *subtabs);
 int set_video_summary(VIDEO *video, char *summary);
 int serie_to_bson(bson_t **document, SERIE *serie);
 int set_video_category(VIDEO *video, char *category);
@@ -124,7 +112,6 @@ int free_key_value_array_struct(KEY_VALUE_ARRAY *array);
 int init_season_struct(SEASON *season, size_t videoLen);
 int exist_serie(char *title, struct json_object **json);
 int exist_season(char *title, struct json_object *serie);
-int init_str_array_struct(STR_ARRAY *array, size_t length);
 int print_studio(STUDIO *studio, char *tabs, char *subtabs);
 int save_video(struct json_object *video, const char *title);
 int set_video_censor_rating(VIDEO *video, char *censor_rating);
@@ -137,7 +124,6 @@ int print_key_value(KEY_VALUE *key_value, char *kv_tabs, char *kv_subtabs);
 int init_season_array_struct(SEASON_ARRAY *array, size_t length, size_t videosLen);
 int print_season(SEASON *season, char *tabs, char *videos_tabs, char *videos_subtabs);
 int set_director(DIRECTOR *director, char *name, char *startYear, char *endYear, char *bithYear);
-int print_array_str(STR_ARRAY *array, char *tabs, char* subtabs, char *str_tabs, char *str_subtabs);
 int print_array_key_value(KEY_VALUE_ARRAY *array, char *tabs, char* subtabs, char *kv_tabs, char *kv_subtabs);
 int print_array_season(SEASON_ARRAY *array, char *tabs, char* subtabs, char *season_tabs, char *season_subtabs);
 int set_studio(STUDIO *studio, char *name, char *city, char *fonder, char *startYear, char *endYear, char *bithYear);

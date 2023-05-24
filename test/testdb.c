@@ -452,15 +452,18 @@ int set_str_array(STR_ARRAY *array) {
 }
 
 int test_serie() {
+    //bson_t *document = bson_new();
     SERIE *serie = malloc(sizeof(*serie));
     if(serie != NULL) {
         init_serie_struct(serie, 2, 1, 2, 2);
+        set_serie_year(serie, "2014-01-01T08:15:39.736Z");
         set_director(serie->director, "Director name","startYear", "endYear", "bithYear");
         set_director(serie->producer, "Producer name","startYear", "endYear", "bithYear");
         test_set_studio(serie->studio);
         set_season_array(serie->seasons);
         set_str_array(serie->contentTag);
         set_key_value_array(serie->key_value_array);
+        //serie_to_bson(&document, serie);
         print_serie(serie);
     }
     free_serie(serie);
