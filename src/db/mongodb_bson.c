@@ -19,6 +19,7 @@ int init_studio_struct(STUDIO *studio) {
     studio->endYear = (char*)malloc(sizeof(char));
     studio->bithYear = (char*)malloc(sizeof(char));
     studio->city = (char*)malloc(sizeof(char));
+    studio->country = (char*)malloc(sizeof(char));
     studio->fonder = (char*)malloc(sizeof(char));
   }
   return 0;
@@ -33,6 +34,20 @@ int set_studio_name(STUDIO *studio, char *name) {
       sprintf(studio->name, "%s", name);
     }
   }
+  return 0;
+}
+
+int set_studio_country(STUDIO *studio, char *country) {
+  char *new_country;
+
+  if(studio != NULL && country != NULL) {
+    new_country = (char*) realloc(studio->country, (strlen(country)+1) * sizeof(char));
+    if(new_country != NULL) {
+      studio->country = new_country;
+      sprintf(studio->country, "%s", country);
+    }
+  }
+
   return 0;
 }
 
@@ -96,10 +111,11 @@ int set_studio_bithYear(STUDIO *studio, char *date) {
   return 0;
 }
 
-int set_studio(STUDIO *studio, char *name, char *city, char *fonder, char *startYear, char *endYear, char *bithYear) {
+int set_studio(STUDIO *studio, char *name, char *country, char *city, char *fonder, char *startYear, char *endYear, char *bithYear) {
   if(studio != NULL) {
     set_studio_name(studio, name);
     set_studio_city(studio, city);
+    set_studio_country(studio, country);
     set_studio_fonder(studio, fonder);
     set_studio_startYear(studio, startYear);
     set_studio_endYear(studio, endYear);
@@ -112,6 +128,7 @@ int free_studio(STUDIO *studio) {
   if(studio != NULL) {
     free(studio->name);
     free(studio->city);
+    free(studio->country);
     free(studio->fonder);
     free(studio->startYear);
     free(studio->endYear);
@@ -464,6 +481,8 @@ int print_season(SEASON *season, char *tabs, char *videos_tabs, char *videos_sub
     printf("%s", tabs);
     printf("\t\"Date\" : \"%s\",\n", season->date);
     printf("%s", tabs);
+    printf("\t\"Number\" : \"%d\",\n", season->number);
+    printf("%s", tabs);
     printf("\t\"Summary\" : \"%s\",\n", season->summary);
     //printf("%s", tabs);
     print_array_video(season->videos, videos_tabs, videos_subtabs);
@@ -679,67 +698,61 @@ int print_serie(SERIE *serie) {
   return 0;
 }
 
-
-/*int parse_date() {
-    ARRAY *datePartArray = NULL;
-    ARRAY *hoursPartArray = NULL;
-    const char *date = "2014-01-01T08:15:39.736Z";
-    parseDate((char*)date, "[0-9]{2}:[0-9]{2}:[0-9]{2}", "[0-9]{2}", &hoursPartArray);
-    if(hoursPartArray != NULL) {
-        print_array(hoursPartArray);
-        free_array(hoursPartArray);   
-    }
-    parseDate((char *)date, "[0-9]{4}-[0-9]{2}-[0-9]{2}", "[0-9]+", &datePartArray);
-    if(datePartArray != NULL) {
-        print_array(datePartArray);
-        free_array(datePartArray);   
-    }
-    return 0;
-}*/
-
-int int_date(bson_t **bson, char *field) {
+int int_date(bson_t **bson, char *field, char *str_date) {
+  STR_ARRAY *datePartArray = NULL;
+  STR_ARRAY *hoursPartArray = NULL;
   struct tm year = { 0 };
-  year.tm_year = 6;  /* years are 1900-based */
-  year.tm_mon = 11;  /* months are 0-based */
-  year.tm_mday = 9;
+
+  parseDate(str_date, "[0-9]{2}:[0-9]{2}:[0-9]{2}", "[0-9]{2}", &hoursPartArray);
+  if(hoursPartArray != NULL) {
+    year.tm_hour = atoi(hoursPartArray->elements[0].value) - 1; 
+    year.tm_min = atoi(hoursPartArray->elements[0].value) - 1; 
+    year.tm_sec = atoi(hoursPartArray->elements[0].value); 
+    //print_array_str(hoursPartArray, "", "\t", "\t", "\t\t");
+    free_str_array_struct(hoursPartArray);
+  }
+
+  parseDate(str_date, "[0-9]{4}-[0-9]{2}-[0-9]{2}", "[0-9]+", &datePartArray);
+  if(datePartArray != NULL) {
+    year.tm_year = atoi(datePartArray->elements[0].value) - 1900;  /* years are 1900-based */
+    year.tm_mon = atoi(datePartArray->elements[1].value) - 1;  /* months are 0-based */
+    year.tm_mday = atoi(datePartArray->elements[2].value);
+    //print_array_str(datePartArray, "", "\t", "\t", "\t\t");
+    free_str_array_struct(datePartArray);   
+  }
 
   BSON_APPEND_DATE_TIME(*bson, field, mktime(&year) * 1000);
 
   return 0;
 }
 
-int int_date_(bson_t *bson, char *field) {
-  struct tm year = { 0 };
-  /*
-    * Append { "born" : ISODate("1906-12-09") } to the document.
-    * Passing -1 for the length argument tells libbson to calculate the string length.
-  */
-  year.tm_year = 6;  /* years are 1900-based */
-  year.tm_mon = 11;  /* months are 0-based */
-  year.tm_mday = 9;
+int int_date_(bson_t *bson, char *field, char *str_date) {
+  int_date(&bson, field, str_date);
+  return 0;
+}
 
-  BSON_APPEND_DATE_TIME(bson, field, mktime(&year) * 1000);
+int init_director(bson_t *director_bson, DIRECTOR *director) {
+
+  if(director_bson != NULL && director != NULL) {
+    BSON_APPEND_UTF8(director_bson, "name", director->name);
+    int_date(&director_bson, "startYear", director->startYear);
+    int_date(&director_bson, "endYear", director->endYear);
+    int_date(&director_bson, "birthYear", director->bithYear);
+  }
 
   return 0;
 }
 
-int init_director(bson_t *director) {
-  BSON_APPEND_UTF8(director, "name", "Director name");
-  int_date(&director, "startYear");
-  int_date(&director, "endYear");
-  int_date(&director, "birthYear");
-
-  return 0;
-}
-
-int init_studio(bson_t *studio) {
-  BSON_APPEND_UTF8(studio, "name", "Studio name");
-  BSON_APPEND_UTF8(studio, "city", "Studio City");
-  BSON_APPEND_UTF8(studio, "country", "Studio country");
-  int_date(&studio, "startYear");
-  int_date(&studio, "endYear");
-  int_date(&studio, "birthYear");
-  BSON_APPEND_UTF8(studio, "fonder", "Studio fonder");
+int init_studio(bson_t *studio_bson, STUDIO *studio) {
+  if(studio != NULL) {
+    BSON_APPEND_UTF8(studio_bson, "name", studio->name);
+    BSON_APPEND_UTF8(studio_bson, "city", studio->city);
+    BSON_APPEND_UTF8(studio_bson, "country", studio->country);
+    int_date(&studio_bson, "startYear", studio->startYear);
+    int_date(&studio_bson, "endYear", studio->endYear);
+    int_date(&studio_bson, "birthYear", studio->bithYear);
+    BSON_APPEND_UTF8(studio_bson, "fonder", studio->fonder);
+  }
   return 0;
 }
 
@@ -754,10 +767,10 @@ int init_actor(bson_t *actor) {
 
   BSON_APPEND_UTF8(&child2, "name", "Actor name");
   BSON_APPEND_UTF8(&child2, "gender", "Actor gender");
-  int_date_(&child2, "startYear");
-  int_date_(&child2, "endYear");
-  int_date_(&child2, "birthYear");
-  int_date_(&child2, "deathYear");
+  int_date_(&child2, "startYear", "");
+  int_date_(&child2, "endYear", "");
+  int_date_(&child2, "birthYear", "");
+  int_date_(&child2, "deathYear", "");
   bson_append_document_end(actor, &child2);
 
   return 0;
@@ -782,88 +795,101 @@ int init_cast(bson_t *cast) {
   bson_t actor, award;
 
   BSON_APPEND_ARRAY_BEGIN(cast, "actors", &actor);
-  init_actor(&actor);
+  //init_actor(&actor);
   bson_append_array_end (cast, &actor);
-  
+
   BSON_APPEND_ARRAY_BEGIN(cast, "awards", &award);
-  init_award(&award);
+  //init_award(&award);
   bson_append_array_end(cast, &award);
 
   return 0;
 }
 
-int init_content_tag(bson_t **document) {
+int init_content_tag(bson_t **document,  STR_ARRAY *contentTag) {
   bson_t tag;
   char buf[16];
   size_t  keylen;
   const char *key;
 
-  BSON_APPEND_ARRAY_BEGIN(*document, "contentTag", &tag);
-  keylen = bson_uint32_to_string(0, &key, buf, sizeof buf);
-  bson_append_utf8(&tag, key, (int)keylen, "test_tag", -1);
-  bson_append_array_end(*document, &tag);
-
-  return 0;
-}
-
-int init_video(bson_t *video) {
-  char buf[16];
-  size_t keylen;
-  bson_t child2;
-  const char *key;
-
-  if(video != NULL) {
-    keylen = bson_uint32_to_string(0, &key, buf, sizeof buf);
-    bson_append_document_begin(video, key, (int)keylen, &child2);
-    BSON_APPEND_UTF8(&child2, "title", "Video title");
-    BSON_APPEND_UTF8(&child2, "category", "Video category");
-    BSON_APPEND_UTF8(&child2, "summary", "Video summary");
-    BSON_APPEND_UTF8(&child2, "url", "Video url");
-    BSON_APPEND_UTF8(&child2, "length", "Video length");
-    BSON_APPEND_UTF8(&child2, "censor_rating", "Video censor_rating");
-    int_date_(&child2, "created_at");
-    int_date_(&child2, "upDated_at");
-    bson_append_document_end(video, &child2);
+  if(document != NULL && contentTag != NULL) {
+    BSON_APPEND_ARRAY_BEGIN(*document, "contentTag", &tag);
+    for(int i = 0; i <contentTag->length; i++) {
+      keylen = bson_uint32_to_string(i, &key, buf, sizeof buf);
+      bson_append_utf8(&tag, key, (int)keylen, contentTag->elements[i].value, -1);
+    }
+    bson_append_array_end(*document, &tag);
   }
 
   return 0;
 }
 
-int init_season(bson_t *season) {
+int init_video(bson_t *video_bson, VIDEO *video, int index) {
+  char buf[16];
+  size_t keylen;
+  bson_t child2;
+  const char *key;
+
+  if(video_bson != NULL && video != NULL) {
+    keylen = bson_uint32_to_string(index, &key, buf, sizeof buf);
+    bson_append_document_begin(video_bson, key, (int)keylen, &child2);
+    BSON_APPEND_UTF8(&child2, "title", video->title);
+    BSON_APPEND_UTF8(&child2, "category", video->category);
+    BSON_APPEND_UTF8(&child2, "summary", video->summary);
+    BSON_APPEND_UTF8(&child2, "url", video->url);
+    BSON_APPEND_UTF8(&child2, "length", video->length);
+    BSON_APPEND_UTF8(&child2, "censor_rating", video->censor_rating);
+    //int_date_(&child2, "created_at");
+    //int_date_(&child2, "upDated_at");
+    bson_append_document_end(video_bson, &child2);
+  }
+
+  return 0;
+}
+
+int init_season(bson_t *season_bson, SEASON *season, int index) {
   bson_t videos;
   char buf[16];
   size_t keylen;
   bson_t child2;
   const char *key;
 
-  if(season != NULL) {
-    keylen = bson_uint32_to_string(0, &key, buf, sizeof buf);
-    bson_append_document_begin(season, key, (int)keylen, &child2);
-    BSON_APPEND_UTF8(&child2, "title", "Season title");
-    int_date_(&child2, "date");
-    BSON_APPEND_UTF8(&child2, "summary", "Season summary");
-    BSON_APPEND_INT32(&child2, "number", 1);
+  if(season_bson != NULL && season != NULL) {
+    keylen = bson_uint32_to_string(index, &key, buf, sizeof buf);
+    bson_append_document_begin(season_bson, key, (int)keylen, &child2);
+    BSON_APPEND_UTF8(&child2, "title", season->title);
+    int_date_(&child2, "date", season->date);
+    BSON_APPEND_UTF8(&child2, "summary", season->summary);
+    BSON_APPEND_INT32(&child2, "number", season->number);
     BSON_APPEND_ARRAY_BEGIN(&child2, "videos", &videos);
-    init_video(&videos);
+
+    for(int i = 0; i < season->videos->length; i++) {
+      init_video(&videos, &(season->videos->elements[i]), i);
+    }
+
     bson_append_array_end(&child2, &videos);
-    bson_append_document_end(season, &child2); 
+    bson_append_document_end(season_bson, &child2); 
   }
 
   return 0;
 }
 
-int init_seasons(bson_t **document) {
-  bson_t season;
-  BSON_APPEND_ARRAY_BEGIN(*document, "seasons", &season);
-  init_season(&season);
-  bson_append_array_end(*document, &season);
+int init_seasons(bson_t **document, SEASON_ARRAY *seasons) {
+  bson_t season_bson;
+
+  if(*document != NULL && seasons != NULL) {
+    BSON_APPEND_ARRAY_BEGIN(*document, "seasons", &season_bson);
+    for(int i = 0; i < seasons->length; i++) {
+      init_season(&season_bson, &(seasons->elements[i]), i);
+    }
+    bson_append_array_end(*document, &season_bson);
+  }
   return 0;
 }
 
-int init_keys_and_values(bson_t **bson, char **keys, char **values, size_t len) {  
-  if(keys != NULL && values != NULL) {
-    for(int i = 0; i < len; i++) {
-      BSON_APPEND_UTF8(*bson, keys[i], values[i]);
+int init_keys_and_values(bson_t **bson, KEY_VALUE_ARRAY *array) {
+  if(array != NULL) {
+    for(int i = 0; i < array->length; i++) {
+      BSON_APPEND_UTF8(*bson, array->elements[i].key, array->elements[i].value);
     }
   }
   return 0;
@@ -871,24 +897,206 @@ int init_keys_and_values(bson_t **bson, char **keys, char **values, size_t len) 
 
 int serie_to_bson(bson_t **document, SERIE *serie) {
   bson_t director, producer, studio, cast;
-  //char *keys[] = {"title", "img", "category", "summary"};
-  //char *values[] = {"Serie title", "Serie img",  "Serie category", "Serie summary"};
 
-  int_date(&(*document), serie->year);
-  //BSON_APPEND_DOCUMENT_BEGIN(*document, "director", &director);
-  //init_director(&director);
-  //bson_append_document_end(*document, &director);
-  //BSON_APPEND_DOCUMENT_BEGIN(*document, "producer", &producer);
-  //init_director(&producer);
-  //bson_append_document_end(*document, &producer);
-  //BSON_APPEND_DOCUMENT_BEGIN(*document, "studio", &studio);
-  //init_studio(&studio);
-  //bson_append_document_end(*document, &studio);
-  //BSON_APPEND_DOCUMENT_BEGIN(*document, "cast", &cast);
-  //init_cast(&cast);
-  //bson_append_document_end(*document, &cast);
-  //init_content_tag(&(*document));
-  //init_seasons(&(*document));
+  init_keys_and_values(&(*document), serie->key_value_array);
+  int_date(&(*document), "year", serie->year);
+  BSON_APPEND_DOCUMENT_BEGIN(*document, "director", &director);
+  init_director(&director, serie->director);
+  bson_append_document_end(*document, &director);
+  BSON_APPEND_DOCUMENT_BEGIN(*document, "producer", &producer);
+  init_director(&producer, serie->producer);
+  bson_append_document_end(*document, &producer);
+  BSON_APPEND_DOCUMENT_BEGIN(*document, "studio", &studio);
+  init_studio(&studio, serie->studio);
+  bson_append_document_end(*document, &studio);
+  BSON_APPEND_DOCUMENT_BEGIN(*document, "cast", &cast);
+  init_cast(&cast);
+  bson_append_document_end(*document, &cast);
+  init_content_tag(&(*document), serie->contentTag);
+  init_seasons(&(*document), serie->seasons);
+  return 0;
+}
+
+int deserialize_year(SERIE *serie, struct json_object *year) {
+  if( serie != NULL && year != NULL) {
+    set_serie_year(serie, (char*)json_object_get_string(year));
+    //printf("%s\n", json_object_get_string(year));
+  }
+
+  return 0;
+}
+
+int deserialize_cast(struct json_object *cast) {
+  if(cast != NULL) {
+    printf("Cast : %s\n", json_object_get_string(cast));
+  }
+  return 0;
+}
+
+int deserialize_director(DIRECTOR *director, struct json_object *director_json) {
+  struct json_object *nameObj, *startYearObj, *endYearObj, *bithYearObj;
+
+  if(director != NULL && director_json != NULL) {
+    nameObj = json_object_object_get(director_json, "name");
+    startYearObj = json_object_object_get(director_json, "startYear");
+    endYearObj = json_object_object_get(director_json, "endYear");
+    bithYearObj = json_object_object_get(director_json, "endYear");
+
+    set_director_name(director, (char*) json_object_get_string(nameObj));
+    set_director_startYear(director, (char*)json_object_get_string(startYearObj));
+    set_director_endYear(director, (char*)json_object_get_string(endYearObj));
+    set_director_bithYear(director, (char*) json_object_get_string(bithYearObj));
+  }
+  return 0;
+}
+
+int deserialize_studio(STUDIO *studio, struct json_object *studio_json) {
+  struct json_object *nameObj, *cityObj, *countryObj, *fonderObj, *startYearObj, *endYearObj, *bithYearObj;
+
+  if(studio != NULL && studio_json != NULL) {
+    nameObj = json_object_object_get(studio_json, "name");
+    cityObj = json_object_object_get(studio_json, "city");
+    countryObj = json_object_object_get(studio_json, "country");
+    fonderObj = json_object_object_get(studio_json, "fonder");
+    startYearObj = json_object_object_get(studio_json, "startYear");
+    endYearObj = json_object_object_get(studio_json, "endYear");
+    bithYearObj = json_object_object_get(studio_json, "endYear");
+
+    set_studio_name(studio, (char*) json_object_get_string(nameObj));
+    set_studio_city(studio, (char*) json_object_get_string(cityObj));
+    set_studio_country(studio, (char*) json_object_get_string(countryObj));
+    set_studio_fonder(studio, (char*) json_object_get_string(fonderObj));
+    set_studio_startYear(studio, (char*)json_object_get_string(startYearObj));
+    set_studio_endYear(studio, (char*)json_object_get_string(endYearObj));
+    set_studio_bithYear(studio, (char*) json_object_get_string(bithYearObj));
+  }
+  return 0;
+}
+
+int deserialize_tags(STR_ARRAY *contentTag, struct json_object *tags) {
+  struct json_object *tag;
+
+  if(contentTag != NULL && tags != NULL && json_object_get_type(tags) == json_type_array) {
+    for(int i = 0; i < json_object_array_length(tags); i++) {
+      tag = json_object_array_get_idx(tags, i);
+      if(json_object_get_type(tag) == json_type_string) {
+        set_str_value(&(contentTag->elements[i]), (char*)json_object_get_string(tag));
+        //printf("tag : %s\n", json_object_get_string(tag));
+      }
+    }
+  }
+
+  return 0;
+}
+
+int deserialize_video(VIDEO *video, struct json_object *video_json) {
+  struct json_object *titleObj, *summaryObj, *categoryObj, *lengthObj, *urlObj, *censor_ratingObj;
+
+  if(video != NULL && video_json != NULL) {
+    titleObj = json_object_object_get(video_json, "title");
+    summaryObj = json_object_object_get(video_json, "summary");
+    categoryObj = json_object_object_get(video_json, "category");
+    lengthObj = json_object_object_get(video_json, "length");
+    urlObj = json_object_object_get(video_json, "url");
+    censor_ratingObj = json_object_object_get(video_json, "url");
+
+    set_video_title(video, (char*)json_object_get_string(titleObj));
+    set_video_category(video, (char*) json_object_get_string(categoryObj));
+    set_video_summary(video, (char*)json_object_get_string(summaryObj));
+    set_video_url(video, (char*)json_object_get_string(urlObj));
+    set_video_length(video, (char*)json_object_get_string(lengthObj));
+    set_video_censor_rating(video, (char*) json_object_get_string(censor_ratingObj));
+  }
+
+  return 0;
+}
+
+int deserialize_videos(VIDEO_ARRAY *videos, struct json_object *videosObj) {
+  struct json_object *videoObj;
+
+  if(videos != NULL && videosObj != NULL && json_object_get_type(videosObj) == json_type_array) {
+    for(int i = 0; i < json_object_array_length(videosObj); i++) {
+      videoObj = json_object_array_get_idx(videosObj, i);
+      if(videoObj != NULL) {
+        deserialize_video(&(videos->elements[i]), videoObj);
+      }
+    }
+  }
+  return 0;
+}
+
+int deserialize_season(SEASON *season, struct json_object *season_json) {
+  struct json_object *titleObj, *summaryObj, *numberObj, *dateObj, *videosObj;
+
+  if(season != NULL && season_json != NULL) {
+    titleObj = json_object_object_get(season_json, "title");
+    summaryObj = json_object_object_get(season_json, "summary");
+    numberObj = json_object_object_get(season_json, "number");
+    dateObj = json_object_object_get(season_json, "date");
+    videosObj = json_object_object_get(season_json, "videos");
+    set_season_title(season,(char*)json_object_get_string(titleObj));
+    set_season_summary(season, (char*)json_object_get_string(summaryObj));
+    season->number = json_object_get_int(numberObj);
+    set_season_date(season, (char*)json_object_get_string(dateObj));
+    //printf("NUMBER : %ld\n", json_object_get_int(numberObj));
+    deserialize_videos(season->videos, videosObj);
+  }
+
+  return 0;
+}
+
+int deserialize_seasons(SEASON_ARRAY *seasons, struct json_object *seasons_json) {
+  struct json_object *season_json;
+
+  if(seasons != NULL && seasons_json != NULL && json_object_get_type(seasons_json) == json_type_array) {
+    for(int i = 0; i < json_object_array_length(seasons_json); i++) {
+      season_json = json_object_array_get_idx(seasons_json, i);
+      if(season_json != NULL) {
+        deserialize_season(&(seasons->elements[i]), season_json);
+      }
+    }
+  }
+
+  return 0;
+}
+
+int deserialize_bykey(KEY_VALUE_ARRAY *array, struct json_object *obj, char *key, int index) {
+  struct json_object *targetObj;
+
+  if(obj != NULL && key != NULL && array != NULL) {
+    targetObj = json_object_object_get(obj, key);
+
+    if(targetObj != NULL && json_object_get_type(targetObj) == json_type_string) {
+      set_key_value(&(array->elements[index]), key, (char *) json_object_get_string(targetObj));
+    }
+  }
+
+  return 0;
+}
+
+int bson_to_serie(bson_t *document) {
+  char *str;
+  struct json_object *serie_json;
+  SERIE *serie = malloc(sizeof(*serie));
+  str = bson_as_canonical_extended_json(document, NULL);
+
+  if(str != NULL && serie != NULL) {
+    serie_json = getJson(str);
+    init_serie_struct(serie, 2, 1, 2, 2);
+    deserialize_bykey(serie->key_value_array, serie_json, "title", 0);
+    //deserialize_bykey(serie->key_value_array, serie_json, "img", 1);
+    deserialize_year(serie, getObj_rec(serie_json, "/year"));
+    deserialize_director(serie->director, getObj_rec(serie_json, "/director"));
+    deserialize_director(serie->producer, getObj_rec(serie_json, "/producer"));
+    deserialize_studio(serie->studio, getObj_rec(serie_json, "/studio"));
+    deserialize_cast(getObj_rec(serie_json, "/cast"));
+    deserialize_tags(serie->contentTag, getObj_rec(serie_json, "/contentTag"));
+    deserialize_seasons(serie->seasons, getObj_rec(serie_json, "/seasons"));
+    print_serie(serie);
+    bson_free(str);
+    json_object_put(serie_json);
+  }
+  free_serie(serie);
   return 0;
 }
 
@@ -1020,8 +1228,7 @@ int exist_season(char *title, struct json_object *serie) {
           break;
           //printf("Title : %s, %s\n", season_title, (char*)json_object_get_string(titleObj));
         }
-        printJson(season);
-        
+        printf("Cast : %s\n", json_object_get_string(season));
       }
     }
 

@@ -302,19 +302,17 @@ int init_urls(File **urls_fifo,  char **urlsFileSrc) {
     return 0;
 }
 
-int fifoToArray(File *fifo, ARRAY **array) {
+int fifoToArray(File *fifo, STR_ARRAY **array) {
     int cpt = 0;
     Element *current;
+    *array = malloc(sizeof(*array));
 
-    if(fifo != NULL) {
+    if(fifo != NULL && *array != NULL) {
         current = fifo->head;
-        init_array(&(*array), fifo->size, 5, "");
+        init_str_array_struct(*array, fifo->size);
 
         while(current != NULL) {
-            (*array)->elements[cpt] = (char*) realloc((*array)->elements[cpt], (strlen(current->value)+1) * sizeof(char));
-            if((*array)->elements[cpt] != NULL) {
-                sprintf((*array)->elements[cpt], "%s", current->value);
-            } 
+            set_str_value(&((*array)->elements[cpt]), current->value);
             cpt++;
             current = current->next;
         }
@@ -323,11 +321,12 @@ int fifoToArray(File *fifo, ARRAY **array) {
     return 0;
 }
 
-int parseDate(char *str_date, char *datePartRegex, char *datePartDelimiter, ARRAY **array) {
+int parseDate(char *str_date, char *datePartRegex, char *datePartDelimiter, STR_ARRAY **array) {
     char *part = NULL;
     File *fifo = malloc(sizeof(*fifo));
     get_str_match(str_date, datePartRegex, &part); 
     fifo_init(fifo);
+
     if(part != NULL) {
         get_match(part, datePartDelimiter, fifo);
         if(fifo != NULL) {
@@ -338,5 +337,5 @@ int parseDate(char *str_date, char *datePartRegex, char *datePartDelimiter, ARRA
         free(part);
     }
 
-  return 0;
+    return 0;
 }

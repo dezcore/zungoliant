@@ -17,6 +17,7 @@ typedef struct _CAST {
 typedef struct _STUDIO {
     char *name;
     char * city;
+    char *country;
     char *startYear;
     char *endYear;
     char *bithYear;
@@ -68,8 +69,6 @@ typedef struct _KEY_VALUE_ARRAY {
     size_t length;
 } KEY_VALUE_ARRAY;
 
-
-
 typedef struct _SERIE {
     char *year;
     DIRECTOR *director;
@@ -86,6 +85,7 @@ int free_str(STR *str);
 int free_serie(SERIE *serie);
 int print_serie(SERIE *serie);
 int free_studio(STUDIO *studio);
+int bson_to_serie(bson_t *document);
 int init_video_struct(VIDEO *video);
 int free_video_struct(VIDEO *video);
 int free_director(DIRECTOR *director);
@@ -126,6 +126,6 @@ int print_season(SEASON *season, char *tabs, char *videos_tabs, char *videos_sub
 int set_director(DIRECTOR *director, char *name, char *startYear, char *endYear, char *bithYear);
 int print_array_key_value(KEY_VALUE_ARRAY *array, char *tabs, char* subtabs, char *kv_tabs, char *kv_subtabs);
 int print_array_season(SEASON_ARRAY *array, char *tabs, char* subtabs, char *season_tabs, char *season_subtabs);
-int set_studio(STUDIO *studio, char *name, char *city, char *fonder, char *startYear, char *endYear, char *bithYear);
+int set_studio(STUDIO *studio, char *name, char *country, char *city, char *fonder, char *startYear, char *endYear, char *bithYear);
 int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes, int content_tags);
 #endif
