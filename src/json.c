@@ -1,28 +1,9 @@
 #include "./../include/json.h"
 
-int printJson(struct json_object *obj) {
-    struct json_object_iterator it;
-	struct json_object_iterator itEnd;
-
-    if(obj != NULL) {
-        //it = json_object_iter_init_default();
-        it = json_object_iter_begin(obj);
-	    itEnd = json_object_iter_end(obj);
-
-        while(!json_object_iter_equal(&it, &itEnd)) {
-		    printf("%s\n", json_object_iter_peek_name(&it));
-		    printf("%s\n", json_object_to_json_string(json_object_iter_peek_value(&it)));
-		    json_object_iter_next(&it);
-	    }
-    }
-
-    return 0;
-}
-
 int iterObj(struct json_object *obj) {
     unsigned int ii;
     struct json_object *val;
-
+    
     if(obj != NULL) {
         //int parsed_len = json_object_get_string_len(obj);
         for(ii = 0; ii < json_object_array_length(obj); ii++){

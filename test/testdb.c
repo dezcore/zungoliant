@@ -245,7 +245,6 @@ int test_exist() {
     exist_serie((char*)title, &serie);
 
     if(serie != NULL) {
-        //printJson(json);
         exist_season((char*)title, serie);
         json_object_put(serie);
     }

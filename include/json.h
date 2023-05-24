@@ -10,7 +10,6 @@
 #include<errno.h>
 
 struct json_object* getJson(char *str);
-int printJson(struct json_object *obj);
 int file_tojson(char* fileName, struct json_object **json);
 int getValue(struct  json_object *obj, char *field, char **str);
 struct json_object* getObj(struct  json_object *obj, char *field);
