@@ -281,12 +281,17 @@ int test_set_video(VIDEO *video) {
 }
 
 int test_video_array() {
+    VIDEO video;
     VIDEO_ARRAY *array  = malloc(sizeof(*array));
     if(array != NULL) {
         init_video_array_struct(array, 3);
         for(int i = 0; i < array->length; i++) {
             test_set_video(&(array->elements[i]));
         }
+        print_array_video(array, "", "\t");
+        resize_video_array_struct(array, array->length+1);
+        video = array->elements[array->length-1];
+        set_video(&video, "title", "category", "summary", "url", "length", "censor_rating");
         print_array_video(array, "", "\t");
     }
     free_video_array_struct(array);
@@ -463,10 +468,11 @@ int test_date() {
 }
 
 int test_serie() {
-    //test_date();
     bson_t *document = bson_new();
     SERIE *serie = malloc(sizeof(*serie));
-    if(serie != NULL) {
+    SERIE *serie1 = malloc(sizeof(*serie));
+
+    if(serie != NULL && serie1 != NULL) {
         init_serie_struct(serie, 2, 1, 2, 2);
         set_serie_year(serie, "2014-01-01T08:15:39.736Z"); //{ "$date": { "$numberLong": "1388560028000" } },
         set_director(serie->director, "Director name","2014-01-01T08:15:39.736Z", "2014-01-01T08:15:39.736Z", "2014-01-01T08:15:39.736Z");
@@ -476,11 +482,13 @@ int test_serie() {
         set_str_array(serie->contentTag);
         set_key_value_array(serie->key_value_array);
         serie_to_bson(&document, serie);
-        bson_to_serie(document);
+        bson_to_serie(&serie1, document);
         //print_bson(document);
         //print_serie(serie);
+        print_serie(serie1);
     }
     bson_destroy(document);
     free_serie(serie);
+    free_serie(serie1);
     return 0;
 }

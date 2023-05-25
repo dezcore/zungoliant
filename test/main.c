@@ -50,7 +50,7 @@ int test_db() {
     //test_parse_date();
     //test_exist();
     //test_video_struct();
-    //test_video_array();
+    test_video_array();
     //test_season_struct();
     //test_season_array();
     //test_key_value();
@@ -59,7 +59,7 @@ int test_db() {
     //test_studio();
     //test_str();
     //test_str_array();
-    test_serie();
+    //test_serie();
     return 0;
 }
 

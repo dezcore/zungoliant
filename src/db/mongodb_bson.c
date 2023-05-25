@@ -388,6 +388,36 @@ int init_video_array_struct(VIDEO_ARRAY *array, size_t length) {
     return 0;
 }
 
+int set_video(VIDEO *video, char *title, char *category, char *summary, char *url, char *length, char *censor_rating) {
+    if(video != NULL && title != NULL && category != NULL && summary != NULL && url != NULL && length != NULL && censor_rating != NULL) {
+        set_video_title(video, title);
+        set_video_category(video, category);
+        set_video_summary(video, summary);
+        set_video_url(video, url);
+        set_video_length(video, length);
+        set_video_censor_rating(video, censor_rating);
+    }
+    return 0;
+}
+
+int resize_video_array_struct(VIDEO_ARRAY *array, size_t length) {
+    VIDEO *elements;
+
+    if(array != NULL && array->length < length) {
+      elements = (VIDEO*) realloc(array->elements, length * sizeof(*array->elements));
+
+      if(elements != NULL) {
+        for(int i = array->length; i < length; i++) {
+          init_video_struct(&(elements[i]));
+        }
+        array->elements = elements;
+        array->length = length;
+      }
+      array->length = length;
+    }
+    return 0;
+}
+
 int free_video_array_struct(VIDEO_ARRAY *array) {
   if(array != NULL) {
     free(array->elements);
@@ -722,7 +752,7 @@ int init_date(bson_t **bson, char *field, char *str_date) {
   }
 
   BSON_APPEND_DATE_TIME(*bson, field, mktime(&year) * 1000);
-  
+
   return 0;
 }
 
@@ -1181,31 +1211,29 @@ int init_serie_parameters(struct json_object *serie_json, SERIE **serie, int num
   return 0;
 }
 
-int bson_to_serie(bson_t *document) {
+int bson_to_serie(SERIE **serie, bson_t *document) {
   char *str;
   struct json_object *serie_json;
-  SERIE *serie = malloc(sizeof(*serie));
   str = bson_as_canonical_extended_json(document, NULL);
 
-  if(str != NULL && serie != NULL) {
+  if(str != NULL && *serie != NULL) {
     serie_json = getJson(str);
-    init_serie_parameters(serie_json, &serie, 1);
-    deserialize_bykey(serie->key_value_array, serie_json, "title", 0);
-    //deserialize_bykey(serie->key_value_array, serie_json, "img", 1);
-    //deserialize_bykey(serie->key_value_array, serie_json, "category", 2);
-    //deserialize_bykey(serie->key_value_array, serie_json, "summary", 3);
-    deserialize_year(serie, getObj_rec(serie_json, "/year"));
-    deserialize_director(serie->director, getObj_rec(serie_json, "/director"));
-    deserialize_director(serie->producer, getObj_rec(serie_json, "/producer"));
-    deserialize_studio(serie->studio, getObj_rec(serie_json, "/studio"));
+    init_serie_parameters(serie_json, &(*serie), 1);
+    deserialize_bykey((*serie)->key_value_array, serie_json, "title", 0);
+    deserialize_bykey((*serie)->key_value_array, serie_json, "img", 1);
+    deserialize_bykey((*serie)->key_value_array, serie_json, "category", 2);
+    deserialize_bykey((*serie)->key_value_array, serie_json, "summary", 3);
+    deserialize_year(*serie, getObj_rec(serie_json, "/year"));
+    deserialize_director((*serie)->director, getObj_rec(serie_json, "/director"));
+    deserialize_director((*serie)->producer, getObj_rec(serie_json, "/producer"));
+    deserialize_studio((*serie)->studio, getObj_rec(serie_json, "/studio"));
     deserialize_cast(getObj_rec(serie_json, "/cast"));
-    deserialize_tags(serie->contentTag, getObj_rec(serie_json, "/contentTag"));
-    deserialize_seasons(serie->seasons, getObj_rec(serie_json, "/seasons"));
-    print_serie(serie);
+    deserialize_tags((*serie)->contentTag, getObj_rec(serie_json, "/contentTag"));
+    deserialize_seasons((*serie)->seasons, getObj_rec(serie_json, "/seasons"));
     bson_free(str);
     json_object_put(serie_json);
   }
-  free_serie(serie);
+
   return 0;
 }
 
