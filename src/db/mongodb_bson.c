@@ -698,7 +698,7 @@ int print_serie(SERIE *serie) {
   return 0;
 }
 
-int int_date(bson_t **bson, char *field, char *str_date) {
+int init_date(bson_t **bson, char *field, char *str_date) {
   STR_ARRAY *datePartArray = NULL;
   STR_ARRAY *hoursPartArray = NULL;
   struct tm year = { 0 };
@@ -706,8 +706,8 @@ int int_date(bson_t **bson, char *field, char *str_date) {
   parseDate(str_date, "[0-9]{2}:[0-9]{2}:[0-9]{2}", "[0-9]{2}", &hoursPartArray);
   if(hoursPartArray != NULL) {
     year.tm_hour = atoi(hoursPartArray->elements[0].value) - 1; 
-    year.tm_min = atoi(hoursPartArray->elements[0].value) - 1; 
-    year.tm_sec = atoi(hoursPartArray->elements[0].value); 
+    year.tm_min = atoi(hoursPartArray->elements[1].value) - 1; 
+    year.tm_sec = atoi(hoursPartArray->elements[2].value); 
     //print_array_str(hoursPartArray, "", "\t", "\t", "\t\t");
     free_str_array_struct(hoursPartArray);
   }
@@ -722,12 +722,12 @@ int int_date(bson_t **bson, char *field, char *str_date) {
   }
 
   BSON_APPEND_DATE_TIME(*bson, field, mktime(&year) * 1000);
-
+  
   return 0;
 }
 
 int int_date_(bson_t *bson, char *field, char *str_date) {
-  int_date(&bson, field, str_date);
+  init_date(&bson, field, str_date);
   return 0;
 }
 
@@ -735,9 +735,9 @@ int init_director(bson_t *director_bson, DIRECTOR *director) {
 
   if(director_bson != NULL && director != NULL) {
     BSON_APPEND_UTF8(director_bson, "name", director->name);
-    int_date(&director_bson, "startYear", director->startYear);
-    int_date(&director_bson, "endYear", director->endYear);
-    int_date(&director_bson, "birthYear", director->bithYear);
+    init_date(&director_bson, "startYear", director->startYear);
+    init_date(&director_bson, "endYear", director->endYear);
+    init_date(&director_bson, "birthYear", director->bithYear);
   }
 
   return 0;
@@ -748,9 +748,9 @@ int init_studio(bson_t *studio_bson, STUDIO *studio) {
     BSON_APPEND_UTF8(studio_bson, "name", studio->name);
     BSON_APPEND_UTF8(studio_bson, "city", studio->city);
     BSON_APPEND_UTF8(studio_bson, "country", studio->country);
-    int_date(&studio_bson, "startYear", studio->startYear);
-    int_date(&studio_bson, "endYear", studio->endYear);
-    int_date(&studio_bson, "birthYear", studio->bithYear);
+    init_date(&studio_bson, "startYear", studio->startYear);
+    init_date(&studio_bson, "endYear", studio->endYear);
+    init_date(&studio_bson, "birthYear", studio->bithYear);
     BSON_APPEND_UTF8(studio_bson, "fonder", studio->fonder);
   }
   return 0;
@@ -899,7 +899,7 @@ int serie_to_bson(bson_t **document, SERIE *serie) {
   bson_t director, producer, studio, cast;
 
   init_keys_and_values(&(*document), serie->key_value_array);
-  int_date(&(*document), "year", serie->year);
+  init_date(&(*document), "year", serie->year);
   BSON_APPEND_DOCUMENT_BEGIN(*document, "director", &director);
   init_director(&director, serie->director);
   bson_append_document_end(*document, &director);
@@ -917,10 +917,23 @@ int serie_to_bson(bson_t **document, SERIE *serie) {
   return 0;
 }
 
+char* deserialize_date(struct json_object *date_json) {
+  char *res = NULL;
+  json_object *timestamp_json = getObj_rec(date_json, "/$date/$numberLong");
+
+  if(timestamp_json != NULL) {
+    timestamp_to_utc(json_object_get_string(timestamp_json), &res);
+  }
+
+  return res;
+}
 int deserialize_year(SERIE *serie, struct json_object *year) {
-  if( serie != NULL && year != NULL) {
-    set_serie_year(serie, (char*)json_object_get_string(year));
+  char *date = deserialize_date(year);
+
+  if(serie != NULL && date != NULL) {
+    set_serie_year(serie, date);
     //printf("%s\n", json_object_get_string(year));
+    free(date);
   }
 
   return 0;
@@ -934,24 +947,41 @@ int deserialize_cast(struct json_object *cast) {
 }
 
 int deserialize_director(DIRECTOR *director, struct json_object *director_json) {
-  struct json_object *nameObj, *startYearObj, *endYearObj, *bithYearObj;
+  struct json_object *nameObj, *startYearObj, *endYearObj, *birthYearObj;
+  char *startYear, *endYear, *birthYear;
+  //char *date = deserialize_date(year);
 
   if(director != NULL && director_json != NULL) {
     nameObj = json_object_object_get(director_json, "name");
     startYearObj = json_object_object_get(director_json, "startYear");
     endYearObj = json_object_object_get(director_json, "endYear");
-    bithYearObj = json_object_object_get(director_json, "endYear");
+    birthYearObj = json_object_object_get(director_json, "bithYear");
 
     set_director_name(director, (char*) json_object_get_string(nameObj));
-    set_director_startYear(director, (char*)json_object_get_string(startYearObj));
-    set_director_endYear(director, (char*)json_object_get_string(endYearObj));
-    set_director_bithYear(director, (char*) json_object_get_string(bithYearObj));
+    
+    startYear = deserialize_date(startYearObj);
+    endYear = deserialize_date(endYearObj);
+    birthYear = deserialize_date(birthYearObj);
+
+    if(startYear != NULL)
+      set_director_startYear(director, startYear);
+    
+    if(endYear != NULL)
+      set_director_endYear(director, endYear);
+
+    if(birthYear != NULL)
+      set_director_bithYear(director, birthYear);
+
+    free(startYear);
+    free(endYear);
+    free(birthYear);
   }
   return 0;
 }
 
 int deserialize_studio(STUDIO *studio, struct json_object *studio_json) {
-  struct json_object *nameObj, *cityObj, *countryObj, *fonderObj, *startYearObj, *endYearObj, *bithYearObj;
+  char *startYear, *endYear, *birthYear;
+  struct json_object *nameObj, *cityObj, *countryObj, *fonderObj, *startYearObj, *endYearObj, *birthYearObj;
 
   if(studio != NULL && studio_json != NULL) {
     nameObj = json_object_object_get(studio_json, "name");
@@ -960,15 +990,29 @@ int deserialize_studio(STUDIO *studio, struct json_object *studio_json) {
     fonderObj = json_object_object_get(studio_json, "fonder");
     startYearObj = json_object_object_get(studio_json, "startYear");
     endYearObj = json_object_object_get(studio_json, "endYear");
-    bithYearObj = json_object_object_get(studio_json, "endYear");
+    birthYearObj = json_object_object_get(studio_json, "bithYear");
 
     set_studio_name(studio, (char*) json_object_get_string(nameObj));
     set_studio_city(studio, (char*) json_object_get_string(cityObj));
     set_studio_country(studio, (char*) json_object_get_string(countryObj));
     set_studio_fonder(studio, (char*) json_object_get_string(fonderObj));
-    set_studio_startYear(studio, (char*)json_object_get_string(startYearObj));
-    set_studio_endYear(studio, (char*)json_object_get_string(endYearObj));
-    set_studio_bithYear(studio, (char*) json_object_get_string(bithYearObj));
+
+    startYear = deserialize_date(startYearObj);
+    endYear = deserialize_date(endYearObj);
+    birthYear = deserialize_date(birthYearObj);
+
+    if(startYear != NULL)
+      set_studio_startYear(studio, startYear);
+    
+    if(endYear != NULL)
+      set_studio_endYear(studio, endYear);
+
+    if(birthYear != NULL)
+      set_studio_bithYear(studio, birthYear);
+
+    free(startYear);
+    free(endYear);
+    free(birthYear);
   }
   return 0;
 }
@@ -1036,6 +1080,7 @@ int deserialize_videos(VIDEO_ARRAY *videos, struct json_object *videosObj) {
 }
 
 int deserialize_season(SEASON *season, struct json_object *season_json) {
+  char *date;
   struct json_object *titleObj, *summaryObj, *numberObj, *dateObj, *videosObj;
 
   if(season != NULL && season_json != NULL) {
@@ -1044,12 +1089,17 @@ int deserialize_season(SEASON *season, struct json_object *season_json) {
     numberObj = json_object_object_get(season_json, "number");
     dateObj = json_object_object_get(season_json, "date");
     videosObj = json_object_object_get(season_json, "videos");
+
     set_season_title(season,(char*)json_object_get_string(titleObj));
     set_season_summary(season, (char*)json_object_get_string(summaryObj));
     season->number = json_object_get_int(numberObj);
-    set_season_date(season, (char*)json_object_get_string(dateObj));
+    
+    date = deserialize_date(dateObj);
+    if(date != NULL)
+      set_season_date(season, date);
     //printf("NUMBER : %ld\n", json_object_get_int(numberObj));
     deserialize_videos(season->videos, videosObj);
+    free(date);
   }
 
   return 0;
@@ -1142,6 +1192,8 @@ int bson_to_serie(bson_t *document) {
     init_serie_parameters(serie_json, &serie, 1);
     deserialize_bykey(serie->key_value_array, serie_json, "title", 0);
     //deserialize_bykey(serie->key_value_array, serie_json, "img", 1);
+    //deserialize_bykey(serie->key_value_array, serie_json, "category", 2);
+    //deserialize_bykey(serie->key_value_array, serie_json, "summary", 3);
     deserialize_year(serie, getObj_rec(serie_json, "/year"));
     deserialize_director(serie->director, getObj_rec(serie_json, "/director"));
     deserialize_director(serie->producer, getObj_rec(serie_json, "/producer"));

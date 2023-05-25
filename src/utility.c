@@ -339,3 +339,42 @@ int parseDate(char *str_date, char *datePartRegex, char *datePartDelimiter, STR_
 
     return 0;
 }
+
+char* complete_number(int numb) { 
+    char *res = malloc(20 *sizeof(char));
+
+    if(9 < numb)
+        sprintf(res, "%d", numb);
+    else 
+        sprintf(res, "0%d", numb);
+
+    return res;  
+}
+
+int timestamp_to_utc(char *date, char **res) {
+    char *eptr;
+    long time_long;
+    struct tm * time;
+    char *month, *day, *hour, *min, *sec;
+
+    *res = malloc(20 *sizeof(char));
+
+    if(date != NULL) {
+        time_long = strtol(date, &eptr, 10)/1000;
+        time = gmtime(&time_long);
+        month = complete_number(time->tm_mon+1);
+        day = complete_number(time->tm_mday);
+        hour = complete_number(time->tm_hour+1);
+        min = complete_number(time->tm_min+1);
+        sec = complete_number(time->tm_sec);
+        sprintf(*res, "%d-%s-%sT%s:%s:%sZ\n", (time->tm_year + 1900),month, day, hour, min, sec);
+        free(month);
+        free(day);
+        free(hour);
+        free(min);
+        free(sec);
+        
+    }
+
+    return 0;
+}

@@ -313,7 +313,7 @@ int test_season_struct() {
 int test_set_seson(SEASON *season) {
     if(season != NULL) {
         set_season_title(season, "Seson title");
-        set_season_date(season, "Season date");
+        set_season_date(season, "2014-01-01T08:15:39.736Z");
         set_season_summary(season, "Season summary");
 
         for(int i = 0; i < season->videos->length; i++) {
@@ -390,7 +390,7 @@ int test_director() {
     DIRECTOR *director = malloc(sizeof(*director));
     if(director != NULL) {
         init_director_struct(director);
-        set_director(director, "Director name","startYear", "endYear", "bithYear");
+        set_director(director, "Director name","2014-01-01T08:15:39.736Z", "2014-01-01T08:15:39.736Z", "2014-01-01T08:15:39.736Z");
         print_director(director,  "", "\t");
     }
     free_director(director);
@@ -401,7 +401,7 @@ int test_studio() {
     STUDIO *studio = malloc(sizeof(*studio));
     if(studio != NULL) {
         init_studio_struct(studio);
-        set_studio(studio, "Studio name", "Country", "City", "Fonder","StartYear", "EndYear", "BithYear");
+        set_studio(studio, "Studio name", "Country", "City", "Fonder","2014-01-01T08:15:39.736Z", "EndYear", "2014-01-01T08:15:39.736Z");
         print_studio(studio, "", "\t");
     }
     free_studio(studio);
@@ -410,7 +410,7 @@ int test_studio() {
 
 int test_set_studio(STUDIO *studio) {
     if(studio != NULL) {
-        set_studio(studio, "Studio name", "Country", "City", "Fonder","StartYear", "EndYear", "BithYear");
+        set_studio(studio, "Studio name", "Country", "City", "Fonder","2014-01-01T08:15:39.736Z", "2014-01-01T08:15:39.736Z", "2014-01-01T08:15:39.736Z");
     }
     return 0;
 }
@@ -448,14 +448,29 @@ int set_str_array(STR_ARRAY *array) {
     return 0;
 }
 
+int test_date() {
+    char *res = NULL;
+    const char *date= "1388560028000";
+
+    timestamp_to_utc(date, &res);
+
+    if(res != NULL) {
+        printf("Date : %s\n", res);
+        free(res);
+    }
+
+    return 0;
+}
+
 int test_serie() {
+    //test_date();
     bson_t *document = bson_new();
     SERIE *serie = malloc(sizeof(*serie));
     if(serie != NULL) {
         init_serie_struct(serie, 2, 1, 2, 2);
-        set_serie_year(serie, "2014-01-01T08:15:39.736Z");
-        set_director(serie->director, "Director name","startYear", "endYear", "bithYear");
-        set_director(serie->producer, "Producer name","startYear", "endYear", "bithYear");
+        set_serie_year(serie, "2014-01-01T08:15:39.736Z"); //{ "$date": { "$numberLong": "1388560028000" } },
+        set_director(serie->director, "Director name","2014-01-01T08:15:39.736Z", "2014-01-01T08:15:39.736Z", "2014-01-01T08:15:39.736Z");
+        set_director(serie->producer, "Producer name","2028-01-01T08:15:39.736Z", "2024-01-01T08:15:39.736Z", "2023-01-01T08:15:39.736Z");
         test_set_studio(serie->studio);
         set_season_array(serie->seasons);
         set_str_array(serie->contentTag);

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <regex.h>
+#include <time.h>
 #include <sys/wait.h>
 #include<unistd.h>
 #include <curl/curl.h>
@@ -38,6 +39,7 @@ typedef struct _STR_ARRAY {
 } STR_ARRAY;
 
 int trim(char **str);
+int timestamp_to_utc();
 int init_str_struct(STR *str);
 int set_str_value(STR *str, char *value);
 int get_pwd(char **res, char *concatPath);
