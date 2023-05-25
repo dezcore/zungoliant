@@ -6,12 +6,13 @@
 #include <json.h>
 
 #include <bson/bson.h>
-#include "../db/db.h"
+
+#include "db.h"
 #include "../utility.h"
 
 typedef struct _CAST {
-    ARRAY *actors;
-    ARRAY *awards;
+    STR_ARRAY *actors;
+    STR_ARRAY *awards;
 } CAST;
 
 typedef struct _STUDIO {

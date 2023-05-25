@@ -1,7 +1,8 @@
 #ifndef CURL_H_
 #define CURL_H_
 
-#include "./../include/utility.h"
+#include "utility.h"
+#include "./file.h"
 
 #define COMMAND_SIZE 100
 

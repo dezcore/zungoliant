@@ -12,36 +12,38 @@ SRC_DIR = src
 LIBPATH = lib
 IDIR = include
 SRC_DB_DIR = src/db
+SRC_YOUTUBE_DIR = src/youtube
 DB_IDIR = include/db
+YOUTUBE_IDIR = include/youtube
+
 TEST_DIR = test
 TEST_IDIR = include/test
 LDFLAGS = -lmyhtml -lcurl -ljson-c -lmongoc-1.0 -lbson-1.0
 
 jsonDep = $(IDIR)/json.h $(SRC_DIR)/json.c
 fifoDep = $(IDIR)/fifo.h $(SRC_DIR)/fifo.c
-pageDep = $(IDIR)/page.h $(SRC_DIR)/page.c
-
-arrayDep = $(IDIR)/array.h $(SRC_DIR)/array.c
-fileDep = $(IDIR)/array.h $(IDIR)/utility.h $(IDIR)/file.h $(SRC_DIR)/file.c
-ybotDep = $(IDIR)/utility.h $(IDIR)/ybot.h $(SRC_DIR)/ybot.c
-zregexDep = $(IDIR)/file.h $(IDIR)/zregex.h $(SRC_DIR)/zregex.c
+curlDep = $(IDIR)/utility.h $(IDIR)/file.h $(IDIR)/curl.h $(SRC_DIR)/curl.c 
+fileDep = $(IDIR)/utility.h $(IDIR)/file.h $(SRC_DIR)/file.c
 parserDep = $(IDIR)/file.h $(IDIR)/parser.h $(SRC_DIR)/parser.c
-curlDep = $(IDIR)/utility.h $(IDIR)/curl.h $(SRC_DIR)/curl.c 
-mongodbbsonDep = $(DB_IDIR)/db.h $(IDIR)/utility.h $(DB_IDIR)/mongodb_bson.h $(SRC_DB_DIR)/mongodb_bson.c
+zregexDep = $(IDIR)/file.h $(IDIR)/zregex.h $(SRC_DIR)/zregex.c
+utilityDep = $(IDIR)/fifo.h $(IDIR)/json.h $(IDIR)/utility.h $(SRC_DIR)/utility.c
+
 dbDep = $(IDIR)/utility.h $(DB_IDIR)/mongodb_bson.h $(DB_IDIR)/db.h $(SRC_DB_DIR)/db.c
-utilityDep = $(IDIR)/parser.h $(IDIR)/fifo.h $(IDIR)/json.h $(IDIR)/curl.h $(IDIR)/array.h $(IDIR)/file.h $(IDIR)/zregex.h $(IDIR)/page.h $(IDIR)/utility.h $(SRC_DIR)/utility.c
+mongodbbsonDep = $(DB_IDIR)/db.h $(IDIR)/utility.h $(DB_IDIR)/mongodb_bson.h $(SRC_DB_DIR)/mongodb_bson.c
+ybotDep = $(IDIR)/utility.h $(YOUTUBE_IDIR)/page.h $(YOUTUBE_IDIR)/ybot.h $(SRC_YOUTUBE_DIR)/ybot.c
+pageDep = $(IDIR)/utility.h $(IDIR)/file.h $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/zregex.h $(DB_IDIR)/mongodb_bson.h $(YOUTUBE_IDIR)/page.h $(SRC_YOUTUBE_DIR)/page.c
 
-mainDep = $(IDIR)/ybot.h $(SRC_DIR)/main.c
-mainObj = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/array.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/utility.o $(ODIR)/ybot.o $(ODIR)/page.o $(ODIR)/mongodb_bson.o $(ODIR)/db.o $(ODIR)/main.o
+mainDep = $(YOUTUBE_IDIR)/ybot.h $(SRC_DIR)/main.c
+mainObj = $(ODIR)/json.o $(ODIR)/fifo.o $(ODIR)/curl.o $(ODIR)/zregex.o $(ODIR)/parser.o $(ODIR)/utility.o $(ODIR)/file.o  $(ODIR)/mongodb_bson.o $(ODIR)/db.o $(ODIR)/page.o $(ODIR)/ybot.o $(ODIR)/main.o
 
-testdbDep = $(IDIR)/utility.h $(DB_IDIR)/mongodb_bson.h $(TEST_IDIR)/testdb.h $(TEST_DIR)/testdb.c
 testfifoDep = $(IDIR)/fifo.h $(IDIR)/testfifo.h $(TEST_DIR)/testfifo.c
 testfileDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h  $(IDIR)/file.h $(IDIR)/testfile.h $(TEST_DIR)/testfile.c
 testDep = $(IDIR)/testzregex.h $(IDIR)/testfile.h  $(IDIR)/testfifo.h $(TEST_DIR)/main.c
-testyDep = $(IDIR)/utility.h $(IDIR)/testy.h $(TEST_DIR)/testy.c
+testyDep = $(IDIR)/utility.h $(YOUTUBE_IDIR)/page.h  $(IDIR)/testy.h $(TEST_DIR)/testy.c
+testdbDep = $(IDIR)/utility.h $(YOUTUBE_IDIR)/page.h $(TEST_IDIR)/testdb.h $(TEST_DIR)/testdb.c
 testzregexDep = $(IDIR)/parser.h $(IDIR)/curl.h $(IDIR)/fifo.h $(IDIR)/file.h $(IDIR)/json.h $(IDIR)/zregex.h $(IDIR)/utility.h $(IDIR)/testzregex.h $(TEST_DIR)/testzregex.c
 
-testObjs = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/array.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/page.o $(ODIR)/utility.o $(ODIR)/mongodb_bson.o $(ODIR)/db.o 
+testObjs = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)/parser.o $(ODIR)/curl.o $(ODIR)/page.o $(ODIR)/utility.o $(ODIR)/mongodb_bson.o $(ODIR)/db.o 
 testObj = $(testObjs) $(ODIR)/testy.o $(ODIR)/testzregex.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/testdb.o $(ODIR)/test.o
 
 all: $(BIN_DIR)/main
@@ -72,7 +74,7 @@ $(ODIR)/fifo.o: $(fifoDep)
 
 $(ODIR)/page.o: $(pageDep)
 	@mkdir -p $(ODIR)
-	$(CC) -c $(SRC_DIR)/page.c -o $(ODIR)/page.o $(CFLAGS)
+	$(CC) -c $(SRC_YOUTUBE_DIR)/page.c -o $(ODIR)/page.o $(CFLAGS)
 
 $(ODIR)/utility.o: $(utilityDep)
 	@mkdir -p $(ODIR)
@@ -84,11 +86,7 @@ $(ODIR)/json.o: $(jsonDep)
 
 $(ODIR)/ybot.o: $(ybotDep)
 	@mkdir -p $(ODIR)
-	$(CC) -c $(SRC_DIR)/ybot.c -o $(ODIR)/ybot.o $(CFLAGS)
-
-$(ODIR)/array.o: $(arrayDep)
-	@mkdir -p $(ODIR)
-	$(CC) -c $(SRC_DIR)/array.c -o $(ODIR)/array.o $(CFLAGS)
+	$(CC) -c $(SRC_YOUTUBE_DIR)/ybot.c -o $(ODIR)/ybot.o $(CFLAGS)
 
 $(ODIR)/file.o: $(fileDep)
 	@mkdir -p $(ODIR)

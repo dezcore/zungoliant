@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <myhtml/api.h>
-#include "./../include/file.h"
+#include "./file.h"
 #define STR_SIZE 100
 #define FILES_PATH "/data/file/"
 #define YINITDATA_FILE "ytInitialData" 

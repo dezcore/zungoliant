@@ -1,7 +1,8 @@
 #ifndef YBOT_H_
 #define YBOT_H_
 
-#include "./../include/utility.h"
+#include "../utility.h"
+#include "./page.h"
 
 #define REGEX_DIR_PATH "/data/file/regex/"
 #define PARSER_DIR_PATH "/data/file/parser/"

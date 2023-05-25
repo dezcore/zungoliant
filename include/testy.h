@@ -1,6 +1,7 @@
 #ifndef TESTY_H_
 #define TESTY_H_
 #include "./../include/utility.h"
+#include "./youtube/page.h"
 
 #define TEST_PARSE_FILE_PATH "/data/test/parse/ytInitialData.json"
 #define TEST_YINITDATA_FILE_PATH "/data/file/ytInitialData"

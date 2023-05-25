@@ -1,4 +1,4 @@
-#include "./../include/ybot.h"
+#include "../../include/youtube/ybot.h"
 
 int init_ybot(Ybot **bot) {
     *bot = malloc(sizeof(*bot));
@@ -18,33 +18,6 @@ int free_ybot(Ybot *bot) {
         free(bot);
     }
 
-    return 0;
-}
-
-int save_data(struct json_object *json,  ARRAY *titlesRegex) {
-    unsigned int i;
-    struct json_object *results;
-    struct json_object *video, *titleObj;
-
-    if(json != NULL) {
-        results = getObj_rec(json, YRESULTS_FIELDS);
-        if(results != NULL) {
-            for(i = 0; i < json_object_array_length(results); i++) {
-		        video = json_object_array_get_idx(results, i);
-                titleObj = getObj_rec(video, TITLE_FIELD);
-
-                if(titleObj != NULL) {
-                    for(int i = 0; i < titlesRegex->length; i++) {
-                        if(match_pattern((char *)json_object_get_string(titleObj), titlesRegex->elements[i])) {
-                            save_video(video, json_object_get_string(titleObj));
-                            break;
-                        }
-                    } 
-                    
-                }
-	        }
-        }
-    }
     return 0;
 }
 
@@ -197,23 +170,6 @@ int init_env() {
     return 0;
 }
 
-int videopage_handler(YPage *page, ARRAY *titlesRegex, char *url, char* parseFile) {
-    struct json_object *json = NULL;
-
-    if(url != NULL && titlesRegex) {
-        //printf("VideoPage : %s\n", url);
-        set_url(page, url);
-        //print_page(page);
-        downloadPage_and_replace(parseFile, page);
-        file_tojson(parseFile, &json);
-        save_data(json, titlesRegex);
-    }
-
-    json_object_put(json);
-
-    return 0;
-}
-
 int channelpage_handler(Ybot **bot, YPage *page1 , struct json_object **json, char *url, char* parseFile) {
     if(url != NULL) {
         printf("channelsPage : %s\n", url);
@@ -235,7 +191,7 @@ int run_ybot() {
     YPage *page1 = malloc(sizeof(*page1));
 
     //Regex
-    ARRAY *titlesRegex = NULL;
+    STR_ARRAY *titlesRegex = NULL;
 
     init_env();
     init_ybot(&bot);
@@ -271,8 +227,8 @@ int run_ybot() {
         free_yPage(page1);
     }
 
-    free_array(titlesRegex);
+    free_str_array_struct(titlesRegex);
     free_ybot(bot);
-
+    
     return 0;
 }

@@ -189,7 +189,7 @@ int fileToFifo(char *filePath, File *file) {
     return 0;
 }
 
-int fileToArray(char *filePath, ARRAY **array) {
+int fileToArray(char *filePath, STR_ARRAY **array) {
     int cpt = 0;
     File *fifo = NULL;
     Element *element = NULL;
@@ -197,20 +197,17 @@ int fileToArray(char *filePath, ARRAY **array) {
 
     if(fifo != NULL) {
         fileToFifo(filePath, fifo);
-        if(fifo != NULL) {
-            init_array(&(*array), fifo->size, 5, "");
-            if(*array != NULL) {
-                while(0 < fifo->size) {
-                    element = pop(fifo);
-                    //displayElement(element);
-                    (*array)->elements[cpt] = (char*) realloc((*array)->elements[cpt], (strlen(element->value)+1) * sizeof(char));
-                    if((*array)->elements[cpt] != NULL) {
-                        sprintf((*array)->elements[cpt], "%s", element->value);
-                    } 
-                    freeElement(element);
-                    element = NULL;
-                    cpt++;
-                }
+        *array = malloc(sizeof(*array));
+
+        if(fifo != NULL && *array != NULL) { 
+            init_str_array_struct(*array, fifo->size);
+            while(0 < fifo->size) {
+                element = pop(fifo);
+                //displayElement(element);
+                set_str_value(&((*array)->elements[cpt]), element->value);
+                freeElement(element);
+                element = NULL;
+                cpt++;
             }
             freeFile(fifo);
         }
@@ -240,5 +237,42 @@ int createDir(char *dir_path) {
         }
     }
     
+    return 0;
+}
+
+int init_fifo(File **fifo, char *filePath) {
+    char *file =  NULL;
+    get_pwd(&file, filePath);
+
+    if(file != NULL) {
+        fileToFifo(file, *fifo);
+        free(file);
+    }
+    
+    return 0;
+}
+
+int init_urls(File **urls_fifo,  char **urlsFileSrc) {
+    char *urlsFile =  NULL;
+
+    get_pwd(&urlsFile, URLS_FILE);
+
+    if(urlsFile != NULL) {
+        fileToFifo(urlsFile, *urls_fifo);
+        *urlsFileSrc = urlsFile;
+    }
+
+    return 0;
+}
+
+int init_file_to_array(char *filePath, STR_ARRAY **array) {
+    char *file =  NULL;
+    get_pwd(&file, filePath);
+    
+    if(file != NULL) {
+        fileToArray(file, &(*array));
+        free(file);
+    }
+
     return 0;
 }

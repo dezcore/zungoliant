@@ -1,15 +1,14 @@
 #ifndef PAGE_H_
 #define PAGE_H_
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include<sys/wait.h>
-#include<unistd.h>
-#include <json.h>
-#define DEFAULT_STR_LEN 100
 
-//Regex
-//https://en.wikibooks.org/wiki/Regular_Expressions/POSIX_Basic_Regular_Expressions
+#include "../file.h"
+#include "../parser.h"
+#include "../curl.h"
+#include "../zregex.h"
+#include "../db/mongodb_bson.h"
+#include "../utility.h"
+
+#define DEFAULT_STR_LEN 100
 
 #define DEFAULT_PATTERNS_LEN 2
 #define CONTENTS_PATTERNS_LEN 2
@@ -27,8 +26,12 @@ typedef struct _YPage {
     struct json_object *json;
 } YPage;
 
-int init_yPage(YPage *page, int type, char *url, char *replace);
-int set_url(YPage *page, char *url);
 int print_page(YPage *page);
 int free_yPage(YPage *page);
+int set_url(YPage *page, char *url);
+int downloadPage_and_replace(char *parseContent, YPage *page);
+int init_yPage(YPage *page, int type, char *url, char *replace);
+int extract_htmlpagedata(char *html_file_path, char *saveFilePath, YPage *page);
+int videopage_handler(YPage *page, STR_ARRAY *titlesRegex, char *url, char* parseFile);
+
 #endif

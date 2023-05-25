@@ -989,7 +989,7 @@ char* deserialize_date(struct json_object *date_json) {
   json_object *timestamp_json = getObj_rec(date_json, "/$date/$numberLong");
 
   if(timestamp_json != NULL) {
-    timestamp_to_utc(json_object_get_string(timestamp_json), &res);
+    timestamp_to_utc((char *)json_object_get_string(timestamp_json), &res);
   }
 
   return res;

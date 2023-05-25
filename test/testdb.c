@@ -44,7 +44,7 @@ int test_insert_document(SERIE *serie) {
 
 int test_matching_title() {
     SERIE *serie = NULL;
-    ARRAY *array = NULL;
+    STR_ARRAY *array = NULL;
     File *titles_fifo = NULL;
     Element *title = NULL;
     size_t keysLen = 1;
@@ -61,7 +61,7 @@ int test_matching_title() {
         while(0 < titles_fifo->size) {
             title = pop(titles_fifo);
             for(int i = 0; i < array->length; i++) {
-                if(match_pattern(title->value, array->elements[i])) {
+                if(match_pattern(title->value, array->elements[i].value)) {
                     serie = malloc(sizeof(*serie));
                     if(serie != NULL) {
                         init_serie_struct(serie, keysLen, 0, 0, 0);
@@ -83,8 +83,7 @@ int test_matching_title() {
         }
 
         freeFile(titles_fifo);
-       
-        free_array(array);
+        free_str_array_struct(array);
     }
 
     return 0;
@@ -462,14 +461,11 @@ int set_str_array(STR_ARRAY *array) {
 int test_date() {
     char *res = NULL;
     const char *date= "1388560028000";
-
-    timestamp_to_utc(date, &res);
-
+    timestamp_to_utc((char *)date, &res);
     if(res != NULL) {
         printf("Date : %s\n", res);
         free(res);
     }
-
     return 0;
 }
 
