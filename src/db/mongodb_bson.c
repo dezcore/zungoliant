@@ -502,6 +502,25 @@ int set_season_summary(SEASON *season, char *summary) {
   return 0;
 }
 
+int set_seson(SEASON *season, char *title, char *date, char *summary, VIDEO_ARRAY *videos) {
+  if(season != NULL && title != NULL && date != NULL && summary != NULL && videos != NULL) {
+    set_season_title(season, title);
+    set_season_date(season, date);
+    set_season_summary(season, summary);
+
+    if(season->videos->length < videos->length)
+      resize_video_array_struct(season->videos, videos->length);
+
+    for(int i = 0; i < videos->length; i++) {
+      set_video(&(season->videos->elements[i]) , videos->elements[i].title, 
+        videos->elements[i].category, videos->elements[i].summary, 
+        videos->elements[i].url, videos->elements[i].length, videos->elements[i].censor_rating
+      );
+    }
+  }
+  return 0;
+}
+
 int print_season(SEASON *season, char *tabs, char *videos_tabs, char *videos_subtabs) {
   if(season != NULL) {
     printf("%s", tabs);
@@ -532,6 +551,24 @@ int init_season_array_struct(SEASON_ARRAY *array, size_t length, size_t videosLe
     }
 
     return 0;
+}
+
+int resize_season_array_struct(SEASON_ARRAY *array, size_t length) {
+  SEASON *elements;
+
+  if(array != NULL && array->length < length) {
+    elements = (SEASON*) realloc(array->elements, length * sizeof(*array->elements));
+
+    if(elements != NULL) {
+      for(int i = array->length; i < length; i++) {
+        init_season_struct(&(elements[i]), 1);
+      }
+      array->elements = elements;
+      array->length = length;
+    }
+    array->length = length;
+  }
+  return 0;
 }
 
 int free_season_array_struct(SEASON_ARRAY *array) {

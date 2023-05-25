@@ -339,11 +339,17 @@ int set_season_array(SEASON_ARRAY *array) {
 
 int test_season_array() {
     SEASON_ARRAY *array  = malloc(sizeof(*array));
+
     if(array != NULL) {
         init_season_array_struct(array, 2, 5); 
         for(int i = 0; i < array->length; i++) {
             test_set_seson(&(array->elements[i]));
         }
+        print_array_season(array, "", "\t",  "\t\t", "\t\t\t");
+        resize_season_array_struct(array, array->length + 1);
+        
+        set_seson(&(array->elements[array->length -1]) , "title", "2014-01-01T08:15:39.736Z", "summary", array->elements[0].videos);
+
         print_array_season(array, "", "\t",  "\t\t", "\t\t\t");
 
     }
