@@ -472,7 +472,7 @@ int test_date() {
 int test_serie() {
     bson_t *document = bson_new();
     SERIE *serie = malloc(sizeof(*serie));
-    SERIE *serie1 = malloc(sizeof(*serie));
+    SERIE *serie1 = malloc(sizeof(*serie1));
 
     if(serie != NULL && serie1 != NULL) {
         init_serie_struct(serie, 2, 1, 2, 2);

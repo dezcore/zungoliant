@@ -6,6 +6,10 @@
 #define YINITDATA_FILE_PATH "/data/file/ytInitialData"
 #define YRESULTS_FIELDS  "/contents/twoColumnWatchNextResults/secondaryResults/secondaryResults/results"
 
+//Youtube
+#define YOUTUBE_ROOT_URL "https://www.youtube.com/watch"
+#define YOUTUBE_WATCH_URI "/watch?v="
+
 //VIDEO PAGE
 #define VIDEO_PAGE_CHANNEL_ROOT_FIELD "/contents/twoColumnWatchNextResults/results/results"
 #define VIDEO_PAGE_ROOT_FIELD "/contents/twoColumnWatchNextResults/secondaryResults/secondaryResults/results"

@@ -131,26 +131,203 @@ int downloadPage_and_replace(char *parseContent, YPage *page) {
     return 0;
 }
 
-int save_data(struct json_object *json, STR_ARRAY *titlesRegex) {
+int json_mapping_to_director(DIRECTOR *director, struct json_object *director_json) {
+    if(director != NULL && director_json != NULL) {
+        printf("json_mapping_to_director");
+        set_director(director, 
+            "Director name","2014-01-01T08:15:39.736Z", 
+            "2014-01-01T08:15:39.736Z", "2014-01-01T08:15:39.736Z"
+        );
+    }
+    return 0;
+}
+
+int json_mapping_to_studio(STUDIO *studio, struct json_object *studio_json) {
+    if(studio != NULL && studio_json != NULL) {
+        printf("json_mapping_to_studio");
+        set_studio(studio, "Studio name", "Country", 
+            "City", "Fonder","2014-01-01T08:15:39.736Z", 
+            "2014-01-01T08:15:39.736Z", "2014-01-01T08:15:39.736Z"
+        );
+    }
+    return 0;
+}
+
+int json_mapping_to_cast(CAST *cast, struct json_object *cast_json) {
+    if(cast != NULL && cast_json != NULL) {
+        printf("json_mapping_to_cast");
+    }
+    return 0;
+}
+
+int json_mapping_to_tags(STR_ARRAY *tags, struct json_object *tags_json) {
+    if(tags != NULL && tags_json != NULL) {
+        printf("json_mapping_to_tags");
+        for(int i = 0; i <tags->length; i++) {
+            set_str_value(&(tags->elements[i]), "Tag");
+        }
+    }
+    return 0;
+}
+
+int json_mapping_to_video(VIDEO *video, struct json_object *video_json) {
+    if(video != NULL && video_json != NULL) {
+        printf("json_mapping_to_video");
+        set_video(video, "title", "category", "summary", "url", "length", "censor_rating");
+    }
+    return 0;
+}
+
+int json_mapping_to_videos(VIDEO_ARRAY *videos, struct json_object *videos_json) {
+    if(videos != NULL && videos_json != NULL) {
+        printf("json_mapping_to_videos");
+        for(int i = 0; i < videos->length; i++) {
+            set_video(&(videos->elements[i]), "title", "category", "summary", "url", "length", "censor_rating");
+        }
+    }
+    return 0;
+}
+
+int json_mapping_to_season(SEASON *season, struct json_object *season_json) {
+    if(season != NULL && season_json != NULL) {
+        printf("json_mapping_to_seasons");
+        //VIDEO_ARRAY *videos
+        set_seson(season, "title", "date", "summary", NULL);
+    }
+    return 0;
+}
+
+int json_mapping_to_seasons(SEASON_ARRAY *seasons, struct json_object *seasons_json) {
+    if(seasons != NULL && seasons_json != NULL) {
+        printf("json_mapping_to_seasons");
+        for(int i = 0; i < seasons->length; i++) {
+            json_mapping_to_season(&(seasons->elements[i]), seasons_json);
+        }
+    }
+    return 0;
+}
+
+int json_mapping_to_keys_values(KEY_VALUE_ARRAY *array, struct json_object *video_json) {
+    struct json_object *titleObj, *imgObj/*, *categoryObj, *summaryObj, *videoIdObj*/;
+
+    if(video_json != NULL) {
+        titleObj = getObj_rec(video_json, TITLE_FIELD);
+        imgObj = getObj_rec(video_json, IMG_FIELD);
+        //videoIdObj = getObj_rec(video, VIDEOID_FIELD);
+
+        set_key_value(&(array->elements[0]) , "title", (char*)json_object_get_string(titleObj));
+        set_key_value(&(array->elements[1]), "img", (char*)json_object_get_string(imgObj));
+        //set_key_value(&(array->elements[2]), "category", (char*)json_object_get_string(titleObj));
+        //set_key_value(&(array->elements[3]), "summary", (char*)json_object_get_string(titleObj));
+
+    }
+    return 0;
+}
+
+int json_mapping_to_serie(SERIE *serie, struct json_object *video_json) {
+    //SERIE *serie = malloc(sizeof(*serie));
+    if(video_json != NULL && serie != NULL) {
+        init_serie_struct(serie, 4, 1, 1, 1);
+        json_mapping_to_keys_values(serie->key_value_array, video_json);
+        set_serie_year(serie, "2014-01-01T08:15:39.736Z");
+        json_mapping_to_director(serie->director, NULL);
+        json_mapping_to_director(serie->producer, NULL);
+        json_mapping_to_studio(serie->studio, NULL);
+        //json_mapping_to_cast(serie->cast, NULL);
+        json_mapping_to_tags(serie->contentTag, NULL);
+        json_mapping_to_seasons(serie->seasons, NULL);
+    }
+    //free_serie(serie);
+    return 0;
+}
+
+int is_matching_title(STR_ARRAY *titlesRegex, char *title) {
+    int res = 0;
+
+    if(titlesRegex != NULL && title != NULL) {
+        //print_array_str(titlesRegex, "", "\t", "\t", "\t\t");
+        for(int i = 0; i < titlesRegex->length; i++) {
+            if(match_pattern(title, (titlesRegex->elements[i]).value)) {
+                res = 1;
+                break;
+            }
+        } 
+    }
+
+    return res;
+}
+
+int exist_title_in_db(char *title) {
+    int res = 0;
+    char *regex = NULL;
+    bson_t *selector = NULL;
+    File *fifo = malloc(sizeof(*fifo));
+    SERIE *serie = malloc(sizeof(*serie));
+
+    fifo_init(fifo);
+    if(title != NULL && serie != NULL) {
+        get_match(title, "[A-Za-z]+[ ]+[A-Za-z]+", fifo);
+        join_file_element(fifo, &regex, ".*", 1);
+        //printf("Regex : %s\n", regex);
+        if(regex != NULL) {
+            selector =  BCON_NEW(
+                "title", "{",
+                    "$regex", BCON_UTF8(regex),
+                    "$options", BCON_UTF8("i"),
+                "}"
+        
+            );
+            //print_bson(selector);
+            res = exist_serie(selector, "maboke", "serie", &serie);
+            //print_serie(serie);
+            //"maboke", "serie"
+        }
+    }
+
+    free(regex);
+    freeFile(fifo);
+    //free_serie(serie);
+    bson_destroy(selector);
+    return res;
+}
+
+int create_new_serie(struct json_object *video_json) {
+    SERIE *serie = NULL;
+
+    if(video_json != NULL) {
+        serie = malloc(sizeof(*serie));
+
+        if(serie != NULL) {
+            json_mapping_to_serie(serie, video_json);
+            //print_serie(serie);                
+        }
+    }
+
+    free_serie(serie);
+    return 0;
+}
+
+int save_youtube_page_data(struct json_object *json, STR_ARRAY *titlesRegex) {
     unsigned int i;
-    struct json_object *results;
-    struct json_object *video, *titleObj;
+    const char *title;
+    struct json_object *videos_josn;
+    struct json_object *video_json, *titleObj;
 
     if(json != NULL) {
-        results = getObj_rec(json, YRESULTS_FIELDS);
-        if(results != NULL) {
-            for(i = 0; i < json_object_array_length(results); i++) {
-		        video = json_object_array_get_idx(results, i);
-                titleObj = getObj_rec(video, TITLE_FIELD);
+        videos_josn = getObj_rec(json, YRESULTS_FIELDS);
+        if(videos_josn != NULL) {
+            for(i = 0; i < json_object_array_length(videos_josn); i++) {
+		        video_json = json_object_array_get_idx(videos_josn, i);
+                titleObj = getObj_rec(video_json, TITLE_FIELD);
+                title = json_object_get_string(titleObj);
 
-                if(titleObj != NULL) {
-                    for(int i = 0; i < titlesRegex->length; i++) {
-                        if(match_pattern((char *)json_object_get_string(titleObj), (titlesRegex->elements[i]).value)) {
-                            save_video(video, json_object_get_string(titleObj));
-                            break;
-                        }
-                    } 
-                    
+                if(is_matching_title(titlesRegex, (char*)title)) {
+                    //save_video(video, json_object_get_string(titleObj));
+                    if(exist_title_in_db((char*)title)) {
+                        printf("Exist : %s\n", title);
+                    } else {
+                        create_new_serie(video_json);
+                    }
                 }
 	        }
         }
@@ -158,16 +335,15 @@ int save_data(struct json_object *json, STR_ARRAY *titlesRegex) {
     return 0;
 }
 
-int videopage_handler(YPage *page,STR_ARRAY *titlesRegex, char *url, char* parseFile) {
+int videopage_handler(YPage *page, STR_ARRAY *titlesRegex, char *url, char* parseFile) {
     struct json_object *json = NULL;
-
     if(url != NULL && titlesRegex != NULL) {
         //printf("VideoPage : %s\n", url);
         set_url(page, url);
         //print_page(page);
         downloadPage_and_replace(parseFile, page);
         file_tojson(parseFile, &json);
-        //save_data(json, titlesRegex);
+        save_youtube_page_data(json, titlesRegex);
     }
 
     json_object_put(json);

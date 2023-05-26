@@ -71,6 +71,7 @@ typedef struct _KEY_VALUE_ARRAY {
 } KEY_VALUE_ARRAY;
 
 typedef struct _SERIE {
+    // "_id" : { "$oid" : "" }
     char *year;
     DIRECTOR *director;
     DIRECTOR *producer;
@@ -111,7 +112,6 @@ int set_video_category(VIDEO *video, char *category);
 int set_season_summary(SEASON *season, char *summary);
 int free_key_value_array_struct(KEY_VALUE_ARRAY *array); 
 int init_season_struct(SEASON *season, size_t videoLen);
-int exist_serie(char *title, struct json_object **json);
 int exist_season(char *title, struct json_object *serie);
 int print_studio(STUDIO *studio, char *tabs, char *subtabs);
 int save_video(struct json_object *video, const char *title);
@@ -124,6 +124,7 @@ int resize_season_array_struct(SEASON_ARRAY *array, size_t length);
 int print_array_video(VIDEO_ARRAY *array, char *tabs, char* subtabs);
 int init_key_value_array_struct(KEY_VALUE_ARRAY *array, size_t length);
 int print_key_value(KEY_VALUE *key_value, char *kv_tabs, char *kv_subtabs);
+int exist_serie(bson_t *selector, char *dbName, char *documentName, SERIE **serie);
 int init_season_array_struct(SEASON_ARRAY *array, size_t length, size_t videosLen);
 int print_season(SEASON *season, char *tabs, char *videos_tabs, char *videos_subtabs);
 int set_seson(SEASON *season, char *title, char *date, char *summary, VIDEO_ARRAY *videos);

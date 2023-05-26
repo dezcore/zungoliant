@@ -1412,52 +1412,27 @@ int exist_season(char *title, struct json_object *serie) {
   return exist;
 }
 
-int exist_serie(char *title, struct json_object **json) {
-  char *str;
-  char *regex = NULL;
+int exist_serie(bson_t *selector, char *dbName, char *documentName, SERIE **serie) {
+  int exist = 0;
   const bson_t *document;
-  bson_t *selector = NULL;
   mongoc_client_t *client = NULL;
-  File *fifo = malloc(sizeof(*fifo));
   mongoc_cursor_t *cursor = NULL;
+  init_mongo_client(&client);
 
-  fifo_init(fifo);
+  if(selector != NULL && client != NULL) {
+    find_document(client, dbName, documentName, selector, &cursor);
+    if(cursor != NULL && mongoc_cursor_next(cursor, &document)) {
 
-  if(title != NULL) {
-    init_mongo_client(&client);
-    get_match(title, "[A-Za-z]+[ ]+[A-Za-z]+", fifo);
-    join_file_element(fifo, &regex, ".*", 1);
-    //printf("Regex : %s\n", regex);
-    if(regex != NULL && client != NULL) {
-      selector =  BCON_NEW(
-        "title", "{",
-          "$regex", BCON_UTF8(regex),
-          "$options", BCON_UTF8("i"),
-        "}"
-      );
+      if(document != NULL)
+        bson_to_serie(&(*serie), (bson_t*)document); //*result = (bson_t *)document;
 
-      if(selector != NULL) {
-        //print_bson(selector);
-        find_document(client, "maboke", "serie", selector, &cursor);
-        if(cursor != NULL && mongoc_cursor_next(cursor, &document)) {
-          str = bson_as_relaxed_extended_json(document, NULL);
-          *json = getJson(str);
-          bson_free(str);
-          //printf("%s\n", str);
-          //print_cursor(cursor);       
-        }
-      }
-      
+      exist = 1;     
     }
   }
 
-  free(regex);
-  freeFile(fifo);
   bson_free(cursor);
-  bson_destroy(selector);
   free_mongo_client(client);
-
-  return 0;
+  return exist;
 }
 
 int check_beforeinsert(SERIE *serie) {
