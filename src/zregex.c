@@ -1,5 +1,108 @@
 #include "./../include/zregex.h"
 
+int init_pattern(PATTERN **pattern) {
+    if(*pattern == NULL)
+        *pattern = malloc(sizeof(*pattern));        
+
+    if(*pattern != NULL)
+        (*pattern)->value = (char*) malloc(sizeof(char*));
+
+    return 0;
+}
+
+int set_pattern_value(PATTERN *pattern, char *value) {
+    char *new_value;
+
+    if(pattern != NULL && value != NULL) {
+        new_value = (char*) realloc(pattern->value, (strlen(value)+1) * sizeof(char));
+        if(new_value != NULL) {
+            pattern->value = new_value;
+            sprintf(pattern->value, "%s", value);
+        }
+    }
+
+    return 0;
+}
+
+int print_pattern(PATTERN *pattern) {
+    if(pattern != NULL) {
+        printf("Pattern : {\n");
+        printf("\t value : %s\n", pattern->value);
+        printf("}\n");
+    }
+
+    return 0;
+}
+
+int free_pattern(PATTERN *pattern) {
+    if(pattern != NULL) {
+        free(pattern->value);
+        free(pattern);
+    }
+
+    return 0;
+}
+
+int init_patterns(PATTERNS *array, int size) {
+    PATTERN *pattern;
+
+    if(array != NULL) {
+        array->patterns = malloc(size * sizeof(PATTERN *));
+        for(int i = 0; i < size; i++) {
+            pattern = &(array->patterns[i]);
+            init_pattern(&pattern);
+        }
+        array->size = size;
+    }
+
+    return 0;
+}
+
+int free_patterns(PATTERNS *array) {
+    if(array != NULL) {
+        free(array->patterns);
+        free(array);
+    }
+    return 0;
+}
+
+int set_patterns(PATTERNS *array, int size) {
+    PATTERN *pattern;     
+
+    if(array != NULL) {
+        for(int i = 0; i < array->size; i++) {
+            pattern = &(array->patterns[i]);
+            init_pattern(&pattern);
+        }
+        array->size = size;
+    }
+    return 0;
+}
+
+int print_patterns(PATTERNS *array) {
+    if(array != NULL) {
+        for(int i = 0; i < array->size; i++) {
+            print_pattern(& (array->patterns[i]) );
+        }
+    }
+    return 0;
+}
+
+int resize_patterns(PATTERNS *array, int size) {
+    PATTERN *new_array, *pattern;
+    if(array != NULL) {
+        new_array = (PATTERN *) realloc(array->patterns, size * sizeof(PATTERN *));
+        if(new_array != NULL) {
+            array->patterns = new_array;
+            for(int i = 0; i <  array->size; i++) {
+                pattern = &(array->patterns[i]);
+                init_pattern(&pattern);
+            }
+        }
+    }
+    return 0;
+}
+
 //char *expression = malloc(EXPRESSION_SIZE * sizeof(char));// "^(-)?([0-9]+)((,|.)([0-9]+))?\n$"
 int search(char *filePath, char *expression) {
     int reti;
@@ -120,10 +223,10 @@ int replace_substring(char **str, const char *pattern, char* replace) {
     return 0;
 }
 
-int replace_all(char **contents, char *patterns[], char rpl[], size_t len) {
-    if(*contents != NULL) {
-        for(int i = 0; i < len; i++) {
-            replace_substring(&(*contents), patterns[i], rpl);
+int replace_all(char **contents, PATTERNS *array, char rpl[]) {
+    if(*contents != NULL && array != NULL) {
+        for(int i = 0; i < array->size; i++) {
+            replace_substring(&(*contents), (array->patterns[i]).value, rpl);
         }
     }
     return 0;

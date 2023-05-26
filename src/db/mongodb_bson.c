@@ -1412,26 +1412,27 @@ int exist_season(char *title, struct json_object *serie) {
   return exist;
 }
 
-int exist_serie(bson_t *selector, char *dbName, char *documentName, SERIE **serie) {
+int exist_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *documentName) {
   int exist = 0;
+  char *str;
+  //int cpt = 0;
   const bson_t *document;
-  mongoc_client_t *client = NULL;
   mongoc_cursor_t *cursor = NULL;
-  init_mongo_client(&client);
 
   if(selector != NULL && client != NULL) {
     find_document(client, dbName, documentName, selector, &cursor);
-    if(cursor != NULL && mongoc_cursor_next(cursor, &document)) {
 
-      if(document != NULL)
-        bson_to_serie(&(*serie), (bson_t*)document); //*result = (bson_t *)document;
-
-      exist = 1;     
+    while(mongoc_cursor_next(cursor, &document)) {
+      str = bson_as_canonical_extended_json (document, NULL);
+      printf ("%s\n", str);
+      bson_free (str);
+      //cpt++;
     }
+    //printf("CPT : %d\n", cpt);
+    //exist = 1;
   }
-
-  bson_free(cursor);
-  free_mongo_client(client);
+  //bson_free(cursor);
+  mongoc_cursor_destroy(cursor);
   return exist;
 }
 
