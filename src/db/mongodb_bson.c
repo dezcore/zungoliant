@@ -688,6 +688,35 @@ int free_key_value(KEY_VALUE *key_value) {
   return 0;
 }
 
+int init_serie_default_parameters(SERIE *serie) {
+  if(serie != NULL) {
+    serie->year = (char*) malloc(sizeof(char));
+    serie->director = malloc(sizeof(DIRECTOR *));
+    serie->producer = malloc(sizeof(DIRECTOR *));
+    serie->studio =  malloc(sizeof(STUDIO *));
+    serie->contentTag =  malloc(sizeof(STR_ARRAY *));
+    //serie->cats = NULL; 
+    serie->key_value_array = malloc(sizeof(KEY_VALUE_ARRAY *));
+    serie->seasons =  malloc(sizeof(SEASON_ARRAY *));
+  }
+  return 0;
+}
+
+int free_serie(SERIE *serie) {
+  if(serie != NULL) {
+    //free_array(serie->contentTag);
+    free(serie->year);
+    //free_director(serie->director);
+    //free_director(serie->producer);
+    //free_studio(serie->studio);
+    //free_str_array_struct(serie->contentTag);
+    //free_key_value_array_struct(serie->key_value_array);
+    //free_season_array_struct(serie->seasons);
+    free(serie);
+  }
+  return 0;
+}
+
 int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes, int content_tags) {
   if(serie != NULL) {
     serie->year = (char*) malloc(sizeof(char));
@@ -732,21 +761,6 @@ int set_serie_year(SERIE *serie, char *year) {
     }
   }
 
-  return 0;
-}
-
-int free_serie(SERIE *serie) {
-  if(serie != NULL) {
-    //free_array(serie->contentTag);
-    free(serie->year);
-    free_director(serie->director);
-    free_director(serie->producer);
-    free_studio(serie->studio);
-    free_str_array_struct(serie->contentTag);
-    free_key_value_array_struct(serie->key_value_array);
-    free_season_array_struct(serie->seasons);
-    free(serie);
-  }
   return 0;
 }
 
@@ -1237,7 +1251,10 @@ int init_serie_parameters(struct json_object *serie_json, SERIE **serie, int num
   struct json_object *seasons_json = getObj_rec(serie_json, "/seasons");
   struct json_object *tags_json = getObj_rec(serie_json, "/contentTag");
 
-  if(*serie != NULL && seasons_json != NULL && tags_json != NULL) {
+  //if(*serie == NULL)
+  //  *serie = malloc(sizeof(*serie));
+
+  if(/* serie != NULL &&*/ seasons_json != NULL && tags_json != NULL) {
     tags = numb_of_tags(tags_json); 
     seasons = numb_of_seasons(seasons_json);
     episodes = numb_of_episodes(seasons_json);
@@ -1249,14 +1266,17 @@ int init_serie_parameters(struct json_object *serie_json, SERIE **serie, int num
 }
 
 int bson_to_serie(SERIE **serie, bson_t *document) {
-  char *str;
-  struct json_object *serie_json;
+  char *str, *json_str;
+  struct json_object *serie_json = NULL;
+  
   str = bson_as_canonical_extended_json(document, NULL);
-
-  if(str != NULL && *serie != NULL) {
-    serie_json = getJson(str);
-    init_serie_parameters(serie_json, &(*serie), 1);
-    deserialize_bykey((*serie)->key_value_array, serie_json, "title", 0);
+  json_str = (char*) malloc((strlen(str) + 1) * sizeof(char));
+  strcpy(json_str, str);
+  if(json_str != NULL /*&& *serie != NULL*/) {
+    serie_json = getJson(json_str);
+    //init_serie_parameters(serie_json, &(*serie), 1);
+    //printf("bson_to_serie : %s\n", json_object_get_string(serie_json));
+    /*deserialize_bykey((*serie)->key_value_array, serie_json, "title", 0);
     deserialize_bykey((*serie)->key_value_array, serie_json, "img", 1);
     deserialize_bykey((*serie)->key_value_array, serie_json, "category", 2);
     deserialize_bykey((*serie)->key_value_array, serie_json, "summary", 3);
@@ -1267,6 +1287,9 @@ int bson_to_serie(SERIE **serie, bson_t *document) {
     deserialize_cast(getObj_rec(serie_json, "/cast"));
     deserialize_tags((*serie)->contentTag, getObj_rec(serie_json, "/contentTag"));
     deserialize_seasons((*serie)->seasons, getObj_rec(serie_json, "/seasons"));
+    */
+    //printf("cpy : %s\n", json_str);
+    free(json_str);
     bson_free(str);
     json_object_put(serie_json);
   }
@@ -1414,24 +1437,26 @@ int exist_season(char *title, struct json_object *serie) {
 
 int exist_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *documentName) {
   int exist = 0;
-  char *str;
-  //int cpt = 0;
+  //char *str;
+  SERIE *serie = malloc(sizeof(*serie));
   const bson_t *document;
   mongoc_cursor_t *cursor = NULL;
 
   if(selector != NULL && client != NULL) {
     find_document(client, dbName, documentName, selector, &cursor);
-
-    while(mongoc_cursor_next(cursor, &document)) {
-      str = bson_as_canonical_extended_json (document, NULL);
-      printf ("%s\n", str);
-      bson_free (str);
-      //cpt++;
+    if(mongoc_cursor_next(cursor, &document)) {
+      //print_bson(document);
+      init_serie_default_parameters(serie);
+      bson_to_serie(&serie, document);
+      //str=bson_as_canonical_extended_json(document, NULL);
+      //printf("%s\n", str);
+      //print_serie(serie);
+      exist = 1;
+      //bson_free(str);
     }
-    //printf("CPT : %d\n", cpt);
-    //exist = 1;
   }
   //bson_free(cursor);
+  free_serie(serie);
   mongoc_cursor_destroy(cursor);
   return exist;
 }

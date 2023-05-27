@@ -131,8 +131,6 @@ int free_page_pattern(PAGEPATTERN *pattern) {
 }
 
 int init_yPage(YPage **page) {
-    size_t patterns_len = 0 ? DEFAULT_PATTERNS_LEN : CONTENTS_PATTERNS_LEN;
-
     if(*page == NULL)
         *page = malloc(sizeof(*page));
 
@@ -144,7 +142,7 @@ int init_yPage(YPage **page) {
         (*page)->page_pattern = malloc(sizeof(PAGEPATTERN *));
 
         init_page_pattern_paramters(&((*page)->page_pattern));
-        init_patterns((*page)->patterns, patterns_len);
+        init_patterns((*page)->patterns, DEFAULT_PATTERNS_LEN);
         init_mongo_client(&((*page)->mongo_client));
     }
     return 0;
@@ -335,14 +333,10 @@ int exist_title_in_db(mongoc_client_t *client, char *title) {
     File *fifo = malloc(sizeof(*fifo));
     //SERIE *serie = malloc(sizeof(*serie));
 
-    printf("exist_title_in_db\n");
-
     fifo_init(fifo);
     if(title != NULL && client != NULL) {
-        printf("exist_title_in_db\n");
         get_match(title, "[A-Za-z]+[ ]+[A-Za-z]+", fifo);
         join_file_element(fifo, &regex, ".*", 1);
-        //printf("Regex : %s\n", regex);
         if(regex != NULL) {
             selector =  BCON_NEW(
                 "title", "{",
@@ -353,7 +347,6 @@ int exist_title_in_db(mongoc_client_t *client, char *title) {
             //print_bson(selector);
             res = exist_serie(client, selector, (char*)db_name, (char*)document_name);
             //print_serie(serie);
-            //"maboke", "serie"
         }
     }
 
@@ -396,7 +389,6 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
                 title = json_object_get_string(titleObj);
 
                 if(is_matching_title(page->titlesRegex, (char*)title)) {
-                    //save_video(video, json_object_get_string(titleObj));
                     if(exist_title_in_db(page->mongo_client, (char*)title)) {
                         printf("Exist : %s\n", title);
                     } else {
