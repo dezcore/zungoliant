@@ -195,7 +195,7 @@ int init_bot_pages(YPage **page, YPage **page1) {
     const char* titles_regex = "/data/file/titles_regex";
     init_yPage(page);
     init_yPage(page1);
-    
+
     if(page != NULL && page1 != NULL) {
         set_yPage(*page, 0,  "", " ", (char*)titles_regex);
         set_yPage(*page1, 1,  "", " ", (char*)titles_regex);
@@ -218,7 +218,7 @@ int run_ybot() {
     get_pwd(&parseFile, PARSE_FILE_PATH);
     init_bot_pages(&page, &page1);
 
-    /*if(urlsFileSrc != NULL && page != NULL) {
+    if(urlsFileSrc != NULL && page != NULL) {
         while(0 < bot->urls_fifo->size) {
             url = pop(bot->urls_fifo);
             if(url != NULL) {
@@ -233,7 +233,7 @@ int run_ybot() {
                 //url = NULL;
             }
         }
-    }*/
+    }
 
     free(parseFile);
     free(urlsFileSrc);

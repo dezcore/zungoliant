@@ -107,7 +107,7 @@ int file_tojson_byfd(char* fileName, struct json_object **json) {
 
     lseek(fd, 0, SEEK_SET);
     *json = json_object_from_fd(fd);
-
+    
     if(close(fd) < 0) {
         perror("c1");
         exit(1);

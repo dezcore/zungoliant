@@ -13,9 +13,10 @@ int extract_htmlpagedata(char *html_file_path, char *output_file_path, YPage *pa
             contents = load_file(parseContentPath, contents);
             if(contents != NULL) {
                 trim(&contents);
-                if(page->page_pattern->regex != NULL)
+               
+                if(strcmp(page->page_pattern->regex, "") != 0)
                     get_nested_json(&contents, page->page_pattern->regex);
-
+                 
                 if(0 < page->patterns->size)
                     replace_all(&contents, page->patterns, page->page_pattern->replace);
 
@@ -150,11 +151,13 @@ int init_yPage(YPage **page) {
 }
 
 int set_yPage(YPage *page, int type, char *url, char *replace, char *titlesRegexFilePath) {
+    const char *regex = type == 0 ? "" : CONTENT_REGEX;
     if(page != NULL) {
+        page->type = type;
         set_page_patterns(page, type);
         set_page_pattern_replace(page->page_pattern, replace);
         set_page_pattern_url(page->page_pattern, url);
-        set_page_pattern_regex(page->page_pattern, CONTENT_REGEX);
+        set_page_pattern_regex(page->page_pattern, (char*)regex);
         set_page_titlesRegex(&(page->titlesRegex), titlesRegexFilePath);
     }  
     return 0;
@@ -175,7 +178,8 @@ int free_yPage(YPage *page) {
 int print_page(YPage *page) {
     if(page != NULL) {
         printf("Page : {\n");
-        printf("\t url : %s\n", page->page_pattern->url);
+        printf("\t Type : %d,\n", page->type);
+        printf("\t url : %s,\n", page->page_pattern->url);
         printf("\t regex : %s\n", page->page_pattern->regex);
         print_patterns(page->patterns);
         printf("}");
@@ -331,8 +335,11 @@ int exist_title_in_db(mongoc_client_t *client, char *title) {
     File *fifo = malloc(sizeof(*fifo));
     //SERIE *serie = malloc(sizeof(*serie));
 
+    printf("exist_title_in_db\n");
+
     fifo_init(fifo);
     if(title != NULL && client != NULL) {
+        printf("exist_title_in_db\n");
         get_match(title, "[A-Za-z]+[ ]+[A-Za-z]+", fifo);
         join_file_element(fifo, &regex, ".*", 1);
         //printf("Regex : %s\n", regex);
@@ -378,9 +385,10 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
     const char *title;
     struct json_object *videos_josn;
     struct json_object *video_json, *titleObj;
-
+    
     if(json != NULL && page != NULL) {
         videos_josn = getObj_rec(json, YRESULTS_FIELDS);
+        ///printf("save_youtube_page_data(1) : %s\n", json_object_get_string(video_json));
         if(videos_josn != NULL) {
             for(i = 0; i < json_object_array_length(videos_josn); i++) {
 		        video_json = json_object_array_get_idx(videos_josn, i);
@@ -404,9 +412,8 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
 int videopage_handler(YPage *page, char *url, char* parseFile) {
     struct json_object *json = NULL;
     if(url != NULL) {
-        //printf("VideoPage : %s\n", url);
+        printf("VideoPage : %s\n", url);
         set_page_pattern_url(page->page_pattern, url);
-        //print_page(page);
         downloadPage_and_replace(parseFile, page);
         file_tojson(parseFile, &json);
         save_youtube_page_data(json, page);

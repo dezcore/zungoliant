@@ -209,12 +209,11 @@ int replace_substring(char **str, const char *pattern, char* replace) {
     if(!regcomp(&reg, pattern,  REG_EXTENDED)) {
         nmatch = reg.re_nsub;
         regmatch_t m[nmatch + 1];
-
+        
         if(!regexec(&reg, *str, nmatch + 1, m, 0)) {
             start = m[0].rm_so;
             end = m[0].rm_eo;
             cut_pattern(&(*str), start, end, replace);
-
         }
 
         regfree(&reg);
