@@ -326,17 +326,17 @@ int is_matching_title(STR_ARRAY *titlesRegex, char *title) {
 
 int exist_title_in_db(mongoc_client_t *client, char *title) {
     int res = 0;
-    //char *regex = NULL;
-    //bson_t *selector = NULL;
-    //const char* db_name =  "maboke";
-    //const char* document_name = "serie";
-    //File *fifo = malloc(sizeof(*fifo));
+    char *regex = NULL;
+    bson_t *selector = NULL;
+    const char* db_name =  "maboke";
+    const char* document_name = "serie";
+    File *fifo = malloc(sizeof(*fifo));
     SERIE *serie = malloc(sizeof(*serie));
 
-    //fifo_init(fifo);
+    fifo_init(fifo);
     if(title != NULL && client != NULL) {
         init_serie_default_parameters(serie);
-        /*get_match(title, "[A-Za-z]+[ ]+[A-Za-z]+", fifo);
+        get_match(title, "[A-Za-z]+[ ]+[A-Za-z]+", fifo);
         join_file_element(fifo, &regex, ".*", 1);
         if(regex != NULL) {
             selector =  BCON_NEW(
@@ -346,16 +346,17 @@ int exist_title_in_db(mongoc_client_t *client, char *title) {
                 "}"
             );
             //print_bson(selector);
-            //res = exist_serie(client, selector, (char*)db_name, (char*)document_name);
-            //print_serie(serie);
-        }*/
+            res = exist_serie(client, selector, (char*)db_name, (char*)document_name, serie);
+            if(res)
+                print_serie(serie);
+        }
     }
 
-    //free(regex);
-    //freeFile(fifo);
+    free(regex);
+    freeFile(fifo);
     free_serie(serie);
     serie = NULL;
-    //bson_destroy(selector);
+    bson_free(selector);//bson_destroy(selector);
     return res;
 }
 

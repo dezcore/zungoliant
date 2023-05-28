@@ -106,9 +106,9 @@ int init_serie_default_parameters(SERIE *serie);
 int set_video_length(VIDEO *video, char *length);
 int set_season_title(SEASON *season, char *title);
 int free_season_array_struct(SEASON_ARRAY *array);
+int bson_to_serie(SERIE *serie, bson_t *document);
 int set_video_summary(VIDEO *video, char *summary);
 int serie_to_bson(bson_t **document, SERIE *serie);
-int bson_to_serie(SERIE **serie, bson_t *document);
 int set_video_category(VIDEO *video, char *category);
 int set_season_summary(SEASON *season, char *summary);
 int free_key_value_array_struct(KEY_VALUE_ARRAY *array); 
@@ -129,10 +129,10 @@ int init_season_array_struct(SEASON_ARRAY *array, size_t length, size_t videosLe
 int print_season(SEASON *season, char *tabs, char *videos_tabs, char *videos_subtabs);
 int set_seson(SEASON *season, char *title, char *date, char *summary, VIDEO_ARRAY *videos);
 int set_director(DIRECTOR *director, char *name, char *startYear, char *endYear, char *bithYear);
+int exist_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *documentName, SERIE *serie);
 int print_array_key_value(KEY_VALUE_ARRAY *array, char *tabs, char* subtabs, char *kv_tabs, char *kv_subtabs);
 int print_array_season(SEASON_ARRAY *array, char *tabs, char* subtabs, char *season_tabs, char *season_subtabs);
-int exist_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *documentName);
 int set_video(VIDEO *video, char *title, char *category, char *summary, char *url, char *length, char *censor_rating);
-int set_studio(STUDIO *studio, char *name, char *country, char *city, char *fonder, char *startYear, char *endYear, char *bithYear);
 int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes, int content_tags);
+int set_studio(STUDIO *studio, char *name, char *country, char *city, char *fonder, char *startYear, char *endYear, char *bithYear);
 #endif
