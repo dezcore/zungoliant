@@ -47,10 +47,8 @@ testObjs = $(ODIR)/json.o $(ODIR)/zregex.o $(ODIR)/fifo.o $(ODIR)/file.o $(ODIR)
 testObj = $(testObjs) $(ODIR)/testy.o $(ODIR)/testzregex.o $(ODIR)/testfile.o $(ODIR)/testfifo.o $(ODIR)/testdb.o $(ODIR)/test.o
 
 all: $(BIN_DIR)/main
-	./$(BIN_DIR)/main
 
 test: $(BIN_DIR)/test
-	./$(BIN_DIR)/test
 
 $(BIN_DIR)/main: $(mainObj)
 	@mkdir -p $(BIN_DIR)

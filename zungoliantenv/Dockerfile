@@ -3,6 +3,7 @@ WORKDIR /zungoliantenv
 COPY . .
 RUN apt-get update && apt-get -y install sudo
 RUN apt-get update && apt-get -y install cmake
+RUN sudo apt-get install -y build-essential gdb
 #RUN apt-get install -y libmongoc-1.0-0
 RUN sudo apt-get install -y cmake libssl-dev libsasl2-dev
 #RUN cd lib/ && git clone git@github.com:lexborisov/myhtml.git

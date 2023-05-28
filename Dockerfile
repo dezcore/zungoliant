@@ -6,8 +6,13 @@ COPY . .
 #MakeFile
 RUN make clean
 
-FROM base as test
-CMD ["make", "test"]
-
 FROM base as dev
-CMD ["make"]
+RUN make
+CMD ["./bin/main"]
+
+FROM base as test
+RUN make test
+CMD ["./bin/test"]
+
+FROM base as debug
+RUN make

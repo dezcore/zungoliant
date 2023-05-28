@@ -10,6 +10,12 @@ services:
       - mongonetwork
     volumes:
       - zvolume:/zungoliant
+    stdin_open: true 
+    tty: true
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_PTRACE
     environment:
       - CONN_STR=mongodb://root:secret@mongodb
   
