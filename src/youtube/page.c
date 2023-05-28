@@ -138,8 +138,8 @@ int init_yPage(YPage **page) {
         (*page)->type = 0;
         (*page)->mongo_client = NULL;
         (*page)->titlesRegex = NULL;
-        (*page)->patterns =  malloc(sizeof(PATTERNS *));
-        (*page)->page_pattern = malloc(sizeof(PAGEPATTERN *));
+        (*page)->patterns =  malloc(sizeof(*((*page)->patterns)));
+        (*page)->page_pattern = malloc(sizeof(*((*page)->page_pattern)));
 
         init_page_pattern_paramters(&((*page)->page_pattern));
         init_patterns((*page)->patterns, DEFAULT_PATTERNS_LEN);
@@ -326,16 +326,17 @@ int is_matching_title(STR_ARRAY *titlesRegex, char *title) {
 
 int exist_title_in_db(mongoc_client_t *client, char *title) {
     int res = 0;
-    char *regex = NULL;
-    bson_t *selector = NULL;
-    const char* db_name =  "maboke";
-    const char* document_name = "serie";
-    File *fifo = malloc(sizeof(*fifo));
-    //SERIE *serie = malloc(sizeof(*serie));
+    //char *regex = NULL;
+    //bson_t *selector = NULL;
+    //const char* db_name =  "maboke";
+    //const char* document_name = "serie";
+    //File *fifo = malloc(sizeof(*fifo));
+    SERIE *serie = malloc(sizeof(*serie));
 
-    fifo_init(fifo);
+    //fifo_init(fifo);
     if(title != NULL && client != NULL) {
-        get_match(title, "[A-Za-z]+[ ]+[A-Za-z]+", fifo);
+        init_serie_default_parameters(serie);
+        /*get_match(title, "[A-Za-z]+[ ]+[A-Za-z]+", fifo);
         join_file_element(fifo, &regex, ".*", 1);
         if(regex != NULL) {
             selector =  BCON_NEW(
@@ -345,15 +346,16 @@ int exist_title_in_db(mongoc_client_t *client, char *title) {
                 "}"
             );
             //print_bson(selector);
-            res = exist_serie(client, selector, (char*)db_name, (char*)document_name);
+            //res = exist_serie(client, selector, (char*)db_name, (char*)document_name);
             //print_serie(serie);
-        }
+        }*/
     }
 
-    free(regex);
-    freeFile(fifo);
-    //free_serie(serie);
-    bson_destroy(selector);
+    //free(regex);
+    //freeFile(fifo);
+    free_serie(serie);
+    serie = NULL;
+    //bson_destroy(selector);
     return res;
 }
 
@@ -400,6 +402,7 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
     }
     return 0;
 }
+
 
 int videopage_handler(YPage *page, char *url, char* parseFile) {
     struct json_object *json = NULL;

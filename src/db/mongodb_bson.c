@@ -690,28 +690,36 @@ int free_key_value(KEY_VALUE *key_value) {
 
 int init_serie_default_parameters(SERIE *serie) {
   if(serie != NULL) {
-    serie->year = (char*) malloc(sizeof(char));
-    serie->director = malloc(sizeof(DIRECTOR *));
-    serie->producer = malloc(sizeof(DIRECTOR *));
-    serie->studio =  malloc(sizeof(STUDIO *));
-    serie->contentTag =  malloc(sizeof(STR_ARRAY *));
+    printf("Init serie\n");
+    serie->year =(char*) calloc(1, sizeof(char));
+    serie->director = malloc(sizeof(*serie->director));
+    serie->producer = malloc(sizeof(*serie->producer));
+    serie->studio =  malloc(sizeof(*serie->studio));
+    serie->contentTag =  malloc(sizeof(*serie->contentTag));
+    serie->key_value_array = malloc(sizeof(*serie->key_value_array));
+    serie->seasons =  malloc(sizeof(*serie->seasons));
+
+    init_director_struct(serie->director);
+    init_director_struct(serie->producer);
+    init_studio_struct(serie->studio);
+    init_str_array_struct(serie->contentTag, 1);
+    init_key_value_array_struct(serie->key_value_array, 1);
+    init_season_array_struct(serie->seasons, 1, 1);
     //serie->cats = NULL; 
-    serie->key_value_array = malloc(sizeof(KEY_VALUE_ARRAY *));
-    serie->seasons =  malloc(sizeof(SEASON_ARRAY *));
   }
   return 0;
 }
 
 int free_serie(SERIE *serie) {
   if(serie != NULL) {
-    //free_array(serie->contentTag);
+    printf("Serie : %s\n", serie->year);
     free(serie->year);
-    //free_director(serie->director);
-    //free_director(serie->producer);
-    //free_studio(serie->studio);
-    //free_str_array_struct(serie->contentTag);
-    //free_key_value_array_struct(serie->key_value_array);
-    //free_season_array_struct(serie->seasons);
+    free_director(serie->director);
+    free_director(serie->producer);
+    free_studio(serie->studio);
+    free_str_array_struct(serie->contentTag);
+    free_key_value_array_struct(serie->key_value_array);
+    free_season_array_struct(serie->seasons);
     free(serie);
   }
   return 0;
@@ -1438,26 +1446,23 @@ int exist_season(char *title, struct json_object *serie) {
 int exist_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *documentName) {
   int exist = 0;
   //char *str;
-  SERIE *serie = malloc(sizeof(*serie));
-  const bson_t *document;
-  mongoc_cursor_t *cursor = NULL;
+  //const bson_t *document;
+  //mongoc_cursor_t *cursor = NULL;
 
-  if(selector != NULL && client != NULL) {
+  /*if(selector != NULL && client != NULL) {
     find_document(client, dbName, documentName, selector, &cursor);
     if(mongoc_cursor_next(cursor, &document)) {
       //print_bson(document);
-      init_serie_default_parameters(serie);
-      bson_to_serie(&serie, document);
+      //bson_to_serie(&serie, (bson_t *)document);
       //str=bson_as_canonical_extended_json(document, NULL);
       //printf("%s\n", str);
       //print_serie(serie);
       exist = 1;
       //bson_free(str);
     }
-  }
+  }*/
   //bson_free(cursor);
-  free_serie(serie);
-  mongoc_cursor_destroy(cursor);
+  //mongoc_cursor_destroy(cursor);
   return exist;
 }
 

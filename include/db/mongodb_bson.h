@@ -102,6 +102,7 @@ int init_director_struct(DIRECTOR *director);
 int set_video_title(VIDEO *video, char *title);
 int set_season_date(SEASON *season, char *date);
 int free_video_array_struct(VIDEO_ARRAY *array);
+int init_serie_default_parameters(SERIE *serie);
 int set_video_length(VIDEO *video, char *length);
 int set_season_title(SEASON *season, char *title);
 int free_season_array_struct(SEASON_ARRAY *array);
