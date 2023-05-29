@@ -294,7 +294,7 @@ int json_mapping_to_keys_values(KEY_VALUE_ARRAY *array, struct json_object *vide
 int json_mapping_to_serie(SERIE *serie, struct json_object *video_json) {
     //SERIE *serie = malloc(sizeof(*serie));
     if(video_json != NULL && serie != NULL) {
-        init_serie_struct(serie, 4, 1, 1, 1);
+        init_serie_default_parameters(serie);
         json_mapping_to_keys_values(serie->key_value_array, video_json);
         set_serie_year(serie, "2014-01-01T08:15:39.736Z");
         json_mapping_to_director(serie->director, NULL);
@@ -324,6 +324,31 @@ int is_matching_title(STR_ARRAY *titlesRegex, char *title) {
     return res;
 }
 
+/*int deserialize_id(SERIE *serie, struct json_object *id_json) {
+const char *id;
+
+  if(serie != NULL && id_json != NULL && json_object_get_type(id_json) == json_type_string) {
+    id = json_object_get_string(id_json);
+    //set_serie_id(serie, (char*)id);
+    printf("%s\n", id);
+    //free(id);
+  }
+
+  return 0;
+}
+
+int set_serie_default_parameters(SERIE *serie, int numb_of_keys,  int seasons,  int episodes, int tags) {
+  if(serie != NULL) {
+
+    resize_key_value_array_struct(serie->key_value_array, numb_of_keys);
+    resize_str_array_struct(serie->contentTag, tags);
+    resize_season_array_struct(serie->seasons, seasons, episodes);
+    //printf("numb_of_tags : %d, numb_of_season : %d, num_of_episodes : %d\n", tags, seasons, episodes);
+  }
+
+  return 0;
+}*/
+
 int exist_title_in_db(mongoc_client_t *client, char *title) {
     int res = 0;
     char *regex = NULL;
@@ -347,6 +372,7 @@ int exist_title_in_db(mongoc_client_t *client, char *title) {
             );
             //print_bson(selector);
             res = exist_serie(client, selector, (char*)db_name, (char*)document_name, serie);
+            
             if(res)
                 print_serie(serie);
         }

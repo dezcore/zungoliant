@@ -60,6 +60,21 @@ int free_str_array_struct(STR_ARRAY *array) {
   return 0;
 }
 
+int resize_str_array_struct(STR_ARRAY *array, size_t length) {
+    STR *elements;
+
+    if(array != NULL && array->length < length) {
+        elements = (STR*) realloc(array->elements, length * sizeof(*array->elements));
+        if(elements != NULL) {
+            for(int i = array->length; i < length; i++) {
+                init_str_struct(&(elements[i]));
+            }
+            array->elements = elements;
+            array->length = length;
+        }
+    }
+    return 0;
+}
 
 int print_array_str(STR_ARRAY *array, char *tabs, char* subtabs, char *str_tabs, char *str_subtabs) {
   if(array != NULL) {

@@ -71,7 +71,7 @@ typedef struct _KEY_VALUE_ARRAY {
 } KEY_VALUE_ARRAY;
 
 typedef struct _SERIE {
-    // "_id" : { "$oid" : "" }
+    char *id;
     char *year;
     DIRECTOR *director;
     DIRECTOR *producer;
@@ -121,11 +121,11 @@ int init_video_array_struct(VIDEO_ARRAY *array, size_t length);
 int set_key_value(KEY_VALUE *key_value, char *key, char *value);
 int resize_video_array_struct(VIDEO_ARRAY *array, size_t length);
 int print_director(DIRECTOR *director, char *tabs, char *subtabs);
-int resize_season_array_struct(SEASON_ARRAY *array, size_t length);
 int print_array_video(VIDEO_ARRAY *array, char *tabs, char* subtabs);
 int init_key_value_array_struct(KEY_VALUE_ARRAY *array, size_t length);
 int print_key_value(KEY_VALUE *key_value, char *kv_tabs, char *kv_subtabs);
 int init_season_array_struct(SEASON_ARRAY *array, size_t length, size_t videosLen);
+int resize_season_array_struct(SEASON_ARRAY *array, size_t length,  size_t videoLen);
 int print_season(SEASON *season, char *tabs, char *videos_tabs, char *videos_subtabs);
 int set_seson(SEASON *season, char *title, char *date, char *summary, VIDEO_ARRAY *videos);
 int set_director(DIRECTOR *director, char *name, char *startYear, char *endYear, char *bithYear);
