@@ -324,31 +324,6 @@ int is_matching_title(STR_ARRAY *titlesRegex, char *title) {
     return res;
 }
 
-/*int deserialize_id(SERIE *serie, struct json_object *id_json) {
-const char *id;
-
-  if(serie != NULL && id_json != NULL && json_object_get_type(id_json) == json_type_string) {
-    id = json_object_get_string(id_json);
-    //set_serie_id(serie, (char*)id);
-    printf("%s\n", id);
-    //free(id);
-  }
-
-  return 0;
-}
-
-int set_serie_default_parameters(SERIE *serie, int numb_of_keys,  int seasons,  int episodes, int tags) {
-  if(serie != NULL) {
-
-    resize_key_value_array_struct(serie->key_value_array, numb_of_keys);
-    resize_str_array_struct(serie->contentTag, tags);
-    resize_season_array_struct(serie->seasons, seasons, episodes);
-    //printf("numb_of_tags : %d, numb_of_season : %d, num_of_episodes : %d\n", tags, seasons, episodes);
-  }
-
-  return 0;
-}*/
-
 int exist_title_in_db(mongoc_client_t *client, char *title) {
     int res = 0;
     char *regex = NULL;
@@ -358,7 +333,9 @@ int exist_title_in_db(mongoc_client_t *client, char *title) {
     File *fifo = malloc(sizeof(*fifo));
     SERIE *serie = malloc(sizeof(*serie));
 
+    printf("Middle(1)\n");
     fifo_init(fifo);
+    printf("Middle(2)\n");
     if(title != NULL && client != NULL) {
         init_serie_default_parameters(serie);
         get_match(title, "[A-Za-z]+[ ]+[A-Za-z]+", fifo);
@@ -370,19 +347,18 @@ int exist_title_in_db(mongoc_client_t *client, char *title) {
                     "$options", BCON_UTF8("i"),
                 "}"
             );
-            //print_bson(selector);
+
             res = exist_serie(client, selector, (char*)db_name, (char*)document_name, serie);
-            
-            if(res)
-                print_serie(serie);
+            //if(res)
+            //  print_serie(serie);
         }
     }
-
+    printf("Middle(3)\n");
     free(regex);
     freeFile(fifo);
     free_serie(serie);
     serie = NULL;
-    bson_free(selector);//bson_destroy(selector);
+    bson_free(selector);
     return res;
 }
 
@@ -403,16 +379,16 @@ int create_new_serie(struct json_object *video_json) {
 }
 
 int save_youtube_page_data(struct json_object *json, YPage *page) {
-    unsigned int i;
     const char *title;
     struct json_object *videos_josn;
     struct json_object *video_json, *titleObj;
-    
+
     if(json != NULL && page != NULL) {
         videos_josn = getObj_rec(json, YRESULTS_FIELDS);
         ///printf("save_youtube_page_data(1) : %s\n", json_object_get_string(video_json));
         if(videos_josn != NULL) {
-            for(i = 0; i < json_object_array_length(videos_josn); i++) {
+            for(int i = 0; i < json_object_array_length(videos_josn); i++) {
+                printf("Index : %d\n", i);
 		        video_json = json_object_array_get_idx(videos_josn, i);
                 titleObj = getObj_rec(video_json, TITLE_FIELD);
                 title = json_object_get_string(titleObj);
@@ -424,6 +400,7 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
                         create_new_serie(video_json);
                     }
                 }
+                printf("End\n");
 	        }
         }
     }

@@ -740,6 +740,18 @@ int free_serie(SERIE *serie) {
   return 0;
 }
 
+int set_serie_default_parameters(SERIE *serie, int numb_of_keys,  int seasons,  int episodes, int tags) {
+  if(serie != NULL) {
+
+    resize_key_value_array_struct(serie->key_value_array, numb_of_keys);
+    resize_str_array_struct(serie->contentTag, tags);
+    resize_season_array_struct(serie->seasons, seasons, episodes);
+    //printf("numb_of_tags : %d, numb_of_season : %d, num_of_episodes : %d\n", tags, seasons, episodes);
+  }
+
+  return 0;
+}
+
 int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes, int content_tags) {
   if(serie != NULL) {
     serie->id = (char*) malloc(sizeof(char));
@@ -1484,7 +1496,7 @@ int exist_season(char *title, struct json_object *serie) {
 
 int exist_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *documentName, SERIE *serie) {
   int exist = 0;
-  //char *str;
+
   const bson_t *document;
   mongoc_cursor_t *cursor = NULL;
   if(selector != NULL && client != NULL) {
@@ -1492,14 +1504,11 @@ int exist_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *d
     if(mongoc_cursor_next(cursor, &document)) {
       //print_bson(document);
       bson_to_serie(serie, (bson_t *)document);
-      //str=bson_as_canonical_extended_json(document, NULL);
-      //printf("%s\n", str);
-      //print_serie(serie);
       exist = 1;
-      //bson_free(str);
     }
+    bson_free(cursor);
   }
-  bson_free(cursor);//mongoc_cursor_destroy(cursor);
+  
   return exist;
 }
 
