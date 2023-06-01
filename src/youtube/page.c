@@ -239,17 +239,19 @@ int json_mapping_to_tags(STR_ARRAY *tags, struct json_object *tags_json) {
 }
 
 int json_mapping_to_video(VIDEO *video, struct json_object *video_json) {
-    const char *title, *url;
-    struct json_object *urlObj, *titleObj;
+    const char *title, *url, *length;
+    struct json_object *urlObj, *titleObj, *lengthObj;
 
     if(video != NULL && video_json != NULL) {
         urlObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_URL_FIELD);
         titleObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD);
+        lengthObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_LENGTH_FIELD);
 
         url = json_object_get_string(urlObj);
         title = json_object_get_string(titleObj);
+        length = json_object_get_string(lengthObj);
         //printf("json_mapping_to_video : %s, %s\n", url, title); 
-        set_video(video, (char*)title, "category", "summary", (char*)url, "length", "censor_rating");
+        set_video(video, (char*)title, "category", "summary", (char*)url, (char*)length, "censor_rating");
     }
     return 0;
 }
