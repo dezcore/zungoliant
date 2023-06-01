@@ -507,15 +507,18 @@ int set_seson(SEASON *season, char *title, char *date, char *summary, VIDEO_ARRA
     set_season_date(season, date);
     set_season_summary(season, summary);
 
-    if(season->videos->length < videos->length)
-      resize_video_array_struct(season->videos, videos->length);
+    if(videos != NULL) {
+      if(season->videos->length < videos->length)
+        resize_video_array_struct(season->videos, videos->length);
 
-    for(int i = 0; i < videos->length; i++) {
-      set_video(&(season->videos->elements[i]) , videos->elements[i].title, 
-        videos->elements[i].category, videos->elements[i].summary, 
-        videos->elements[i].url, videos->elements[i].length, videos->elements[i].censor_rating
-      );
+      for(int i = 0; i < videos->length; i++) {
+        set_video(&(season->videos->elements[i]) , videos->elements[i].title, 
+          videos->elements[i].category, videos->elements[i].summary, 
+          videos->elements[i].url, videos->elements[i].length, videos->elements[i].censor_rating
+        );
+      }
     }
+    
   }
   return 0;
 }
@@ -705,7 +708,7 @@ int free_key_value(KEY_VALUE *key_value) {
 
 int init_serie_default_parameters(SERIE *serie) {
   if(serie != NULL) {
-    //serie->id =(char*) calloc(1, sizeof(char));
+    serie->id =(char*) calloc(1, sizeof(char));
     serie->year =(char*) calloc(1, sizeof(char));
     serie->director = malloc(sizeof(*serie->director));
     serie->producer = malloc(sizeof(*serie->producer));
@@ -727,7 +730,7 @@ int init_serie_default_parameters(SERIE *serie) {
 
 int free_serie(SERIE *serie) {
   if(serie != NULL) {
-    //free(serie->id);
+    free(serie->id);
     free(serie->year);
     free_director(serie->director);
     free_director(serie->producer);
@@ -817,6 +820,7 @@ int set_serie_year(SERIE *serie, char *year) {
 int print_serie(SERIE *serie) {
   if(serie != NULL) {
     printf("\"Serie\" : {\n");
+    printf("\tId : %s,\n", serie->id);
     printf("\tYear : %s,\n", serie->year);
     print_director(serie->director, "\t", "\t\t");
     print_director(serie->producer,  "\t", "\t\t");
@@ -1075,9 +1079,8 @@ int deserialize_id(SERIE *serie, struct json_object *id_json) {
 
   if(serie != NULL && id_json != NULL && json_object_get_type(id_json) == json_type_string) {
     id = json_object_get_string(id_json);
-    //set_serie_id(serie, (char*)id);
-    printf("%s\n", id);
-    //free(id);
+    set_serie_id(serie, (char*)id);
+    //printf("ID %s\n", id);
   }
   return 0;
 }
@@ -1336,7 +1339,7 @@ int bson_to_serie(SERIE *serie, bson_t *document) {
     serie_json = getJson(str);
     set_serie_parameters(serie_json, serie, 4);
 
-    //deserialize_id(serie, getObj_rec(serie_json, "/_id/$oid"));
+    deserialize_id(serie, getObj_rec(serie_json, "/_id/$oid"));
     deserialize_bykey(serie->key_value_array, serie_json, "title", 0);
     deserialize_bykey(serie->key_value_array, serie_json, "img", 1);
     deserialize_bykey(serie->key_value_array, serie_json, "category", 2);
