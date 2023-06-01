@@ -239,20 +239,21 @@ int json_mapping_to_tags(STR_ARRAY *tags, struct json_object *tags_json) {
 }
 
 int json_mapping_player_to_video(VIDEO *video, struct json_object *player_json) {
-    const char *title, *description, *viewCount;
-    struct json_object *titleObj, *descriptionObj, *viewCountObj;
+    const char *title, *description, *viewCount, *date;
+    struct json_object *titleObj, *descriptionObj, *viewCountObj, *dateObj;
 
     if(video != NULL && player_json != NULL) {
         titleObj = getObj_rec(player_json, VIDEO_PAGE_TITLE_FIELD);
         descriptionObj = getObj_rec(player_json, VIDEO_PAGE_DESCRIPTION_FIELD);
         viewCountObj = getObj_rec(player_json, VIDEO_VIEWCOUNT_FIELD);
+        dateObj = getObj_rec(player_json, VIDEO_PAGE_DATE_FIELD);
+
         title = json_object_get_string(titleObj);
         description = json_object_get_string(descriptionObj);
         viewCount = json_object_get_string(viewCountObj);
-
-        printf(" Player case : %s\n,%s, %s\n", title, description, viewCount);
+        date =  json_object_get_string(dateObj);
+        printf(" Player case : %s\n,%s, %s, %s\n", title, description, viewCount, date);
     }
-
     return 0;
 }
 

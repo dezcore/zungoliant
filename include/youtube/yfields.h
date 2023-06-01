@@ -22,6 +22,7 @@
 #define VIDEO_PAGE_PLAYLIST_ITEM_URL_FIELD "/compactVideoRenderer/navigationEndpoint/commandMetadata/webCommandMetadata/url"
 
 #define VIDEO_PAGE_TITLE_FIELD "/contents/0/videoPrimaryInfoRenderer/title/runs/0/text"
+#define VIDEO_PAGE_DATE_FIELD "/contents/0/videoPrimaryInfoRenderer/dateText/simpleText"
 #define VIDEO_PAGE_DESCRIPTION_FIELD "/contents/1/videoSecondaryInfoRenderer/attributedDescription/content"
 #define VIDEO_VIEWCOUNT_FIELD "/contents/0/videoPrimaryInfoRenderer/viewCount/videoViewCountRenderer/viewCount/simpleText"
 #define VIDEO_VIEWCOUNT_SHORT_FIELD "/contents/0/videoPrimaryInfoRenderer/viewCount/videoViewCountRenderer/shortViewCount/simpleText"
