@@ -291,23 +291,26 @@ int json_mapping_to_seasons(SEASON_ARRAY *seasons, struct json_object *seasons_j
 }
 
 int json_mapping_to_keys_values(KEY_VALUE_ARRAY *array, struct json_object *video_json) {
-    int numb_of_keys = 3;
-    const char *title, *img, *videoId;
-    struct json_object *titleObj, *imgObj, *videoIdObj/*, *categoryObj, *summaryObj,*/;
+    int numb_of_keys = 4;
+    const char *title, *img, *videoId, *viewCount;
+    struct json_object *titleObj, *imgObj, *videoIdObj, *viewCountObj/*, *categoryObj, *summaryObj,*/;
 
     if(video_json != NULL) {
         titleObj = getObj_rec(video_json, TITLE_FIELD);
         imgObj = getObj_rec(video_json, IMG_FIELD);
         videoIdObj = getObj_rec(video_json, VIDEOID_FIELD);
+        viewCountObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_VIEW_COUNT_FIELD);
 
         title = json_object_get_string(titleObj);
         img = json_object_get_string(imgObj);
         videoId = json_object_get_string(videoIdObj);
-
+        viewCount = json_object_get_string(viewCountObj);
+        
         resize_key_value_array_struct(array, numb_of_keys);
         set_key_value(&(array->elements[0]) , "title", (char*)title);
         set_key_value(&(array->elements[1]), "img", (char*)img);
         set_key_value(&(array->elements[2]), "videoId", (char*)videoId);
+        set_key_value(&(array->elements[2]), "viewCount", (char*)viewCount);
         //set_key_value(&(array->elements[2]), "category", (char*)json_object_get_string(titleObj));
         //set_key_value(&(array->elements[3]), "summary", (char*)json_object_get_string(titleObj));
     }
