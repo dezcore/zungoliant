@@ -256,6 +256,23 @@ int json_mapping_player_to_video(VIDEO *video, struct json_object *player_json) 
     return 0;
 }
 
+int json_mapping_player_channel(VIDEO *video, struct json_object *player_json) {
+    const char *channelTitle, *channelImg, *channelUrl;
+    struct json_object *channelTitleObj, *imgObj, *urlObj;
+
+    if(video != NULL && player_json != NULL) {
+        channelTitleObj = getObj_rec(player_json, VIDEO_PAGE_CHANNEL_TITLE_FIELD);
+        imgObj = getObj_rec(player_json, VIDEO_PAGE_CHANNEL_IMG_FIELD);
+        urlObj = getObj_rec(player_json, VIDEO_PAGE_CHANNEL_URL_FIELD);
+
+        channelTitle = json_object_get_string(channelTitleObj);
+        channelImg = json_object_get_string(imgObj);
+        channelUrl = json_object_get_string(urlObj);
+        printf("mapping_player_channel : %s\n,%s, %s\n", channelTitle, channelImg, channelUrl);
+    }
+    return 0;
+}
+
 int json_mapping_to_video(VIDEO *video, struct json_object *video_json, int type) {
     const char *title, *url, *length;
     const char *summary = "";
@@ -289,6 +306,7 @@ int json_mapping_to_videos(VIDEO_ARRAY *videos, struct json_object *videos_json,
 
             if(video != NULL && player_json != NULL) {
                 json_mapping_player_to_video(video, player_json);
+                json_mapping_player_channel(video, player_json);
             }
         }
     }
