@@ -296,9 +296,9 @@ int json_mapping_to_keys_values(KEY_VALUE_ARRAY *array, struct json_object *vide
     struct json_object *titleObj, *imgObj, *videoIdObj, *viewCountObj/*, *categoryObj, *summaryObj,*/;
 
     if(video_json != NULL) {
-        titleObj = getObj_rec(video_json, TITLE_FIELD);
-        imgObj = getObj_rec(video_json, IMG_FIELD);
-        videoIdObj = getObj_rec(video_json, VIDEOID_FIELD);
+        titleObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD);
+        imgObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_IMG_FIELD);
+        videoIdObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_VIDEOID_FIELD);
         viewCountObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_VIEW_COUNT_FIELD);
 
         title = json_object_get_string(titleObj);
