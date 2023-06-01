@@ -333,13 +333,13 @@ int exist_title_in_db(mongoc_client_t *client, char *title) {
     File *fifo = malloc(sizeof(*fifo));
     SERIE *serie = malloc(sizeof(*serie));
 
-    printf("Middle(1)\n");
     fifo_init(fifo);
-    printf("Middle(2)\n");
     if(title != NULL && client != NULL) {
         init_serie_default_parameters(serie);
         get_match(title, "[A-Za-z]+[ ]+[A-Za-z]+", fifo);
+
         join_file_element(fifo, &regex, ".*", 1);
+        printf("Regex : %s, %s\n", regex, title);
         if(regex != NULL) {
             selector =  BCON_NEW(
                 "title", "{",
@@ -353,7 +353,7 @@ int exist_title_in_db(mongoc_client_t *client, char *title) {
             //  print_serie(serie);
         }
     }
-    printf("Middle(3)\n");
+
     free(regex);
     freeFile(fifo);
     free_serie(serie);
@@ -388,7 +388,6 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
         ///printf("save_youtube_page_data(1) : %s\n", json_object_get_string(video_json));
         if(videos_josn != NULL) {
             for(int i = 0; i < json_object_array_length(videos_josn); i++) {
-                printf("Index : %d\n", i);
 		        video_json = json_object_array_get_idx(videos_josn, i);
                 titleObj = getObj_rec(video_json, TITLE_FIELD);
                 title = json_object_get_string(titleObj);
@@ -396,11 +395,10 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
                 if(is_matching_title(page->titlesRegex, (char*)title)) {
                     if(exist_title_in_db(page->mongo_client, (char*)title)) {
                         printf("Exist : %s\n", title);
-                    } else {
-                        create_new_serie(video_json);
-                    }
+                    }/* else {
+                        //create_new_serie(video_json);
+                    }*/
                 }
-                printf("End\n");
 	        }
         }
     }

@@ -156,31 +156,60 @@ int match_pattern(char *str, char *pattern) {
     return match;
 }
 
+int dup_str(char **res, char *str) {
+    int len = strlen(str) + 1;
+    if(*res == NULL)
+        *res = (char*) calloc(len, sizeof(char));
+
+    if(*res != NULL) {
+        sprintf(*res, "%s", str);
+        //strcpy(cpy, str);
+    }
+    return 0;
+}
+
+int sub_str(char **res, char *str, int start, int end) {
+    int length = end-start;
+    char *tmp = (char*) calloc(length+1, sizeof(char));
+
+    if(*res == NULL)
+        *res = (char*) malloc( (length+1) * sizeof(char));  
+
+    if(str != NULL && *res != NULL && tmp) {
+        strncpy(tmp, &str[start], length);
+        tmp[length] = '\0';
+        strcpy(*res, tmp);
+        //sprintf(*res, "%s", tmp);
+    }
+
+    free(tmp);
+    return 0;
+}
+
 int get_match(char *str, char *pattern, File *fifo) {
-    char *res; 
     regex_t reg;
     size_t nmatch;
     int start, end, curs = 0;
-    char *strCpy = (char *) malloc(strlen(str) * sizeof(char));
+    char *strCpy = NULL,  *res = NULL;
 
-    if(fifo != NULL && str != NULL && pattern != NULL && !regcomp(&reg, pattern, REG_EXTENDED)) {
+    dup_str(&strCpy, str);
+
+    if(strCpy != NULL && fifo != NULL && pattern != NULL  && !regcomp(&reg, pattern, REG_EXTENDED)) {
         nmatch = reg.re_nsub;
         regmatch_t m[nmatch + 1];
-        sprintf(strCpy, "%s", str);
 
         while(!regexec(&reg, strCpy, nmatch + 1, m, 0)) {
             start = m[0].rm_so;
             end = m[0].rm_eo;
             curs += m[0].rm_eo;
-            res = (char*) malloc((end - start + 1) * sizeof(char));
+
+            sub_str(&res, strCpy, start, end);
+            sub_str(&strCpy, str, curs, strlen(str));
 
             if(res != NULL) {
-                strncpy(res, &strCpy[start], end-start);
-                res[end-start] = '\0';
-                memcpy(strCpy, &str[curs], (strlen(str)-curs));
-                strCpy[(strlen(str)-curs)] = '\0';
                 push(fifo, res);
                 free(res);
+                res = NULL;
             }
         }
         free(strCpy);
