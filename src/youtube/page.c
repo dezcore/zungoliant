@@ -238,35 +238,64 @@ int json_mapping_to_tags(STR_ARRAY *tags, struct json_object *tags_json) {
     return 0;
 }
 
-int json_mapping_to_video(VIDEO *video, struct json_object *video_json) {
+int json_mapping_player_to_video(VIDEO *video, struct json_object *player_json) {
+    const char *title, *description, *viewCount;
+    struct json_object *titleObj, *descriptionObj, *viewCountObj;
+
+    if(video != NULL && player_json != NULL) {
+        titleObj = getObj_rec(player_json, VIDEO_PAGE_TITLE_FIELD);
+        descriptionObj = getObj_rec(player_json, VIDEO_PAGE_DESCRIPTION_FIELD);
+        viewCountObj = getObj_rec(player_json, VIDEO_VIEWCOUNT_FIELD);
+        title = json_object_get_string(titleObj);
+        description = json_object_get_string(descriptionObj);
+        viewCount = json_object_get_string(viewCountObj);
+
+        printf(" Player case : %s\n,%s, %s\n", title, description, viewCount);
+    }
+
+    return 0;
+}
+
+int json_mapping_to_video(VIDEO *video, struct json_object *video_json, int type) {
     const char *title, *url, *length;
+    const char *summary = "";
     struct json_object *urlObj, *titleObj, *lengthObj;
 
+    const char *urlField = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_URL_FIELD : VIDEO_PAGE_PLAYLIST_ITEM_URL_FIELD;
+    const char *titleField = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD : VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD;
+    const char *lengthField = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_LENGTH_FIELD : VIDEO_PAGE_PLAYLIST_ITEM_LENGTH_FIELD;
+    
     if(video != NULL && video_json != NULL) {
-        urlObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_URL_FIELD);
-        titleObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD);
-        lengthObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_LENGTH_FIELD);
-
+        urlObj = getObj_rec(video_json, (char*)urlField);
+        titleObj = getObj_rec(video_json,(char*)titleField);
+        lengthObj = getObj_rec(video_json, (char*)lengthField);
+        
         url = json_object_get_string(urlObj);
         title = json_object_get_string(titleObj);
         length = json_object_get_string(lengthObj);
         //printf("json_mapping_to_video : %s, %s\n", url, title); 
-        set_video(video, (char*)title, "category", "summary", (char*)url, (char*)length, "censor_rating");
+        set_video(video, (char*)title, "category", "", (char*)url, (char*)length, "censor_rating");
     }
     return 0;
 }
 
-int json_mapping_to_videos(VIDEO_ARRAY *videos, struct json_object *videos_json) {
+int json_mapping_to_videos(VIDEO_ARRAY *videos, struct json_object *videos_json,  struct json_object *player_json, int type) {
+    VIDEO *video;
     if(videos != NULL && videos_json != NULL) {
         //printf("json_mapping_to_videos\n"); 
         for(int i = 0; i < videos->length; i++) {
-            json_mapping_to_video(&(videos->elements[i]), videos_json);
+            video = &(videos->elements[i]);
+            json_mapping_to_video(video, videos_json, type);
+
+            if(video != NULL && player_json != NULL) {
+                json_mapping_player_to_video(video, player_json);
+            }
         }
     }
     return 0;
 }
 
-int json_mapping_to_season(SEASON *season, struct json_object *season_json) {
+int json_mapping_to_season(SEASON *season, struct json_object *season_json, struct json_object *player_json, int type) {
     const char *title;
     struct json_object *titleObj;
 
@@ -275,16 +304,16 @@ int json_mapping_to_season(SEASON *season, struct json_object *season_json) {
         titleObj = getObj_rec(season_json, VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD);
         title = json_object_get_string(titleObj);
         set_seson(season, (char*)title, "date", "summary", NULL);
-        json_mapping_to_videos(season->videos, season_json);
+        json_mapping_to_videos(season->videos, season_json, player_json, type);
     }
     return 0;
 }
 
-int json_mapping_to_seasons(SEASON_ARRAY *seasons, struct json_object *seasons_json) {
+int json_mapping_to_seasons(SEASON_ARRAY *seasons, struct json_object *seasons_json, struct json_object *player_json, int type) {
     if(seasons != NULL && seasons_json != NULL) {
         //printf("json_mapping_to_seasons\n");
         for(int i = 0; i < seasons->length; i++) {
-            json_mapping_to_season(&(seasons->elements[i]), seasons_json);
+            json_mapping_to_season(&(seasons->elements[i]), seasons_json, player_json, type);
         }
     }
     return 0;
@@ -305,7 +334,7 @@ int json_mapping_to_keys_values(KEY_VALUE_ARRAY *array, struct json_object *vide
         img = json_object_get_string(imgObj);
         videoId = json_object_get_string(videoIdObj);
         viewCount = json_object_get_string(viewCountObj);
-        
+
         resize_key_value_array_struct(array, numb_of_keys);
         set_key_value(&(array->elements[0]) , "title", (char*)title);
         set_key_value(&(array->elements[1]), "img", (char*)img);
@@ -317,7 +346,7 @@ int json_mapping_to_keys_values(KEY_VALUE_ARRAY *array, struct json_object *vide
     return 0;
 }
 
-int json_mapping_to_serie(SERIE *serie, struct json_object *video_json) {
+int json_mapping_to_serie(SERIE *serie, struct json_object *video_json, struct json_object *player_json, int type) {
     if(video_json != NULL && serie != NULL) {
         json_mapping_to_keys_values(serie->key_value_array, video_json);
         //set_serie_year(serie, "2014-01-01T08:15:39.736Z");
@@ -326,8 +355,8 @@ int json_mapping_to_serie(SERIE *serie, struct json_object *video_json) {
         //json_mapping_to_studio(serie->studio, NULL);
         //json_mapping_to_cast(serie->cast, NULL);
         json_mapping_to_tags(serie->contentTag, NULL);
-        json_mapping_to_seasons(serie->seasons, video_json);
-        print_serie(serie);
+        json_mapping_to_seasons(serie->seasons, video_json, player_json, type);
+        //print_serie(serie);
     }
     return 0;
 }
@@ -385,13 +414,13 @@ int exist_title_in_db(mongoc_client_t *client, char *title) {
     return res;
 }
 
-int create_new_serie(struct json_object *video_json) {
+int create_new_serie(struct json_object *video_json, struct json_object *player_json, int type) {
     SERIE *serie = malloc(sizeof(*serie));
-
+    
     if(video_json != NULL && serie != NULL) {
         puts("NO EXIST");
         init_serie_default_parameters(serie);
-        json_mapping_to_serie(serie, video_json);
+        json_mapping_to_serie(serie, video_json, player_json, type);
         //print_serie(serie);
     }
 
@@ -401,11 +430,13 @@ int create_new_serie(struct json_object *video_json) {
 
 int save_youtube_page_data(struct json_object *json, YPage *page) {
     const char *title;
-    struct json_object *videos_josn;
     struct json_object *video_json, *titleObj;
+    struct json_object *videos_josn, *player_json;
 
     if(json != NULL && page != NULL) {
-        videos_josn = getObj_rec(json, YRESULTS_FIELDS);
+        videos_josn = getObj_rec(json, VIDEO_PAGE_ROOT_FIELD);
+        player_json = getObj_rec(json, VIDEO_PAGE_CHANNEL_ROOT_FIELD);
+
         ///printf("save_youtube_page_data(1) : %s\n", json_object_get_string(video_json));
         if(videos_josn != NULL) {
             for(int i = 0; i < json_object_array_length(videos_josn); i++) {
@@ -415,7 +446,7 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
 
                 if(is_matching_title(page->titlesRegex, (char*)title)) {
                     if(!exist_title_in_db(page->mongo_client, (char*)title)) {
-                        create_new_serie(video_json);
+                        create_new_serie(video_json, player_json, 0);
                     } else {
                         printf("Exist : %s\n", title);
                     }
