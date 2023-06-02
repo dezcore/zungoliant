@@ -248,7 +248,7 @@ int get_title_episode(char *title) {
     int res = 1;
     char *episode = NULL, *digit = NULL;
     const char *digit_regex = "[0-9]{1,2}";
-    const char *episode_regex = "(([EÉeé][Pp][Ii]?[Ss]?[Oo]?[Dd]?[EÉeé]?[ ]?[1-9]{1,2})|([1-9]{1,2}-[1-9]{1,2})|([Vv][Oo][Ll][Uu]?[Mm]?[Ee]?[ ]+[1-9]{1,2})|([1-9]{1,2}( |ère )(([Pp][Aa][Rr][Tt][Ii][Ee])|([EÉeé][Pp][Ii]?[Ss]?[Oo]?[Dd]?[EÉeé]?))))";
+    const char *episode_regex = "(([EÉeé][Pp][Ii]?[Ss]?[Oo]?[Dd]?[EÉeé]?[ ]?[1-9]{1,2})|([1-9]{1,2}[-&][1-9]{1,2})|([Vv][Oo][Ll][Uu]?[Mm]?[Ee]?[ ]+[1-9]{1,2})|([1-9]{1,2}( |ère )(([Pp][Aa][Rr][Tt][Ii][Ee])|([EÉeé][Pp][Ii]?[Ss]?[Oo]?[Dd]?[EÉeé]?)))|([^(Saison)] [1-9]{1,2}[ ])|(\\([1-9]{1,2}\\)))";
     if(title != NULL) {
         get_str_match(title, (char*) episode_regex, &episode);
         if(episode != NULL) {

@@ -297,7 +297,7 @@ int json_mapping_to_video(VIDEO *video, struct json_object *video_json, int type
     return 0;
 }
 
-int json_mapping_to_videos(VIDEO_ARRAY *videos, struct json_object *videos_json,  struct json_object *player_json, int type) {
+int json_mapping_to_videos(VIDEO_ARRAY *videos, struct json_object *videos_json, int type) {
     VIDEO *video;
     if(videos != NULL && videos_json != NULL) {
         //printf("json_mapping_to_videos\n"); 
@@ -305,10 +305,10 @@ int json_mapping_to_videos(VIDEO_ARRAY *videos, struct json_object *videos_json,
             video = &(videos->elements[i]);
             json_mapping_to_video(video, videos_json, type);
 
-            if(video != NULL && player_json != NULL) {
+            /*if(video != NULL && player_json != NULL) {
                 json_mapping_player_to_video(video, player_json);
                 json_mapping_player_channel(video, player_json);
-            }
+            }*/
         }
     }
     return 0;
@@ -322,8 +322,8 @@ int json_mapping_to_season(SEASON *season, struct json_object *season_json, stru
         //printf("json_mapping_to_season\n");
         titleObj = getObj_rec(season_json, VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD);
         title = json_object_get_string(titleObj);
-        set_seson(season, (char*)title, "date", "summary", NULL);
-        json_mapping_to_videos(season->videos, season_json, player_json, type);
+        set_seson(season, (char*)title, "", "", NULL);
+        json_mapping_to_videos(season->videos, season_json, type);
     }
     return 0;
 }
@@ -375,7 +375,7 @@ int json_mapping_to_serie(SERIE *serie, struct json_object *video_json, struct j
         //json_mapping_to_cast(serie->cast, NULL);
         json_mapping_to_tags(serie->contentTag, NULL);
         json_mapping_to_seasons(serie->seasons, video_json, player_json, type);
-        //print_serie(serie);
+        print_serie(serie);
     }
     return 0;
 }

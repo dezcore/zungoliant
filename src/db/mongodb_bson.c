@@ -502,10 +502,11 @@ int set_season_summary(SEASON *season, char *summary) {
 }
 
 int set_seson(SEASON *season, char *title, char *date, char *summary, VIDEO_ARRAY *videos) {
-  if(season != NULL && title != NULL && date != NULL && summary != NULL && videos != NULL) {
+  if(season != NULL && title != NULL && date != NULL && summary != NULL) {
     set_season_title(season, title);
     set_season_date(season, date);
     set_season_summary(season, summary);
+    season->number = get_title_season(title);
 
     if(videos != NULL) {
       if(season->videos->length < videos->length)
