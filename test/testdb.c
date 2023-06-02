@@ -42,53 +42,6 @@ int test_insert_document(SERIE *serie) {
     return 0;
 }
 
-int test_matching_title() {
-    SERIE *serie = NULL;
-    STR_ARRAY *array = NULL;
-    File *titles_fifo = NULL;
-    Element *title = NULL;
-    size_t keysLen = 1;
-    //char *keys[] = {"title", "img", "category", "summary"};
-
-    titles_fifo = init();
-
-    if(titles_fifo != NULL) {
-        init_fifo(&titles_fifo, "/data/file/titles");
-        init_file_to_array("/data/file/titles_regex", &array);
-
-        //print_array(array);
-        //display(titles_fifo);
-        while(0 < titles_fifo->size) {
-            title = pop(titles_fifo);
-            for(int i = 0; i < array->length; i++) {
-                if(match_pattern(title->value, array->elements[i].value)) {
-                    serie = malloc(sizeof(*serie));
-                    if(serie != NULL) {
-                        init_serie_struct(serie, keysLen, 0, 0, 0);
-                        //add_value(&(serie)->keys, keys[0], 0);
-                        //add_value(&(serie)->values, title->value, 0);
-                        test_insert_document(serie);
-                        //print_serie(serie);
-                        free_serie(serie);
-                    } else {
-                        displayElement(title);
-                    }
-                    
-                    break;
-                }
-            }
-            freeElement(title);
-            title = NULL;
-            serie = NULL;
-        }
-
-        freeFile(titles_fifo);
-        free_str_array_struct(array);
-    }
-
-    return 0;
-}
-
 int test_find_document() {
     bson_t *selector;
     mongoc_cursor_t *cursor = NULL;
@@ -215,26 +168,6 @@ int test_match_patterns() {
     return 0;
 }
 
-int test_parse_date() {
-    STR_ARRAY *datePartArray = NULL;
-    STR_ARRAY *hoursPartArray = NULL;
-    const char *date = "2014-01-01T08:15:39.736Z";
-
-    parseDate((char*)date, "[0-9]{2}:[0-9]{2}:[0-9]{2}", "[0-9]{2}", &hoursPartArray);
-    if(hoursPartArray != NULL) {
-        print_array_str(hoursPartArray, "", "\t", "\t", "\t\t");
-        free_str_array_struct(hoursPartArray);
-    }
-
-    parseDate((char *)date, "[0-9]{4}-[0-9]{2}-[0-9]{2}", "[0-9]+", &datePartArray);
-    if(datePartArray != NULL) {
-        print_array_str(datePartArray, "", "\t", "\t", "\t\t");
-        free_str_array_struct(datePartArray);   
-    }
-
-    return 0;
-}
-
 int test_exist() {
     /*struct json_object *serie;
     const char *title = "TOURBILLONS Ep1 | Film Congolais 2023 | Sila Bisalu | SBproduction.";
@@ -312,6 +245,41 @@ int test_season_struct() {
     return 0;
 }
 
+int test_key_value() {
+    KEY_VALUE *key_value = malloc(sizeof(*key_value));
+    if(key_value != NULL) {
+        init_key_value(key_value);
+        set_key_value(key_value, "key", "value");
+        print_key_value(key_value, "", "\t");
+    }
+    free_key_value(key_value);
+    return 0;
+}
+
+int test_str() {
+    STR *str = malloc(sizeof(*str));
+    if(str != NULL) {
+        init_str_struct(str);
+        set_str_value(str, "Hello world !");
+        print_str(str, "", "\t");
+    }
+    free_str(str);
+    return 0;
+}
+
+int test_str_array() {
+    STR_ARRAY *array = malloc(sizeof(*array));
+    if(array != NULL) {
+        init_str_array_struct(array, 2);
+        for(int i = 0; i < array->length; i++) {
+            set_str_value(&(array->elements[i]), "Hello world !");
+        }
+        print_array_str(array, "", "\t", "\t", "\t\t");
+    }
+    free_str_array_struct(array);
+    return 0;
+}
+
 int test_set_seson(SEASON *season) {
     if(season != NULL) {
         set_season_title(season, "Seson title");
@@ -321,6 +289,22 @@ int test_set_seson(SEASON *season) {
         for(int i = 0; i < season->videos->length; i++) {
             test_set_video(&(season->videos->elements[i]));
         }
+    }
+    return 0;
+}
+
+int set_str_array(STR_ARRAY *array) {
+    if(array != NULL) {
+        for(int i = 0; i < array->length; i++) {
+            set_str_value(&(array->elements[i]), "Hello world !");
+        }
+    }
+    return 0;
+}
+
+int test_set_key_value(KEY_VALUE *key_value, char *key, char *value) {
+    if(key_value != NULL) {
+        set_key_value(key_value, key, value);
     }
     return 0;
 }
@@ -354,20 +338,11 @@ int test_season_array() {
     return 0;
 }
 
-int test_key_value() {
-    KEY_VALUE *key_value = malloc(sizeof(*key_value));
-    if(key_value != NULL) {
-        init_key_value(key_value);
-        set_key_value(key_value, "key", "value");
-        print_key_value(key_value, "", "\t");
-    }
-    free_key_value(key_value);
-    return 0;
-}
-
-int test_set_key_value(KEY_VALUE *key_value, char *key, char *value) {
-    if(key_value != NULL) {
-        set_key_value(key_value, key, value);
+int set_key_value_array(KEY_VALUE_ARRAY *array) {
+    if(array != NULL) {
+        for(int i = 0; i < array->length; i++) {
+            test_set_key_value(&(array->elements[i]), "title", "title value");
+        }
     }
     return 0;
 }
@@ -382,15 +357,6 @@ int test_key_value_array() {
         print_array_key_value(array,"", "\t", "\t", "\t\t") ;
     }
     free_key_value_array_struct(array);*/
-    return 0;
-}
-
-int set_key_value_array(KEY_VALUE_ARRAY *array) {
-    if(array != NULL) {
-        for(int i = 0; i < array->length; i++) {
-            test_set_key_value(&(array->elements[i]), "title", "title value");
-        }
-    }
     return 0;
 }
 
@@ -419,50 +385,6 @@ int test_studio() {
 int test_set_studio(STUDIO *studio) {
     if(studio != NULL) {
         set_studio(studio, "Studio name", "Country", "City", "Fonder","2014-01-01T08:15:39.736Z", "2014-01-01T08:15:39.736Z", "2014-01-01T08:15:39.736Z");
-    }
-    return 0;
-}
-
-int test_str() {
-    STR *str = malloc(sizeof(*str));
-    if(str != NULL) {
-        init_str_struct(str);
-        set_str_value(str, "Hello world !");
-        print_str(str, "", "\t");
-    }
-    free_str(str);
-    return 0;
-}
-
-int test_str_array() {
-    STR_ARRAY *array = malloc(sizeof(*array));
-    if(array != NULL) {
-        init_str_array_struct(array, 2);
-        for(int i = 0; i < array->length; i++) {
-            set_str_value(&(array->elements[i]), "Hello world !");
-        }
-        print_array_str(array, "", "\t", "\t", "\t\t");
-    }
-    free_str_array_struct(array);
-    return 0;
-}
-
-int set_str_array(STR_ARRAY *array) {
-    if(array != NULL) {
-        for(int i = 0; i < array->length; i++) {
-            set_str_value(&(array->elements[i]), "Hello world !");
-        }
-    }
-    return 0;
-}
-
-int test_date() {
-    char *res = NULL;
-    const char *date= "1388560028000";
-    timestamp_to_utc((char *)date, &res);
-    if(res != NULL) {
-        printf("Date : %s\n", res);
-        free(res);
     }
     return 0;
 }
@@ -524,5 +446,100 @@ int test_bson_to_serie() {
     bson_destroy(document);
     free_serie(serie);
     free_serie(serie1);
+    return 0;
+}
+
+int test_parse_date() {
+    STR_ARRAY *datePartArray = NULL;
+    STR_ARRAY *hoursPartArray = NULL;
+    const char *date = "2014-01-01T08:15:39.736Z";
+
+    parseDate((char*)date, "[0-9]{2}:[0-9]{2}:[0-9]{2}", "[0-9]{2}", &hoursPartArray);
+    if(hoursPartArray != NULL) {
+        print_array_str(hoursPartArray, "", "\t", "\t", "\t\t");
+        free_str_array_struct(hoursPartArray);
+    }
+
+    parseDate((char *)date, "[0-9]{4}-[0-9]{2}-[0-9]{2}", "[0-9]+", &datePartArray);
+    if(datePartArray != NULL) {
+        print_array_str(datePartArray, "", "\t", "\t", "\t\t");
+        free_str_array_struct(datePartArray);   
+    }
+
+    return 0;
+}
+
+int test_date() {
+    char *res = NULL;
+    const char *date= "1388560028000";
+    timestamp_to_utc((char *)date, &res);
+    if(res != NULL) {
+        printf("Date : %s\n", res);
+        free(res);
+    }
+    return 0;
+}
+
+int test_matching_title() {
+    SERIE *serie = NULL;
+    STR_ARRAY *array = NULL;
+    File *titles_fifo = NULL;
+    Element *title = NULL;
+    size_t keysLen = 1;
+    //char *keys[] = {"title", "img", "category", "summary"};
+
+    titles_fifo = init();
+
+    if(titles_fifo != NULL) {
+        init_fifo(&titles_fifo, "/data/file/titles");
+        init_file_to_array("/data/file/titles_regex", &array);
+
+        //print_array(array);
+        //display(titles_fifo);
+        while(0 < titles_fifo->size) {
+            title = pop(titles_fifo);
+            for(int i = 0; i < array->length; i++) {
+                if(match_pattern(title->value, array->elements[i].value)) {
+                    serie = malloc(sizeof(*serie));
+                    if(serie != NULL) {
+                        init_serie_struct(serie, keysLen, 0, 0, 0);
+                        //add_value(&(serie)->keys, keys[0], 0);
+                        //add_value(&(serie)->values, title->value, 0);
+                        test_insert_document(serie);
+                        //print_serie(serie);
+                        free_serie(serie);
+                    } else {
+                        displayElement(title);
+                    }
+                    
+                    break;
+                }
+            }
+            freeElement(title);
+            title = NULL;
+            serie = NULL;
+        }
+
+        freeFile(titles_fifo);
+        free_str_array_struct(array);
+    }
+
+    return 0;
+}
+
+int test_title_regex() {
+    Element *title = NULL;
+    File *titles_fifo = NULL;
+    titles_fifo = init();
+
+    if(titles_fifo != NULL) {
+        init_fifo(&titles_fifo, "/data/file/titles");
+        while(0 < titles_fifo->size) {
+            title = pop(titles_fifo);
+            printf("Title : %s => numb sesason : %d\n", title->value, get_title_season(title->value));
+            freeElement(title);
+        }   
+    }
+    freeFile(titles_fifo);
     return 0;
 }

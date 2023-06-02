@@ -244,6 +244,28 @@ int get_str_match(char *str, char *pattern, char **match) {
     return 0;
 }
 
+int get_title_season(char *title) {
+    int res = 1;
+    char *season = NULL, *digit = NULL;
+    const char *season_regex = "(([Ss]aison))[ ]+[0-9]{1,2}";
+    const char *digit_regex = "[0-9]{1,2}";
+    
+    if(title != NULL) {
+        get_str_match(title, (char*) season_regex, &season);
+        if(season != NULL) {
+            get_str_match(season, (char*)digit_regex, &digit);
+            if(digit != NULL) {
+                res = atoi(digit);
+                //printf("get_title_season : %s\n", digit);
+            }
+        }
+    }
+
+    free(digit);
+    free(season);
+    return res;
+}
+
 int join_file_element(File *file, char **str, char *delimiter, int start_delimiter) {
     Element *current;
 

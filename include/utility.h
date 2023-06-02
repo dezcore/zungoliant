@@ -34,6 +34,7 @@ typedef struct _STR_ARRAY {
 
 int trim(char **str);
 int init_str_struct(STR *str);
+int get_title_season(char *title);
 int set_str_value(STR *str, char *value);
 int get_pwd(char **res, char *concatPath);
 int match_pattern(char *str, char *pattern);

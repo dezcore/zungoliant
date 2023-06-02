@@ -67,7 +67,8 @@ int test_db_serie_struct() {
     //test_serie();
     //test_create_serie(NULL, 0);
     //test_serie_to_bson();
-    test_bson_to_serie();
+    //test_bson_to_serie();
+    test_title_regex();
     return 0;
 }
 

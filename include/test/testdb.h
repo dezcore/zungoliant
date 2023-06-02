@@ -14,6 +14,7 @@ int test_director();
 int test_str_array();
 int test_key_value();
 int test_parse_date();
+int test_title_regex();
 int test_video_array();
 int test_str_to_bson();
 int test_season_array();
