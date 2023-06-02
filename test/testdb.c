@@ -543,3 +543,22 @@ int test_title_regex() {
     freeFile(titles_fifo);
     return 0;
 }
+
+int test_title_episode_regex() {
+    Element *title = NULL;
+    File *titles_fifo = NULL;
+    titles_fifo = init();
+
+    if(titles_fifo != NULL) {
+        init_fifo(&titles_fifo, "/data/file/titles");
+        while(0 < titles_fifo->size) {
+            title = pop(titles_fifo);
+            //get_title_episode(title->value);
+            printf("Title : %s => numb episode : %d\n", title->value, get_title_episode(title->value));
+            freeElement(title);
+        }   
+    }
+
+    freeFile(titles_fifo);
+    return 0;
+}

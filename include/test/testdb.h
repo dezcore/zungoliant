@@ -29,6 +29,7 @@ int test_matching_title();
 int test_delete_document();
 int test_update_document();
 int test_key_value_array();
+int test_title_episode_regex();
 int test_find_document_by_regex();
 int test_insert_document(SERIE *serie);
 int test_create_serie(SERIE **res, int save);
