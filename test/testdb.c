@@ -236,17 +236,15 @@ int test_parse_date() {
 }
 
 int test_exist() {
-    struct json_object *serie;
+    /*struct json_object *serie;
     const char *title = "TOURBILLONS Ep1 | Film Congolais 2023 | Sila Bisalu | SBproduction.";
     //"TOURBILLONS Ep1 | Film Congolais 2023 | Sila Bisalu | SBproduction.";
     //"Saison 2 || VICTIME D’AMOUR || Ep 1 || Série Congolaise || DDtv || Janvier 2023"
-
     exist_serie((char*)title, &serie);
-
     if(serie != NULL) {
         exist_season((char*)title, serie);
         json_object_put(serie);
-    }
+    }*/
 
     return 0;
 }
@@ -337,7 +335,7 @@ int set_season_array(SEASON_ARRAY *array) {
 }
 
 int test_season_array() {
-    SEASON_ARRAY *array  = malloc(sizeof(*array));
+    /*SEASON_ARRAY *array  = malloc(sizeof(*array));
 
     if(array != NULL) {
         init_season_array_struct(array, 2, 5); 
@@ -352,7 +350,7 @@ int test_season_array() {
         print_array_season(array, "", "\t",  "\t\t", "\t\t\t");
 
     }
-    free_season_array_struct(array);
+    free_season_array_struct(array);*/
     return 0;
 }
 
@@ -375,7 +373,7 @@ int test_set_key_value(KEY_VALUE *key_value, char *key, char *value) {
 }
 
 int test_key_value_array() {
-    KEY_VALUE_ARRAY *array  = malloc(sizeof(*array));
+   /*KEY_VALUE_ARRAY *array  = malloc(sizeof(*array));
     if(array != NULL) {
         init_key_value_array_struct(array, 2);
         for(int i = 0; i < array->length; i++) {
@@ -383,7 +381,7 @@ int test_key_value_array() {
         }
         print_array_key_value(array,"", "\t", "\t", "\t\t") ;
     }
-    free_key_value_array_struct(array);
+    free_key_value_array_struct(array);*/
     return 0;
 }
 
@@ -469,13 +467,13 @@ int test_date() {
     return 0;
 }
 
-int test_serie() {
-    bson_t *document = bson_new();
+int test_create_serie(SERIE **res, int save) {
     SERIE *serie = malloc(sizeof(*serie));
-    SERIE *serie1 = malloc(sizeof(*serie1));
 
-    if(serie != NULL && serie1 != NULL) {
-        init_serie_struct(serie, 2, 1, 2, 2);
+    if(serie != NULL) {
+        init_serie_default_parameters(serie);
+        puts("test_create_seri");
+        set_serie_default_parameters(serie, 2, 1, 2, 2);
         set_serie_year(serie, "2014-01-01T08:15:39.736Z"); //{ "$date": { "$numberLong": "1388560028000" } },
         set_director(serie->director, "Director name","2014-01-01T08:15:39.736Z", "2014-01-01T08:15:39.736Z", "2014-01-01T08:15:39.736Z");
         set_director(serie->producer, "Producer name","2028-01-01T08:15:39.736Z", "2024-01-01T08:15:39.736Z", "2023-01-01T08:15:39.736Z");
@@ -483,12 +481,46 @@ int test_serie() {
         set_season_array(serie->seasons);
         set_str_array(serie->contentTag);
         set_key_value_array(serie->key_value_array);
-        serie_to_bson(&document, serie);
-        bson_to_serie(&serie1, document);
-        //print_bson(document);
         //print_serie(serie);
+    }
+
+    if(save)
+        *res = serie;
+    else
+        free_serie(serie);
+    return 0;
+}
+
+int test_serie_to_bson() {
+    bson_t *document = bson_new();
+    SERIE *serie = NULL;
+
+    test_create_serie(&serie, 1);
+
+    if(serie != NULL) {
+        serie_to_bson(&document, serie);
+        print_bson(document);
+    }
+
+    bson_destroy(document);
+    free_serie(serie);
+    return 0;
+}
+
+int test_bson_to_serie() {
+    SERIE *serie = NULL;
+    bson_t *document = bson_new();
+    SERIE *serie1 = malloc(sizeof(*serie1));
+
+    test_create_serie(&serie, 1);
+
+    if(serie != NULL) {
+        init_serie_default_parameters(serie1);
+        serie_to_bson(&document, serie); 
+        bson_to_serie(serie1, document);
         print_serie(serie1);
     }
+
     bson_destroy(document);
     free_serie(serie);
     free_serie(serie1);

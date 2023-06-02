@@ -292,7 +292,7 @@ int json_mapping_to_video(VIDEO *video, struct json_object *video_json, int type
         title = json_object_get_string(titleObj);
         length = json_object_get_string(lengthObj);
         //printf("json_mapping_to_video : %s, %s\n", url, title); 
-        set_video(video, (char*)title, "category", "", (char*)url, (char*)length, "censor_rating");
+        set_video(video, (char*)title, "category", (char*)summary, (char*)url, (char*)length, "censor_rating");
     }
     return 0;
 }

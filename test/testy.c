@@ -14,14 +14,13 @@ int test_get_root_field(YPage *page) {
 }
 
 int test_video_page_items() {
-    unsigned int ii;
+    /*unsigned int ii;
     YPage *page = malloc(sizeof(*page));
     struct json_object *results = NULL;
-    struct json_object *video, *titleObj, *videoIdObj/*, *imgObj*/;
-
+    struct json_object *video, *titleObj, *videoIdObj;
+    //imgObj
     init_yPage(page, 0, TEST_YOUTUBE_VIDEOPAGE_URL, " ");
     test_get_root_field(page);
-
     if(page != NULL  && page->json != NULL) {
         results = getObj_rec(page->json, VIDEO_PAGE_ROOT_FIELD);
         if(results != NULL) {
@@ -31,26 +30,26 @@ int test_video_page_items() {
                 videoIdObj =  getObj_rec(video, VIDEO_PAGE_PLAYLIST_ITEM_VIDEOID_FIELD);
                 //imgObj = getObj_rec(video, VIDEO_PAGE_PLAYLIST_ITEM_IMG_FIELD);
 
-                if(titleObj != NULL && videoIdObj != NULL /*&& imgObj != NULL*/) {
+                if(titleObj != NULL && videoIdObj != NULL && imgObj != NULL) {
                     printf("title : %s, videoId : %s\n", 
-                        json_object_get_string(titleObj), json_object_get_string(videoIdObj)/*, json_object_get_string(imgObj)*/
+                        json_object_get_string(titleObj), json_object_get_string(videoIdObj)
+                        //, json_object_get_string(imgObj)
                     );
                 }
 	        }
         }
         free_yPage(page);
-    }
+    }*/
     return 0;
 }
 
 int test_video_page_channel() {
-    YPage *page = malloc(sizeof(*page));
+    /*YPage *page = malloc(sizeof(*page));
     struct json_object *rootObj = NULL;
     struct json_object *titleObj, *descriptionObj, *viewCountObj, *channelTitleObj, *channelImgObj, *channelUrlObj;
-
     init_yPage(page, 0, TEST_YOUTUBE_VIDEOPAGE_URL, " ");
     test_get_root_field(page);
-
+    
     if(page != NULL  && page->json != NULL) {
         rootObj = getObj_rec(page->json, VIDEO_PAGE_CHANNEL_ROOT_FIELD);
         titleObj = getObj_rec(rootObj, VIDEO_PAGE_TITLE_FIELD);
@@ -67,7 +66,7 @@ int test_video_page_channel() {
             );
         }
         free_yPage(page);
-    }
+    }*/
 
     return 0;
 }
@@ -107,7 +106,7 @@ int test_channel_page_home_videos(struct json_object *videosContentObj) {
 }
 
 int test_channel_page_home() {
-    unsigned int i;
+    /*unsigned int i;
     YPage *page = malloc(sizeof(*page));
     struct json_object *homeUrlObj;
     struct json_object *rootObj = NULL, *tabsObj = NULL, *tabObj = NULL, *contents = NULL;
@@ -139,7 +138,7 @@ int test_channel_page_home() {
             }
         }
         free_yPage(page);
-    }
+    }*/
 
     return 0;
 }

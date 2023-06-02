@@ -130,6 +130,7 @@ int resize_season_array_struct(SEASON_ARRAY *array, size_t length,  size_t video
 int print_season(SEASON *season, char *tabs, char *videos_tabs, char *videos_subtabs);
 int set_seson(SEASON *season, char *title, char *date, char *summary, VIDEO_ARRAY *videos);
 int set_director(DIRECTOR *director, char *name, char *startYear, char *endYear, char *bithYear);
+int set_serie_default_parameters(SERIE *serie, int numb_of_keys,  int seasons,  int episodes, int tags);
 int exist_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *documentName, SERIE *serie);
 int print_array_key_value(KEY_VALUE_ARRAY *array, char *tabs, char* subtabs, char *kv_tabs, char *kv_subtabs);
 int print_array_season(SEASON_ARRAY *array, char *tabs, char* subtabs, char *season_tabs, char *season_subtabs);

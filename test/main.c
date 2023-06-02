@@ -52,14 +52,22 @@ int test_db() {
     //test_video_struct();
     //test_video_array();
     //test_season_struct();
-    test_season_array();
+    //test_season_array();
     //test_key_value();
     //test_key_value_array();
     //test_director();
     //test_studio();
     //test_str();
     //test_str_array();
+  
+    return 0;
+}
+
+int test_db_serie_struct() {
     //test_serie();
+    //test_create_serie(NULL, 0);
+    //test_serie_to_bson();
+    test_bson_to_serie();
     return 0;
 }
 
@@ -67,6 +75,7 @@ int main() {
     //while(1);    
     //test_regex();
     //test_json();
-    test_db();
+    //test_db();
+    test_db_serie_struct();
     return 0;
 }

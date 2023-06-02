@@ -6,6 +6,8 @@
 #define YINITDATA_FILE_PATH "/data/file/ytInitialData"
 #define YRESULTS_FIELDS  "/contents/twoColumnWatchNextResults/secondaryResults/secondaryResults/results"
 
+//URL regex
+//(https?|www)[^ ]+ 
 //Youtube
 #define YOUTUBE_ROOT_URL "https://www.youtube.com/watch"
 #define YOUTUBE_WATCH_URI "/watch?v="
