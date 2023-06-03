@@ -276,8 +276,8 @@ int json_mapping_player_channel(VIDEO *video, struct json_object *player_json) {
 
 int json_mapping_to_video(VIDEO *video, struct json_object *video_json, int type) {
     const char *title, *url, *length;
-    const char *summary = "";
     struct json_object *urlObj, *titleObj, *lengthObj;
+    const char *summary = "", *category = "", *censor_rating= "";
 
     const char *urlField = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_URL_FIELD : VIDEO_PAGE_PLAYLIST_ITEM_URL_FIELD;
     const char *titleField = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD : VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD;
@@ -292,7 +292,7 @@ int json_mapping_to_video(VIDEO *video, struct json_object *video_json, int type
         title = json_object_get_string(titleObj);
         length = json_object_get_string(lengthObj);
         //printf("json_mapping_to_video : %s, %s\n", url, title); 
-        set_video(video, (char*)title, "category", (char*)summary, (char*)url, (char*)length, "censor_rating");
+        set_video(video, (char*)title, (char*)category, (char*)summary, (char*)url, (char*)length, (char*)censor_rating);
     }
     return 0;
 }
@@ -304,17 +304,12 @@ int json_mapping_to_videos(VIDEO_ARRAY *videos, struct json_object *videos_json,
         for(int i = 0; i < videos->length; i++) {
             video = &(videos->elements[i]);
             json_mapping_to_video(video, videos_json, type);
-
-            /*if(video != NULL && player_json != NULL) {
-                json_mapping_player_to_video(video, player_json);
-                json_mapping_player_channel(video, player_json);
-            }*/
         }
     }
     return 0;
 }
 
-int json_mapping_to_season(SEASON *season, struct json_object *season_json, struct json_object *player_json, int type) {
+int json_mapping_to_season(SEASON *season, struct json_object *season_json, int type) {
     const char *title;
     struct json_object *titleObj;
 
@@ -328,36 +323,36 @@ int json_mapping_to_season(SEASON *season, struct json_object *season_json, stru
     return 0;
 }
 
-int json_mapping_to_seasons(SEASON_ARRAY *seasons, struct json_object *seasons_json, struct json_object *player_json, int type) {
+int json_mapping_to_seasons(SEASON_ARRAY *seasons, struct json_object *seasons_json, int type) {
     if(seasons != NULL && seasons_json != NULL) {
         //printf("json_mapping_to_seasons\n");
         for(int i = 0; i < seasons->length; i++) {
-            json_mapping_to_season(&(seasons->elements[i]), seasons_json, player_json, type);
+            json_mapping_to_season(&(seasons->elements[i]), seasons_json, type);
         }
     }
     return 0;
 }
 
 int json_mapping_to_keys_values(KEY_VALUE_ARRAY *array, struct json_object *video_json) {
-    int numb_of_keys = 4;
+    int numb_of_keys = 3;
     const char *title, *img, *videoId, *viewCount;
-    struct json_object *titleObj, *imgObj, *videoIdObj, *viewCountObj/*, *categoryObj, *summaryObj,*/;
+    struct json_object *titleObj, /*imgObj,*/ *videoIdObj, *viewCountObj;
 
     if(video_json != NULL) {
         titleObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD);
-        imgObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_IMG_FIELD);
+        //imgObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_IMG_FIELD);
         videoIdObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_VIDEOID_FIELD);
         viewCountObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_VIEW_COUNT_FIELD);
 
         title = json_object_get_string(titleObj);
-        img = json_object_get_string(imgObj);
+        //img = json_object_get_string(imgObj);
         videoId = json_object_get_string(videoIdObj);
         viewCount = json_object_get_string(viewCountObj);
 
         resize_key_value_array_struct(array, numb_of_keys);
         set_key_value(&(array->elements[0]) , "title", (char*)title);
-        set_key_value(&(array->elements[1]), "img", (char*)img);
-        set_key_value(&(array->elements[2]), "videoId", (char*)videoId);
+        set_key_value(&(array->elements[1]), "img", (char*)videoId/*(char*)img*/);
+        //set_key_value(&(array->elements[2]), "videoId", (char*)videoId);
         set_key_value(&(array->elements[2]), "viewCount", (char*)viewCount);
         //set_key_value(&(array->elements[2]), "category", (char*)json_object_get_string(titleObj));
         //set_key_value(&(array->elements[3]), "summary", (char*)json_object_get_string(titleObj));
@@ -365,17 +360,16 @@ int json_mapping_to_keys_values(KEY_VALUE_ARRAY *array, struct json_object *vide
     return 0;
 }
 
-int json_mapping_to_serie(SERIE *serie, struct json_object *video_json, struct json_object *player_json, int type) {
+int json_mapping_to_serie(SERIE *serie, struct json_object *video_json, int type) {
     if(video_json != NULL && serie != NULL) {
         json_mapping_to_keys_values(serie->key_value_array, video_json);
-        //set_serie_year(serie, "2014-01-01T08:15:39.736Z");
+        //set_serie_year(serie, "");
         //json_mapping_to_director(serie->director, NULL);
         //json_mapping_to_director(serie->producer, NULL);
         //json_mapping_to_studio(serie->studio, NULL);
         //json_mapping_to_cast(serie->cast, NULL);
-        json_mapping_to_tags(serie->contentTag, NULL);
-        json_mapping_to_seasons(serie->seasons, video_json, player_json, type);
-        print_serie(serie);
+        //json_mapping_to_tags(serie->contentTag, NULL);
+        json_mapping_to_seasons(serie->seasons, video_json, type);
     }
     return 0;
 }
@@ -433,16 +427,29 @@ int exist_title_in_db(mongoc_client_t *client, char *title) {
     return res;
 }
 
-int create_new_serie(struct json_object *video_json, struct json_object *player_json, int type) {
+int print_serie_bson(bson_t *document) {
+    char *str;
+    if(document != NULL) {
+        str = bson_as_canonical_extended_json(document, NULL);
+        //str = bson_as_json(document, NULL);
+        printf("NO EXIST : %s\n", str);
+        bson_free(str);
+    }
+    return 0;
+}
+
+int create_new_serie(struct json_object *video_json, int type) {
+    bson_t *document = bson_new();
     SERIE *serie = malloc(sizeof(*serie));
-    
+
     if(video_json != NULL && serie != NULL) {
-        puts("NO EXIST");
         init_serie_default_parameters(serie);
-        json_mapping_to_serie(serie, video_json, player_json, type);
+        json_mapping_to_serie(serie, video_json, type);
+        serie_to_bson(&document, serie);
+        print_serie_bson(document);
         //print_serie(serie);
     }
-
+    bson_destroy(document);
     free_serie(serie);
     return 0;
 }
@@ -450,12 +457,11 @@ int create_new_serie(struct json_object *video_json, struct json_object *player_
 int save_youtube_page_data(struct json_object *json, YPage *page) {
     const char *title;
     struct json_object *video_json, *titleObj;
-    struct json_object *videos_josn, *player_json;
-
+    struct json_object *videos_josn/*, *player_json*/;
     if(json != NULL && page != NULL) {
         videos_josn = getObj_rec(json, VIDEO_PAGE_ROOT_FIELD);
-        player_json = getObj_rec(json, VIDEO_PAGE_CHANNEL_ROOT_FIELD);
-
+        //player_json = getObj_rec(json, VIDEO_PAGE_CHANNEL_ROOT_FIELD);
+        
         ///printf("save_youtube_page_data(1) : %s\n", json_object_get_string(video_json));
         if(videos_josn != NULL) {
             for(int i = 0; i < json_object_array_length(videos_josn); i++) {
@@ -465,11 +471,16 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
 
                 if(is_matching_title(page->titlesRegex, (char*)title)) {
                     if(!exist_title_in_db(page->mongo_client, (char*)title)) {
-                        create_new_serie(video_json, player_json, 0);
+                        create_new_serie(video_json, 0);
                     } else {
                         printf("Exist : %s\n", title);
                     }
                 }
+
+                /*if(video != NULL && player_json != NULL) {
+                    json_mapping_player_to_video(video, player_json);
+                    json_mapping_player_channel(video, player_json);
+                }*/
 	        }
         }
     }

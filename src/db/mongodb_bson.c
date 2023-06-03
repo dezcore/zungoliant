@@ -1034,22 +1034,26 @@ int init_keys_and_values(bson_t **bson, KEY_VALUE_ARRAY *array) {
 int serie_to_bson(bson_t **document, SERIE *serie) {
   bson_t director, producer, studio, cast;
 
-  init_keys_and_values(&(*document), serie->key_value_array);
-  init_date(&(*document), "year", serie->year);
-  BSON_APPEND_DOCUMENT_BEGIN(*document, "director", &director);
-  init_director(&director, serie->director);
-  bson_append_document_end(*document, &director);
-  BSON_APPEND_DOCUMENT_BEGIN(*document, "producer", &producer);
-  init_director(&producer, serie->producer);
-  bson_append_document_end(*document, &producer);
-  BSON_APPEND_DOCUMENT_BEGIN(*document, "studio", &studio);
-  init_studio(&studio, serie->studio);
-  bson_append_document_end(*document, &studio);
-  BSON_APPEND_DOCUMENT_BEGIN(*document, "cast", &cast);
-  init_cast(&cast);
-  bson_append_document_end(*document, &cast);
-  init_content_tag(&(*document), serie->contentTag);
-  init_seasons(&(*document), serie->seasons);
+  if(serie != NULL) {
+    puts("serie_to_bson");
+    init_keys_and_values(&(*document), serie->key_value_array);
+    init_date(&(*document), "year", serie->year);
+    //BSON_APPEND_DOCUMENT_BEGIN(*document, "director", &director);
+    //init_director(&director, serie->director);
+    //bson_append_document_end(*document, &director);
+    //BSON_APPEND_DOCUMENT_BEGIN(*document, "producer", &producer);
+    //init_director(&producer, serie->producer);
+    //bson_append_document_end(*document, &producer);
+    //BSON_APPEND_DOCUMENT_BEGIN(*document, "studio", &studio);
+    //init_studio(&studio, serie->studio);
+    //bson_append_document_end(*document, &studio);
+    //BSON_APPEND_DOCUMENT_BEGIN(*document, "cast", &cast);
+    //init_cast(&cast);
+    //bson_append_document_end(*document, &cast);
+    //init_content_tag(&(*document), serie->contentTag);
+
+    init_seasons(&(*document), serie->seasons);
+  }
   return 0;
 }
 
