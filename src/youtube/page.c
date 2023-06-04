@@ -396,7 +396,7 @@ int get_title_selector(char *title, bson_t **selector) {
 
     fifo_init(fifo);
     if(title != NULL) {
-        get_match(title, "[A-Za-z]+[ ]+[A-Za-z]+", fifo);
+        get_match(title, "[^0-9 \n]+", fifo);
         join_file_element(fifo, &regex, ".*", 1);
         //printf("Regex : %s, %s\n", regex, title);
         if(regex != NULL) {
@@ -489,7 +489,6 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
         }
 
         if(existSeason && !videoExist && season != NULL && get_title_episode(title) < get_title_episode(season->title)) {
-            //printf("test episode : %d, %d\n", get_title_episode(title), get_title_episode(season->title));
             set_season_title(season, title);
             if(season->number == 1)
                 set_key_value_value(&(serie->key_value_array->elements[0]), title);
@@ -504,8 +503,10 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
         get_title_selector(title, &selector);
 
         if(selector != NULL) {
-            update_document(client, (char*)dbName, (char*)collection, selector, document);
-            serie_to_bson(&document, serie);
+            print_serie_bson(selector);
+            printf("title : %s\n", title);
+            //update_document(client, (char*)dbName, (char*)collection, selector, document);
+            //serie_to_bson(&document, serie);
             //print_serie_bson(document);
             //print_serie(serie);
         }
@@ -528,7 +529,7 @@ int create_new_serie(mongoc_client_t *client, struct json_object *video_json, in
         serie_to_bson(&document, serie);
         
         insert_document(client, (char*)dbName, (char*)collection, document);
-        print_serie_bson(document);
+        //print_serie_bson(document);
         //print_serie(serie);
     }
 
@@ -544,7 +545,7 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
     const char* document_name = "serie";
     struct json_object *video_json, *titleObj;
     struct json_object *videos_josn/*, *player_json*/;
-    
+
     if(json != NULL && page != NULL) {
         videos_josn = getObj_rec(json, VIDEO_PAGE_ROOT_FIELD);
         //player_json = getObj_rec(json, VIDEO_PAGE_CHANNEL_ROOT_FIELD);
@@ -559,6 +560,7 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
                     serie = malloc(sizeof(*serie));
                     init_serie_default_parameters(serie);
                     if(exist_title_in_db(page->mongo_client, (char*)title, serie)) {
+                        //puts("Update serie");
                         update_serie(page->mongo_client, serie, video_json, (char*)title);
                     } else {
                         create_new_serie(page->mongo_client, video_json, 0);
