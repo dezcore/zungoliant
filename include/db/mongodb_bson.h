@@ -110,6 +110,7 @@ int set_video_summary(VIDEO *video, char *summary);
 int serie_to_bson(bson_t **document, SERIE *serie);
 int set_video_category(VIDEO *video, char *category);
 int set_season_summary(SEASON *season, char *summary);
+int serie_to_set_bson(bson_t **document, SERIE *serie);
 int free_key_value_array_struct(KEY_VALUE_ARRAY *array); 
 int init_season_struct(SEASON *season, size_t videoLen);
 int exist_season(char *title, struct json_object *serie);

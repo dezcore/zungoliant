@@ -119,6 +119,7 @@ int test_update_document() {
             //print_bson(update);
             bson_free(update);
             bson_free(selector);
+
         }
         free_mongo_client(client);
     }

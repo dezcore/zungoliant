@@ -1018,6 +1018,7 @@ int serie_to_bson(bson_t **document, SERIE *serie) {
 
   if(serie != NULL) {
     puts("serie_to_bson");
+
     init_keys_and_values(&(*document), serie->key_value_array);
     init_date(&(*document), "year", serie->year);
     //BSON_APPEND_DOCUMENT_BEGIN(*document, "director", &director);
@@ -1034,6 +1035,23 @@ int serie_to_bson(bson_t **document, SERIE *serie) {
     //bson_append_document_end(*document, &cast);
     //init_content_tag(&(*document), serie->contentTag);
     init_seasons(&(*document), serie->seasons);
+  }
+  return 0;
+}
+
+int serie_to_set_bson(bson_t **document, SERIE *serie) {
+  bson_t set;
+  bson_t *serie_set;
+  //bson_t director, producer, studio, cast;
+  
+  if(serie != NULL) {
+    puts("serie_to_set_bson");
+    serie_set = &set;
+    BSON_APPEND_DOCUMENT_BEGIN(*document, "$set", &set);
+    init_keys_and_values(&serie_set, serie->key_value_array);
+    init_date(&serie_set, "year", serie->year);
+    init_seasons(&serie_set, serie->seasons);
+    bson_append_document_end(*document, &set);
   }
   return 0;
 }

@@ -503,11 +503,9 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
         get_title_selector(title, &selector);
 
         if(selector != NULL) {
-            print_serie_bson(selector);
-            printf("title : %s\n", title);
-            //update_document(client, (char*)dbName, (char*)collection, selector, document);
-            //serie_to_bson(&document, serie);
-            //print_serie_bson(document);
+            serie_to_set_bson(&document, serie);
+            update_document(client, (char*)dbName, (char*)collection, selector, document);
+            print_serie_bson(document);
             //print_serie(serie);
         }
 
@@ -560,7 +558,6 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
                     serie = malloc(sizeof(*serie));
                     init_serie_default_parameters(serie);
                     if(exist_title_in_db(page->mongo_client, (char*)title, serie)) {
-                        //puts("Update serie");
                         update_serie(page->mongo_client, serie, video_json, (char*)title);
                     } else {
                         create_new_serie(page->mongo_client, video_json, 0);
