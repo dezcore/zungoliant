@@ -561,7 +561,7 @@ int resize_season_array_struct(SEASON_ARRAY *array, size_t length,  size_t video
 
   if(array != NULL && array->length < length) {
     elements = (SEASON*) realloc(array->elements, length * sizeof(*array->elements));
-    
+
     if(elements != NULL) {
       for(int i = array->length; i < length; i++) {
         init_season_struct(&(elements[i]), 1);
@@ -709,7 +709,6 @@ int free_key_value(KEY_VALUE *key_value) {
 
 int init_serie_default_parameters(SERIE *serie) {
   if(serie != NULL) {
-    serie->id =(char*) calloc(1, sizeof(char));
     serie->year =(char*) calloc(1, sizeof(char));
     serie->director = malloc(sizeof(*serie->director));
     serie->producer = malloc(sizeof(*serie->producer));
@@ -731,7 +730,6 @@ int init_serie_default_parameters(SERIE *serie) {
 
 int free_serie(SERIE *serie) {
   if(serie != NULL) {
-    free(serie->id);
     free(serie->year);
     free_director(serie->director);
     free_director(serie->producer);
@@ -758,7 +756,6 @@ int set_serie_default_parameters(SERIE *serie, int numb_of_keys,  int seasons,  
 
 int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes, int content_tags) {
   if(serie != NULL) {
-    serie->id = (char*) malloc(sizeof(char));
     serie->year = (char*) malloc(sizeof(char));
     serie->director = malloc(sizeof(*serie->director));
     serie->producer = malloc(sizeof(*serie->producer));
@@ -790,20 +787,6 @@ int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_se
   return 0;
 }
 
-int set_serie_id(SERIE *serie, char *id) {
-  char *new_id;
-
-  if(serie != NULL && id != NULL) {
-    new_id = (char*) realloc(serie->id, (strlen(id)+1) * sizeof(char));
-    if(new_id != NULL) {
-      serie->id = new_id;
-      sprintf(serie->id, "%s", id);
-    }
-  }
-
-  return 0;
-}
-
 int set_serie_year(SERIE *serie, char *year) {
   char *new_year;
 
@@ -821,7 +804,6 @@ int set_serie_year(SERIE *serie, char *year) {
 int print_serie(SERIE *serie) {
   if(serie != NULL) {
     printf("\"Serie\" : {\n");
-    printf("\tId : %s,\n", serie->id);
     printf("\tYear : %s,\n", serie->year);
     print_director(serie->director, "\t", "\t\t");
     print_director(serie->producer,  "\t", "\t\t");
@@ -1078,17 +1060,6 @@ int deserialize_year(SERIE *serie, struct json_object *year) {
   return 0;
 }
 
-int deserialize_id(SERIE *serie, struct json_object *id_json) {
-  const char *id;
-
-  if(serie != NULL && id_json != NULL && json_object_get_type(id_json) == json_type_string) {
-    id = json_object_get_string(id_json);
-    set_serie_id(serie, (char*)id);
-    //printf("ID %s\n", id);
-  }
-  return 0;
-}
-
 int deserialize_cast(struct json_object *cast) {
   if(cast != NULL) {
     printf("Cast : %s\n", json_object_get_string(cast));
@@ -1236,15 +1207,15 @@ int deserialize_season(SEASON *season, struct json_object *season_json) {
   if(season != NULL && season_json != NULL) {
     titleObj = json_object_object_get(season_json, "title");
     summaryObj = json_object_object_get(season_json, "summary");
-    numberObj = json_object_object_get(season_json, "number");
+    numberObj =  getObj_rec(season_json, "/number/$numberInt");
     dateObj = json_object_object_get(season_json, "date");
     videosObj = json_object_object_get(season_json, "videos");
 
     set_season_title(season,(char*)json_object_get_string(titleObj));
     set_season_summary(season, (char*)json_object_get_string(summaryObj));
     season->number = json_object_get_int(numberObj);
-    
     date = deserialize_date(dateObj);
+
     if(date != NULL)
       set_season_date(season, date);
     //printf("NUMBER : %ld\n", json_object_get_int(numberObj));
@@ -1343,7 +1314,6 @@ int bson_to_serie(SERIE *serie, bson_t *document) {
     set_serie_parameters(serie_json, serie, 3);
 
     deserialize_year(serie, getObj_rec(serie_json, "/year"));
-    deserialize_id(serie, getObj_rec(serie_json, "/_id/$oid"));
     deserialize_bykey(serie->key_value_array, serie_json, "title", 0);
     deserialize_bykey(serie->key_value_array, serie_json, "img", 1);
     deserialize_bykey(serie->key_value_array, serie_json, "viewCount", 2);

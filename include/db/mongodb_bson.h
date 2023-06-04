@@ -71,7 +71,6 @@ typedef struct _KEY_VALUE_ARRAY {
 } KEY_VALUE_ARRAY;
 
 typedef struct _SERIE {
-    char *id;
     char *year;
     DIRECTOR *director;
     DIRECTOR *producer;
@@ -114,6 +113,7 @@ int set_season_summary(SEASON *season, char *summary);
 int free_key_value_array_struct(KEY_VALUE_ARRAY *array); 
 int init_season_struct(SEASON *season, size_t videoLen);
 int exist_season(char *title, struct json_object *serie);
+int set_key_value_value(KEY_VALUE *key_value, char *value);
 int print_studio(STUDIO *studio, char *tabs, char *subtabs);
 int save_video(struct json_object *video, const char *title);
 int set_video_censor_rating(VIDEO *video, char *censor_rating);
