@@ -15,10 +15,11 @@ int fifo_init(File *fifo) {
     return 0;
 }
 
-int init_yfile(Yfile **file) {
-    *file = malloc(sizeof(*file));
-    (*file)->size = 0;
-    (*file)->head = NULL;
+int init_yfile(Yfile *file) {
+    if(file != NULL) {
+        file->size = 0;
+        file->head = NULL;
+    }
     return 0;
 }
 
@@ -198,19 +199,22 @@ int freeFile(File *file) {
     return 0;
 }
 
-int free_yfile(Yfile **file) {
-    Ydata * elementToDelete;
-    Ydata * current = (*file)->head;
+int free_yfile(Yfile *file) {
+    Ydata *current;
+    Ydata *elementToDelete;
 
-    while(current != NULL) {
-        printf("current : ");
-        elementToDelete = current;
-        current = current->next;
-        free_ydata(elementToDelete);
+    if(file != NULL) {
+        current = file->head;
+
+        while(current != NULL) {
+            elementToDelete = current;
+            current = current->next;
+            free_ydata(elementToDelete);
+        }
+
+        file->head = NULL;
+        free(file);
     }
-
-    (*file)->head = NULL;
-    free(*file);
     
     return 0;
 }

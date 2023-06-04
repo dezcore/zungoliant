@@ -1,12 +1,8 @@
 #include "./../include/zregex.h"
 
-int init_pattern(PATTERN **pattern) {
-    if(*pattern == NULL)
-        *pattern = malloc(sizeof(*pattern));        
-
-    if(*pattern != NULL)
-        (*pattern)->value = (char*) malloc(sizeof(char*));
-
+int init_pattern(PATTERN *pattern) {      
+    if(pattern != NULL)
+        pattern->value = (char*) malloc(sizeof(char));
     return 0;
 }
 
@@ -47,10 +43,11 @@ int init_patterns(PATTERNS *array, int size) {
     PATTERN *pattern;
 
     if(array != NULL) {
-        array->patterns = malloc(size * sizeof(PATTERN *));
+        array->patterns = malloc(size * sizeof(array->patterns));
         for(int i = 0; i < size; i++) {
             pattern = &(array->patterns[i]);
-            init_pattern(&pattern);
+            pattern = (PATTERN*) malloc(sizeof(*pattern));
+            init_pattern(pattern);
         }
         array->size = size;
     }
@@ -72,7 +69,7 @@ int set_patterns(PATTERNS *array, int size) {
     if(array != NULL) {
         for(int i = 0; i < array->size; i++) {
             pattern = &(array->patterns[i]);
-            init_pattern(&pattern);
+            init_pattern(pattern);
         }
         array->size = size;
     }
@@ -89,15 +86,19 @@ int print_patterns(PATTERNS *array) {
 }
 
 int resize_patterns(PATTERNS *array, int size) {
+    int start = 0;
     PATTERN *new_array, *pattern;
+
     if(array != NULL) {
-        new_array = (PATTERN *) realloc(array->patterns, size * sizeof(PATTERN *));
+        new_array = (PATTERN *) realloc(array->patterns, size * sizeof(array->patterns));
         if(new_array != NULL) {
-            array->patterns = new_array;
-            for(int i = 0; i <  array->size; i++) {
-                pattern = &(array->patterns[i]);
-                init_pattern(&pattern);
+            start = array->size;
+            for(int i = start; i < size; i++) {
+                pattern = &(new_array[i]);
+                pattern = (PATTERN*) malloc(sizeof(*pattern));
+                init_pattern(pattern);
             }
+            array->patterns = new_array;
         }
     }
     return 0;

@@ -24,7 +24,7 @@ typedef struct _Ydata {
 
 typedef struct _Yfile {
     Ydata *head;
-    size_t size;
+    int size;
 } Yfile;
 
 File* init();
@@ -39,8 +39,8 @@ int freeElement(Element *element);
 int displayElement(Element *element);
 
 int free_ydata(Ydata *data);
-int free_yfile(Yfile **file);
-int init_yfile(Yfile **file);
+int free_yfile(Yfile *file);
+int init_yfile(Yfile *file);
 int print_ydata(Ydata *data);
 int print_yfile(Yfile *file);
 size_t y_file_size(Yfile *file);

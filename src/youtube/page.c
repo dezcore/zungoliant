@@ -57,14 +57,11 @@ int set_page_patterns(YPage *page, int type) {
     return 0;
 }
 
-int init_page_pattern_paramters(PAGEPATTERN **pattern) {
-    if(*pattern == NULL)
-        *pattern = malloc(sizeof(*pattern));
-
+int init_page_pattern_paramters(PAGEPATTERN *pattern) {
     if(pattern != NULL) {
-        (*pattern)->url = (char*)malloc(sizeof(char));
-        (*pattern)->regex = (char*)malloc(sizeof(char));
-        (*pattern)->replace = (char*)malloc(sizeof(char));
+        pattern->url = (char*)malloc(sizeof(char));
+        pattern->regex = (char*)malloc(sizeof(char));
+        pattern->replace = (char*)malloc(sizeof(char));
     }
     return 0;
 }
@@ -130,21 +127,27 @@ int free_page_pattern(PAGEPATTERN *pattern) {
     return 0;
 }
 
-int init_yPage(YPage **page) {
-    if(*page == NULL)
-        *page = malloc(sizeof(*page));
+int init_yPage(YPage *page) {
+    PATTERNS *patterns;
+    PAGEPATTERN *page_pattern;
+    mongoc_client_t *mongo_client = NULL;
 
-    if(*page != NULL) {
-        (*page)->type = 0;
-        (*page)->mongo_client = NULL;
-        (*page)->titlesRegex = NULL;
-        (*page)->patterns =  malloc(sizeof(*((*page)->patterns)));
-        (*page)->page_pattern = malloc(sizeof(*((*page)->page_pattern)));
+    if(page != NULL) {
+        patterns = (PATTERNS *)  malloc(sizeof(*patterns));
+        page_pattern = (PAGEPATTERN *) malloc(sizeof(*page_pattern));
 
-        init_page_pattern_paramters(&((*page)->page_pattern));
-        init_patterns((*page)->patterns, DEFAULT_PATTERNS_LEN);
-        init_mongo_client(&((*page)->mongo_client));
+        init_page_pattern_paramters(page_pattern);
+        init_patterns(patterns, DEFAULT_PATTERNS_LEN);
+        init_mongo_client(&mongo_client);
+
+        page->type = 0;
+        page->titlesRegex = NULL;
+        page->patterns = patterns;
+        page->page_pattern = page_pattern;
+        page->mongo_client = mongo_client;
+        
     }
+
     return 0;
 }
 
@@ -539,11 +542,9 @@ int create_new_serie(mongoc_client_t *client, struct json_object *video_json, in
 int save_youtube_page_data(struct json_object *json, YPage *page) {
     const char *title;
     SERIE *serie = NULL;
-    const char* db_name =  "maboke";
-    const char* document_name = "serie";
     struct json_object *video_json, *titleObj;
     struct json_object *videos_josn/*, *player_json*/;
-
+    
     if(json != NULL && page != NULL) {
         videos_josn = getObj_rec(json, VIDEO_PAGE_ROOT_FIELD);
         //player_json = getObj_rec(json, VIDEO_PAGE_CHANNEL_ROOT_FIELD);

@@ -22,7 +22,7 @@ typedef struct _PATTERNS {
 
 int free_pattern(PATTERN *pattern);
 int free_patterns(PATTERNS *array);
-int init_pattern(PATTERN **pattern);
+int init_pattern(PATTERN *pattern);
 int print_pattern(PATTERN *pattern);
 int print_patterns(PATTERNS *patterns);
 int search(char *filePath, char *expression);
