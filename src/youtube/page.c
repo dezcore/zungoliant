@@ -33,13 +33,10 @@ int extract_htmlpagedata(char *html_file_path, char *output_file_path, YPage *pa
     return 0;
 }
 
-int set_page_titlesRegex(STR_ARRAY **titlesRegex, char *filePath) {
-    *titlesRegex = NULL;
-
-    if(filePath != NULL) {
-        init_file_to_array(filePath, &(*titlesRegex));
+int set_page_titlesRegex(STR_ARRAY *titlesRegex, char *filePath) {
+    if(titlesRegex != NULL && filePath != NULL) {
+        init_file_to_array(filePath, titlesRegex);
     }
-
     return 0;
 }
 
@@ -129,11 +126,13 @@ int free_page_pattern(PAGEPATTERN *pattern) {
 
 int init_yPage(YPage *page) {
     PATTERNS *patterns;
+    STR_ARRAY *titlesRegex;
     PAGEPATTERN *page_pattern;
     mongoc_client_t *mongo_client = NULL;
 
     if(page != NULL) {
         patterns = (PATTERNS *)  malloc(sizeof(*patterns));
+        titlesRegex = (STR_ARRAY *)  malloc(sizeof(*titlesRegex));
         page_pattern = (PAGEPATTERN *) malloc(sizeof(*page_pattern));
 
         init_page_pattern_paramters(page_pattern);
@@ -141,8 +140,8 @@ int init_yPage(YPage *page) {
         init_mongo_client(&mongo_client);
 
         page->type = 0;
-        page->titlesRegex = NULL;
         page->patterns = patterns;
+        page->titlesRegex = titlesRegex;
         page->page_pattern = page_pattern;
         page->mongo_client = mongo_client;
         
@@ -159,7 +158,7 @@ int set_yPage(YPage *page, int type, char *url, char *replace, char *titlesRegex
         set_page_pattern_replace(page->page_pattern, replace);
         set_page_pattern_url(page->page_pattern, url);
         set_page_pattern_regex(page->page_pattern, (char*)regex);
-        set_page_titlesRegex(&(page->titlesRegex), titlesRegexFilePath);
+        set_page_titlesRegex(page->titlesRegex, titlesRegexFilePath);
     }  
     return 0;
 }

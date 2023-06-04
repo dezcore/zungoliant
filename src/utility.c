@@ -42,12 +42,21 @@ int print_str(STR *str, char *tabs, char *subtabs) {
 }
 
 int init_str_array_struct(STR_ARRAY *array, size_t length) {
+    STR *elements = NULL, *element = NULL;
+
     if(array != NULL) {
-        array->elements = malloc(length * sizeof(*array->elements));
+        elements = (STR *) malloc(length * sizeof(*elements));
+        
         for(int i = 0; i < length; i++) {
-          init_str_struct(&(array->elements[i]));
+            element = &(array->elements[i]);
+            element = (STR *) malloc(sizeof(element));
+            init_str_struct(element);
         }
-        array->length = length;
+
+        if(elements != NULL) {
+            array->elements = elements;
+            array->length = length;
+        }
     }
     return 0;
 }

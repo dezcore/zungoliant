@@ -200,11 +200,12 @@ int init_bot_pages(YPage **page, YPage **page1) {
 
         set_yPage(p, 0,  "", " ", (char*)titles_regex);
         set_yPage(p1, 1,  "", " ", (char*)titles_regex);
+        //set_yPage(YPage *page, int type, char *url, char *replace, char *titlesRegexFilePath)
 
         *page = p;
         *page1 = p1;
     }
-    
+
     return 0;
 }
 

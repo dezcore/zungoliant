@@ -189,7 +189,7 @@ int fileToFifo(char *filePath, File *file) {
     return 0;
 }
 
-int fileToArray(char *filePath, STR_ARRAY **array) {
+int fileToArray(char *filePath, STR_ARRAY *array) {
     int cpt = 0;
     File *fifo = NULL;
     Element *element = NULL;
@@ -197,14 +197,12 @@ int fileToArray(char *filePath, STR_ARRAY **array) {
 
     if(fifo != NULL) {
         fileToFifo(filePath, fifo);
-        *array = malloc(sizeof(*array));
-
-        if(fifo != NULL && *array != NULL) { 
-            init_str_array_struct(*array, fifo->size);
+        if(fifo != NULL && array != NULL) { 
+            init_str_array_struct(array, fifo->size);
             while(0 < fifo->size) {
                 element = pop(fifo);
                 //displayElement(element);
-                set_str_value(&((*array)->elements[cpt]), element->value);
+                set_str_value(&(array->elements[cpt]), element->value);
                 freeElement(element);
                 element = NULL;
                 cpt++;
@@ -265,12 +263,12 @@ int init_urls(File **urls_fifo,  char **urlsFileSrc) {
     return 0;
 }
 
-int init_file_to_array(char *filePath, STR_ARRAY **array) {
+int init_file_to_array(char *filePath, STR_ARRAY *array) {
     char *file =  NULL;
     get_pwd(&file, filePath);
-    
-    if(file != NULL) {
-        fileToArray(file, &(*array));
+
+    if(file != NULL && array != NULL) {
+        fileToArray(file, array);
         free(file);
     }
 
