@@ -43,6 +43,7 @@ int free_str_array_struct(STR_ARRAY *array);
 int free_str_array_struct(STR_ARRAY *array);
 int timestamp_to_utc(char *date, char **res);
 int print_str(STR *str, char *tabs, char *subtabs);
+int init_default_str_array_struct(STR_ARRAY *array);
 int get_match(char *str, char *pattern,  File *fifo);
 int get_str_match(char *str, char *pattern, char **match);
 int init_str_array_struct(STR_ARRAY *array, size_t length);

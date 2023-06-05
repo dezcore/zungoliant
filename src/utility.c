@@ -41,21 +41,23 @@ int print_str(STR *str, char *tabs, char *subtabs) {
   return 0;
 }
 
-int init_str_array_struct(STR_ARRAY *array, size_t length) {
-    STR *elements = NULL, *element = NULL;
-
+int init_default_str_array_struct(STR_ARRAY *array) {
     if(array != NULL) {
-        elements = (STR *) malloc(length * sizeof(*elements));
-        
-        for(int i = 0; i < length; i++) {
-            element = &(array->elements[i]);
-            element = (STR *) malloc(sizeof(element));
-            init_str_struct(element);
-        }
+        array->elements = NULL;
+        array->length = 0;
+    }
+    return 0;
+}
 
-        if(elements != NULL) {
+int init_str_array_struct(STR_ARRAY *array, size_t length) {
+    if(array != NULL && array->elements == NULL && array->length == 0) {
+        array->elements = malloc(length * sizeof(array->elements));
+        if(array->elements != NULL) {
+            /*for(int = 0; i < length; i++) {
+                // &(array->elements[i])
+                //init_str_struct(element);
+            }*/
             array->length = length;
-            array->elements = elements;
         }
     }
     return 0;
@@ -63,9 +65,16 @@ int init_str_array_struct(STR_ARRAY *array, size_t length) {
 
 int free_str_array_struct(STR_ARRAY *array) {
   if(array != NULL) {
+    puts("free_str_array_struct");
+    /*if(0 < array->length) {
+        for(int = 0; i < array->length; i++) {
+            // &(array->elements[i])
+            //init_str_struct(element);
+        }
+    }*/
     free(array->elements);
-    free(array);
   }
+  free(array);
   return 0;
 }
 
