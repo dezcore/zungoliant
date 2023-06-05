@@ -191,9 +191,10 @@ int fileToFifo(char *filePath, File *file) {
 
 int fileToArray(char *filePath, STR_ARRAY *array) {
     int cpt = 0;
-    File *fifo = NULL;
     Element *element = NULL;
-    fifo = init();
+    File *fifo = malloc(sizeof(*fifo));
+
+    init_file_struct(fifo);
 
     if(fifo != NULL) {
         fileToFifo(filePath, fifo);

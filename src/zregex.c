@@ -2,7 +2,7 @@
 
 int init_pattern(PATTERN *pattern) {      
     if(pattern != NULL)
-        pattern->value = (char*) malloc(sizeof(char));
+        pattern->value = (char*) malloc(sizeof(*pattern->value));
     return 0;
 }
 
@@ -43,10 +43,9 @@ int init_patterns(PATTERNS *array, int size) {
     PATTERN *pattern;
 
     if(array != NULL) {
-        array->patterns = malloc(size * sizeof(array->patterns));
+        array->patterns = malloc(size * sizeof(*array->patterns));
         for(int i = 0; i < size; i++) {
             pattern = &(array->patterns[i]);
-            pattern = (PATTERN*) malloc(sizeof(*pattern));
             init_pattern(pattern);
         }
         array->size = size;
@@ -56,10 +55,15 @@ int init_patterns(PATTERNS *array, int size) {
 }
 
 int free_patterns(PATTERNS *array) {
+    PATTERN *pattern;
     if(array != NULL) {
-        free(array->patterns);
-        free(array);
+        for(int i = 0; i < array->size; i++) {
+            pattern = &(array->patterns[i]);
+            free(pattern->value);
+        } 
+        free(array->patterns);   
     }
+    free(array);
     return 0;
 }
 

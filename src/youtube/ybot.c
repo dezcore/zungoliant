@@ -1,22 +1,5 @@
 #include "../../include/youtube/ybot.h"
 
-int init_ybot(Ybot *bot) {
-    if(bot != NULL) {
-        bot->urls_fifo = init();
-        init_yfile(bot->data_fifo);
-    }
-
-    return 0;
-}
-
-int free_ybot(Ybot *bot) {
-    if(bot != NULL) {
-        freeFile(bot->urls_fifo);
-        free_yfile(bot->data_fifo);
-        free(bot);
-    }
-    return 0;
-}
 
 int channel_page_home_videos(struct json_object *videosContentObj) {
     unsigned int i;
@@ -188,41 +171,23 @@ int init_bot_env(/*Ybot **bot*/) {
     return 0;
 }
 
-
-int init_bot_pages(YPage **page, YPage **page1) {
-    const char* titles_regex = "/data/file/titles_regex";
-    YPage *p = (YPage *)malloc(sizeof(*p));
-    YPage *p1 = (YPage *)malloc(sizeof(*p1));
-
-    if(p != NULL && p1 != NULL) {
-        init_yPage(p);
-        init_yPage(p1);
-
-        set_yPage(p, 0,  "", " ", (char*)titles_regex);
-        set_yPage(p1, 1,  "", " ", (char*)titles_regex);
-        //set_yPage(YPage *page, int type, char *url, char *replace, char *titlesRegexFilePath)
-
-        *page = p;
-        *page1 = p1;
-    }
-
-    return 0;
-}
-
 int run_ybot() {
     Element *url = NULL; 
     struct json_object *json = NULL;
     Ybot *bot = malloc(sizeof(*bot));
-    YPage *page = NULL, *page1 = NULL;
+    YPage *page1 = NULL;
+    YPage *page = malloc(sizeof(*page));
     char *parseFile = NULL, *urlsFileSrc = NULL;
 
     init_env();
     init_ybot(bot);
+    init_yPage(page);
     init_urls(&bot->urls_fifo, &urlsFileSrc);
+
     get_pwd(&parseFile, PARSE_FILE_PATH);
-    init_bot_pages(&page, &page1);
-   
-    if(urlsFileSrc != NULL && page != NULL) {
+    //init_bot_pages(&page, &page1);
+
+    /*if(urlsFileSrc != NULL && page != NULL) {
         while(0 < bot->urls_fifo->size) {
             url = pop(bot->urls_fifo);
             if(url != NULL) {
@@ -237,12 +202,52 @@ int run_ybot() {
                 //url = NULL;
             }
         }
-    }
+    }*/
 
     free(parseFile);
     free(urlsFileSrc);
     free_yPage(page);
     free_yPage(page1);
     free_ybot(bot);
+    return 0;
+}
+
+/*int init_bot_pages(YPage **page, YPage **page1) {
+    const char* titles_regex = "/data/file/titles_regex";
+    YPage *p = (YPage *)malloc(sizeof(*p));
+    YPage *p1 = (YPage *)malloc(sizeof(*p1));
+
+    if(p != NULL && p1 != NULL) {
+        init_yPage(p);
+        //init_yPage(p1);
+        puts("init_pages");
+        //set_yPage(p, 0,  "", " ", (char*)titles_regex);
+        //set_yPage(p1, 1,  "", " ", (char*)titles_regex);
+        //set_yPage(YPage *page, int type, char *url, char *replace, char *titlesRegexFilePath)
+
+        *page = p;
+        //*page1 = p1;
+    }
+
+    return 0;
+}*/
+
+int init_ybot(Ybot *bot) {
+    if(bot != NULL) {
+        bot->urls_fifo = malloc(sizeof(*bot->urls_fifo));        
+        bot->data_fifo = malloc(sizeof(*bot->data_fifo));
+
+        init_yfile(bot->data_fifo);
+        init_file_struct(bot->urls_fifo);
+    }
+    return 0;
+}
+
+int free_ybot(Ybot *bot) {
+    if(bot != NULL) {
+        freeFile(bot->urls_fifo);
+        free_yfile(bot->data_fifo);
+    }
+    free(bot);
     return 0;
 }

@@ -3,7 +3,6 @@ FROM dez28/zungoliantenv as base
 WORKDIR /zungoliant
 COPY . .
 
-RUN sudo apt-get install -y valgrind
 #MakeFile
 RUN make clean
 

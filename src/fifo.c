@@ -1,10 +1,11 @@
 #include "./../include/fifo.h"
 
-File* init() {
-    File *file = malloc(sizeof(*file));
-    file->size = 0;
-    file->head = NULL;
-    return file;
+int init_file_struct(File *file) {
+    if(file != NULL) {
+        file->size = 0;
+        file->head = NULL;
+    }
+    return 0;
 }
 
 int fifo_init(File *fifo) {

@@ -125,28 +125,41 @@ int free_page_pattern(PAGEPATTERN *pattern) {
 }
 
 int init_yPage(YPage *page) {
-    PATTERNS *patterns;
-    STR_ARRAY *titlesRegex;
-    PAGEPATTERN *page_pattern;
-    mongoc_client_t *mongo_client = NULL;
+    //PAGEPATTERN *page_pattern;
+    //mongoc_client_t *mongo_client = NULL;
 
     if(page != NULL) {
-        patterns = (PATTERNS *)  malloc(sizeof(*patterns));
-        titlesRegex = (STR_ARRAY *)  malloc(sizeof(*titlesRegex));
-        page_pattern = (PAGEPATTERN *) malloc(sizeof(*page_pattern));
-
-        init_page_pattern_paramters(page_pattern);
-        init_patterns(patterns, DEFAULT_PATTERNS_LEN);
-        init_mongo_client(&mongo_client);
-
+        puts("init_yPage");
         page->type = 0;
-        page->patterns = patterns;
-        page->titlesRegex = titlesRegex;
-        page->page_pattern = page_pattern;
-        page->mongo_client = mongo_client;
+        page->mongo_client = NULL;
+        page->patterns = malloc(sizeof(*page->patterns));
+        //page->titlesRegex = malloc(sizeof(*page->titlesRegex));
         
+        init_patterns(page->patterns, DEFAULT_PATTERNS_LEN);
+
+        //page_pattern = (PAGEPATTERN *) malloc(sizeof(*page_pattern));
+
+        //init_page_pattern_paramters(page_pattern);
+        //init_mongo_client(&mongo_client);
+
+        //page->page_pattern = page_pattern;
+        //page->mongo_client = mongo_client;  
     }
 
+    return 0;
+}
+
+int free_yPage(YPage *page) {
+    if(page != NULL) {
+        puts("free_yPage");
+        free_patterns(page->patterns);
+        /*
+        free_page_pattern(page->page_pattern);
+        free_str_array_struct(page->titlesRegex);
+        free_mongo_client(page->mongo_client);
+        mongoc_cleanup();*/
+    }
+    free(page);
     return 0;
 }
 
@@ -160,18 +173,6 @@ int set_yPage(YPage *page, int type, char *url, char *replace, char *titlesRegex
         set_page_pattern_regex(page->page_pattern, (char*)regex);
         set_page_titlesRegex(page->titlesRegex, titlesRegexFilePath);
     }  
-    return 0;
-}
-
-int free_yPage(YPage *page) {
-    if(page != NULL) {
-        free_patterns(page->patterns);
-        free_page_pattern(page->page_pattern);
-        free_str_array_struct(page->titlesRegex);
-        free_mongo_client(page->mongo_client);
-        mongoc_cleanup();
-        free(page);
-    }
     return 0;
 }
 
