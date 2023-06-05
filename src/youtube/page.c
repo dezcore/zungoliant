@@ -126,7 +126,6 @@ int free_page_pattern(PAGEPATTERN *pattern) {
 
 int init_yPage(YPage *page) {
     //PAGEPATTERN *page_pattern;
-    //mongoc_client_t *mongo_client = NULL;
 
     if(page != NULL) {
         puts("init_yPage");
@@ -134,16 +133,13 @@ int init_yPage(YPage *page) {
         page->mongo_client = NULL;
         page->patterns = malloc(sizeof(*page->patterns));
         //page->titlesRegex = malloc(sizeof(*page->titlesRegex));
-        
+
+        init_mongo_client(&(page->mongo_client));
         init_patterns(page->patterns, DEFAULT_PATTERNS_LEN);
 
         //page_pattern = (PAGEPATTERN *) malloc(sizeof(*page_pattern));
-
         //init_page_pattern_paramters(page_pattern);
-        //init_mongo_client(&mongo_client);
-
         //page->page_pattern = page_pattern;
-        //page->mongo_client = mongo_client;  
     }
 
     return 0;
@@ -153,10 +149,12 @@ int free_yPage(YPage *page) {
     if(page != NULL) {
         puts("free_yPage");
         free_patterns(page->patterns);
+        free_mongo_client(page->mongo_client);
+
         /*
         free_page_pattern(page->page_pattern);
         free_str_array_struct(page->titlesRegex);
-        free_mongo_client(page->mongo_client);
+       
         mongoc_cleanup();*/
     }
     free(page);

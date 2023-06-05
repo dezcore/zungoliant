@@ -242,7 +242,9 @@ int init_mongo_client(mongoc_client_t **client) {
 
 int free_mongo_client(mongoc_client_t *client) {
   //Perform Cleanup.
-  mongoc_client_destroy(client);
-  mongoc_cleanup();
+  if(client != NULL) {
+    mongoc_client_destroy(client);
+    mongoc_cleanup();
+  }
   return 0;
 }
