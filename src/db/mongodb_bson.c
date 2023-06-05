@@ -272,6 +272,7 @@ int init_video_struct(VIDEO *video) {
 int set_video_title(VIDEO *video, char *title) {
   char *new_title;
   if(video != NULL && title != NULL) {
+    printf("len : %ld\n", strlen(title));
     new_title = (char*) realloc(video->title, (strlen(title)+1) * sizeof(char));
     if(new_title != NULL) {
       video->title = new_title;
@@ -377,15 +378,18 @@ int free_video_struct(VIDEO *video) {
 }
 
 int init_video_array_struct(VIDEO_ARRAY *array, size_t length) {
-    if(array != NULL) {
-        array->elements = malloc(length * sizeof(*array->elements));
-        for(int i = 0; i < length; i++) {
-          init_video_struct(&(array->elements[i]));
-        }
-        array->length = length;
+  VIDEO *video;
+  if(array != NULL) {
+    array->elements = malloc(length * sizeof(*array->elements));
+    for(int i = 0; i < length; i++) {
+      video = &(array->elements[i]);
+      video = (VIDEO *) malloc(sizeof(*video));
+      init_video_struct(video);
     }
+    array->length = length;
+  }
 
-    return 0;
+  return 0;
 }
 
 int set_video(VIDEO *video, char *title, char *category, char *summary, char *url, char *length, char *censor_rating) {
@@ -441,10 +445,16 @@ int print_array_video(VIDEO_ARRAY *array, char *tabs, char* subtabs) {
 }
 
 int init_season_struct(SEASON *season, size_t videoLen) {
+  char *title, *date, *summary;
+
   if(season != NULL) {
-    season->title = (char*)malloc(sizeof(char));
-    season->date = (char*)malloc(sizeof(char));
-    season->summary = (char*)malloc(sizeof(char));
+    title = (char*)malloc(sizeof(*title));
+    date = (char*)malloc(sizeof(*date));
+    summary = (char*)malloc(sizeof(*summary));
+
+    season->title = title;
+    season->date = date;
+    season->summary = summary;
     season->number = 0;
     season->videos =  malloc(sizeof(*season->videos));
     if(season->videos != NULL) {
@@ -492,6 +502,7 @@ int set_season_date(SEASON *season, char *date) {
 int set_season_summary(SEASON *season, char *summary) {
   char *new_summary;
   if(season != NULL && summary != NULL) {
+    printf("summary : %s\n", season->summary);
     new_summary = (char*) realloc(season->summary, (strlen(summary)+1) * sizeof(char));
     if(new_summary != NULL) {
       season->summary = new_summary;
@@ -545,14 +556,16 @@ int print_season(SEASON *season, char *tabs, char *videos_tabs, char *videos_sub
 }
 
 int init_season_array_struct(SEASON_ARRAY *array, size_t length, size_t videosLen) {
+    SEASON *season;
     if(array != NULL) {
         array->elements = malloc(length * sizeof(*array->elements));
         for(int i = 0; i < length; i++) {
-          init_season_struct(&(array->elements[i]), videosLen);
+          season = &(array->elements[i]);
+          season = (SEASON *) malloc(sizeof(*season));
+          init_season_struct(season, videosLen);
         }
         array->length = length;
     }
-
     return 0;
 }
 
@@ -817,12 +830,13 @@ int print_serie(SERIE *serie) {
 }
 
 int init_date(bson_t **bson, char *field, char *str_date) {
-  STR_ARRAY *datePartArray = NULL;
-  STR_ARRAY *hoursPartArray = NULL;
+  STR_ARRAY *datePartArray = (STR_ARRAY *) malloc(sizeof(*datePartArray));
+  STR_ARRAY *hoursPartArray = (STR_ARRAY *) malloc(sizeof(*hoursPartArray));
   struct tm year = { 0 };
 
-  parseDate(str_date, "[0-9]{2}:[0-9]{2}:[0-9]{2}", "[0-9]{2}", &hoursPartArray);
   if(hoursPartArray != NULL) {
+    parseDate(str_date, "[0-9]{2}:[0-9]{2}:[0-9]{2}", "[0-9]{2}", hoursPartArray);
+    print_array_str(hoursPartArray,"","\t", "\t\t", "\t\t\t");
     year.tm_hour = atoi(hoursPartArray->elements[0].value) - 1; 
     year.tm_min = atoi(hoursPartArray->elements[1].value) - 1; 
     year.tm_sec = atoi(hoursPartArray->elements[2].value); 
@@ -830,8 +844,8 @@ int init_date(bson_t **bson, char *field, char *str_date) {
     free_str_array_struct(hoursPartArray);
   }
 
-  parseDate(str_date, "[0-9]{4}-[0-9]{2}-[0-9]{2}", "[0-9]+", &datePartArray);
   if(datePartArray != NULL) {
+    parseDate(str_date, "[0-9]{4}-[0-9]{2}-[0-9]{2}", "[0-9]+", datePartArray);
     year.tm_year = atoi(datePartArray->elements[0].value) - 1900;  /* years are 1900-based */
     year.tm_mon = atoi(datePartArray->elements[1].value) - 1;  /* months are 0-based */
     year.tm_mday = atoi(datePartArray->elements[2].value);

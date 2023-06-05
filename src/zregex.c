@@ -170,19 +170,29 @@ int get_nested_json(char **str, const char *pattern) {
 int cut_pattern(char **str, int start, int end, char* replace) {
     char *res;
     int len = strlen(*str);
+    int endSize = 0;
     char *startSubBuff = NULL, *endSubBuff = NULL;
 
     if(*str != NULL) {
         len = strlen(*str);
         startSubBuff = (char*) calloc((start + 1), sizeof(char));
         endSubBuff = (char*) calloc((len + 1), sizeof(char));
-
+        printf("test cut_pattern : %d, %d, %ld\n", start, end, strlen(*str));
         if(startSubBuff != NULL && endSubBuff != NULL) {
-            memcpy(startSubBuff, &(*str)[0], start);    
-            startSubBuff[start] = '\0';
-            memcpy(endSubBuff, &(*str)[end], len);
-            endSubBuff[len] = '\0';
-            res = (char*) calloc(len, sizeof(char));
+            endSize = len-end;
+
+            strncpy(startSubBuff,  &(*str)[0], start);
+            endSubBuff[start] = '\0';
+
+            //memcpy(startSubBuff, &(*str)[0], start);    
+            //startSubBuff[start] = '\0';
+            
+            strncpy(endSubBuff, &(*str)[end], endSize);
+            endSubBuff[endSize] = '\0';
+
+            //memcpy(endSubBuff, &(*str)[end], len);
+            //endSubBuff[len] = '\0';
+            res = (char*) calloc((strlen(startSubBuff) + strlen(replace) + strlen(endSubBuff) + 1), sizeof(char));
 
             if(res != NULL) {
                 strcat(res, startSubBuff);
@@ -214,6 +224,7 @@ int replace_substring(char **str, const char *pattern, char* replace) {
         if(!regexec(&reg, *str, nmatch + 1, m, 0)) {
             start = m[0].rm_so;
             end = m[0].rm_eo;
+            printf("Pattern : %s, %s\n", pattern, replace);
             cut_pattern(&(*str), start, end, replace);
         }
 

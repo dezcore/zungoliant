@@ -2,7 +2,7 @@
 
 int init_str_struct(STR *str) {
   if(str != NULL) {
-    str->value =(char*) malloc(sizeof(char));
+    str->value =(char*) malloc(sizeof(*str->value));
   }
   return 0;
 }
@@ -54,8 +54,8 @@ int init_str_array_struct(STR_ARRAY *array, size_t length) {
         }
 
         if(elements != NULL) {
-            array->elements = elements;
             array->length = length;
+            array->elements = elements;
         }
     }
     return 0;
@@ -316,17 +316,16 @@ int join_file_element(File *file, char **str, char *delimiter, int start_delimit
     return 0;
 }
 
-int fifoToArray(File *fifo, STR_ARRAY **array) {
+int fifoToArray(File *fifo, STR_ARRAY *array) {
     int cpt = 0;
     Element *current;
-    *array = malloc(sizeof(*array));
 
-    if(fifo != NULL && *array != NULL) {
+    if(fifo != NULL && array != NULL) {
         current = fifo->head;
-        init_str_array_struct(*array, fifo->size);
+        init_str_array_struct(array, fifo->size);
 
         while(current != NULL) {
-            set_str_value(&((*array)->elements[cpt]), current->value);
+            set_str_value(&(array->elements[cpt]), current->value);
             cpt++;
             current = current->next;
         }
@@ -335,7 +334,7 @@ int fifoToArray(File *fifo, STR_ARRAY **array) {
     return 0;
 }
 
-int parseDate(char *str_date, char *datePartRegex, char *datePartDelimiter, STR_ARRAY **array) {
+int parseDate(char *str_date, char *datePartRegex, char *datePartDelimiter, STR_ARRAY *array) {
     char *part = NULL;
     File *fifo = malloc(sizeof(*fifo));
     get_str_match(str_date, datePartRegex, &part); 
@@ -345,7 +344,7 @@ int parseDate(char *str_date, char *datePartRegex, char *datePartDelimiter, STR_
         get_match(part, datePartDelimiter, fifo);
         if(fifo != NULL) {
             //display(fifo);
-            fifoToArray(fifo, &(*array));
+            fifoToArray(fifo, array);
             freeFile(fifo);
         }
         free(part);
@@ -371,7 +370,7 @@ int timestamp_to_utc(char *date, char **res) {
     struct tm * time;
     char *month, *day, *hour, *min, *sec;
 
-    *res = malloc(20 *sizeof(char));
+    *res = (char*) malloc(100 *sizeof(char));
 
     if(date != NULL) {
         time_long = strtol(date, &eptr, 10)/1000;
