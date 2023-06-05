@@ -56,9 +56,9 @@ int set_page_patterns(YPage *page, int type) {
 
 int init_page_pattern_paramters(PAGEPATTERN *pattern) {
     if(pattern != NULL) {
-        pattern->url = (char*)malloc(sizeof(char));
-        pattern->regex = (char*)malloc(sizeof(char));
-        pattern->replace = (char*)malloc(sizeof(char));
+        pattern->url = (char*)malloc(sizeof(*pattern->url));
+        pattern->regex = (char*)malloc(sizeof(*pattern->regex));
+        pattern->replace = (char*)malloc(sizeof(*pattern->replace));
     }
     return 0;
 }
@@ -119,27 +119,23 @@ int free_page_pattern(PAGEPATTERN *pattern) {
         free(pattern->url);
         free(pattern->regex);
         free(pattern->replace);
-        free(pattern);
     }
+    free(pattern);
     return 0;
 }
 
 int init_yPage(YPage *page) {
-    //PAGEPATTERN *page_pattern;
-
     if(page != NULL) {
         puts("init_yPage");
         page->type = 0;
         page->mongo_client = NULL;
         page->patterns = malloc(sizeof(*page->patterns));
+        page->page_pattern = malloc(sizeof(*page->page_pattern));
         //page->titlesRegex = malloc(sizeof(*page->titlesRegex));
 
         init_mongo_client(&(page->mongo_client));
+        init_page_pattern_paramters(page->page_pattern);
         init_patterns(page->patterns, DEFAULT_PATTERNS_LEN);
-
-        //page_pattern = (PAGEPATTERN *) malloc(sizeof(*page_pattern));
-        //init_page_pattern_paramters(page_pattern);
-        //page->page_pattern = page_pattern;
     }
 
     return 0;
@@ -148,14 +144,12 @@ int init_yPage(YPage *page) {
 int free_yPage(YPage *page) {
     if(page != NULL) {
         puts("free_yPage");
+        mongoc_cleanup();
         free_patterns(page->patterns);
-        free_mongo_client(page->mongo_client);
-
-        /*
         free_page_pattern(page->page_pattern);
-        free_str_array_struct(page->titlesRegex);
-       
-        mongoc_cleanup();*/
+        free_mongo_client(page->mongo_client);
+        /*
+        free_str_array_struct(page->titlesRegex);*/
     }
     free(page);
     return 0;
