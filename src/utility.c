@@ -171,8 +171,8 @@ int match_pattern(char *str, char *pattern) {
         if(!regexec(&reg, str, nmatch + 1, m, 0)) {
             match = 1;
         }
+        regfree(&reg);
     }
-
     return match;
 }
 

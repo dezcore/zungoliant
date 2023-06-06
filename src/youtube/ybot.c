@@ -178,23 +178,24 @@ int run_ybot() {
 
     get_pwd(&parseFile, PARSE_FILE_PATH);
     set_yPage(page, 0,  "", " ", (char*)titles_regex);
+    set_yPage(page1, 0,  "", " ", (char*)titles_regex);
 
-    /*if(urlsFileSrc != NULL && page != NULL) {
+    if(urlsFileSrc != NULL && page != NULL) {
         while(0 < bot->urls_fifo->size) {
             url = pop(bot->urls_fifo);
             if(url != NULL) {
                 if(match_pattern(url->value, ".+watch\\?v.*")) {//VIDEOPAGE
-                    videopage_handler(page, url->value, parseFile); 
-                } else if(match_pattern(url->value, "@.+")) {// Channel page
+                    printf("Url : %s\n", url->value);
+                    //videopage_handler(page, url->value, parseFile); 
+                } /*else if(match_pattern(url->value, "@.+")) {// Channel page
                     channelpage_handler(&bot, page1 , &json, url->value, parseFile);
-                }
+                }*/
                 //print_yfile(bot->data_fifo);
-                json_object_put(json);
+                //json_object_put(json);
                 freeElement(url);
-                //url = NULL;
             }
         }
-    }*/
+    }
 
     free(parseFile);
     free(urlsFileSrc);

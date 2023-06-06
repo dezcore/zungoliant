@@ -67,11 +67,12 @@ int set_page_pattern_url(PAGEPATTERN  *pattern, char *url) {
     char *new_url;
 
     if(pattern != NULL && url != NULL) {
-        new_url = (char*) realloc(pattern->url, (strlen(url)+1) * sizeof(char));
+        puts("set_page_pattern_url");
+        /*new_url = (char*) realloc(pattern->url, (strlen(url)+1) * sizeof(char));
         if(new_url != NULL) {
             pattern->url = new_url;
             sprintf(pattern->url, "%s", url);
-        }
+        }*/
     }
     return 0;
 }
@@ -565,15 +566,15 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
     return 0;
 }
 
-
 int videopage_handler(YPage *page, char *url, char* parseFile) {
     struct json_object *json = NULL;
-    if(url != NULL) {
-        printf("VideoPage : %s\n", url);
-        set_page_pattern_url(page->page_pattern, url);
-        downloadPage_and_replace(parseFile, page);
-        file_tojson(parseFile, &json);
-        save_youtube_page_data(json, page);
+
+    if(page != NULL && url != NULL && parseFile != NULL) {
+        //set_page_pattern_url(page->page_pattern, url);
+        puts("videopage_handler");
+        //downloadPage_and_replace(parseFile, page);
+        //file_tojson(parseFile, &json);
+        //save_youtube_page_data(json, page);
     }
 
     json_object_put(json);
