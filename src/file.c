@@ -86,21 +86,28 @@ int load_file(const char* filename,  char **fileContent) {
         exit(EXIT_FAILURE);
     }
 
-    content = (char*)realloc(*fileContent, size + 1);
+    content = (char*) calloc((size + 1), sizeof(char));
 
     if(content == NULL) {
         fprintf(stderr, "Can't allocate mem for html file: %s\n", filename);
         exit(EXIT_FAILURE);
-    }
-
+    } 
+    
     nread = fread(content, 1, size, fh);
 
     if(nread != size) {
         exit(EXIT_FAILURE);
     }
 
-    *fileContent = content;
+    *fileContent = (char*)realloc(*fileContent, (size + 1) * sizeof(char));
 
+    if(*fileContent == NULL) {
+        exit(EXIT_FAILURE);
+    } else {
+        strcpy(*fileContent, content);
+    }
+
+    free(content);
     fclose(fh);
     return 0;
 }

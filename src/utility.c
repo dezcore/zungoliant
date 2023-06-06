@@ -130,12 +130,11 @@ int get_matchIndex(char **str, char *pattern, int *start, int *end, int target) 
 }
 
 int trim(char **str) {
-    int len;
     char *res = NULL;
     int start = -1, end = -1;
+    size_t len = *str != NULL ? strlen(*str) : 0;
 
     if(*str != NULL) {
-        len = strlen(*str);
         res = (char*) calloc(len, sizeof(char));
 
         if(res != NULL) {

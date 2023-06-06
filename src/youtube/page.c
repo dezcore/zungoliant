@@ -2,8 +2,8 @@
 
 int extract_htmlpagedata(char *html_file_path, char *output_file_path, YPage *page) {
     char *parseContentPath = NULL;
-    char *contents = malloc(sizeof(*contents));
-    
+    char *contents = (char*) calloc(2, sizeof(char));
+
     if(page != NULL && html_file_path != NULL && contents != NULL) {
         parseYFile(html_file_path);
         //contents = (char*) malloc(sizeof(char));        
@@ -13,7 +13,6 @@ int extract_htmlpagedata(char *html_file_path, char *output_file_path, YPage *pa
             load_file(parseContentPath, &contents);
             if(contents != NULL) {
                 trim(&contents);
-
                 //if(strcmp(page->page_pattern->regex, "") != 0)
                 //    get_nested_json(&contents, page->page_pattern->regex);
                  
@@ -22,8 +21,8 @@ int extract_htmlpagedata(char *html_file_path, char *output_file_path, YPage *pa
 
                 //appendStrToFile(output_file_path, contents);
             } /*else {
-                printf("Empty content (extract_htmlpagedata)\n");
-            }*/
+            //    printf("Empty content (extract_htmlpagedata)\n");
+            //}*/
         }
     }
 
