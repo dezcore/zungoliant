@@ -181,7 +181,6 @@ int cut_pattern(char **str, int start, int end, char* replace) {
         len = strlen(*str);
         startSubBuff = (char*) calloc((start + 1), sizeof(char));
         endSubBuff = (char*) calloc((len + 1), sizeof(char));
-        printf("test cut_pattern : %d, %d, %ld\n", start, end, strlen(*str));
         if(startSubBuff != NULL && endSubBuff != NULL) {
             endSize = len-end;
 
@@ -228,7 +227,6 @@ int replace_substring(char **str, const char *pattern, char* replace) {
         if(!regexec(&reg, *str, nmatch + 1, m, 0)) {
             start = m[0].rm_so;
             end = m[0].rm_eo;
-            printf("Pattern : %s, %s\n", pattern, replace);
             cut_pattern(&(*str), start, end, replace);
         }
 

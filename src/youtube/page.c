@@ -6,18 +6,17 @@ int extract_htmlpagedata(char *html_file_path, char *output_file_path, YPage *pa
 
     if(page != NULL && html_file_path != NULL && contents != NULL) {
         parseYFile(html_file_path);
-        //contents = (char*) malloc(sizeof(char));        
         get_absolutePath(YINITDATA_FILE_PATH, &parseContentPath);
         
         if(parseContentPath != NULL && output_file_path != NULL) {
             load_file(parseContentPath, &contents);
             if(contents != NULL) {
                 trim(&contents);
-                //if(strcmp(page->page_pattern->regex, "") != 0)
-                //    get_nested_json(&contents, page->page_pattern->regex);
+                if(strcmp(page->page_pattern->regex, "") != 0)
+                    get_nested_json(&contents, page->page_pattern->regex);
                  
-                //if(0 < page->patterns->size)
-                //    replace_all(&contents, page->patterns, page->page_pattern->replace);
+                if(0 < page->patterns->size)
+                    replace_all(&contents, page->patterns, page->page_pattern->replace);
 
                 //appendStrToFile(output_file_path, contents);
             } /*else {
