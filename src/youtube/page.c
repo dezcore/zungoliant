@@ -14,14 +14,14 @@ int extract_htmlpagedata(char *html_file_path, char *output_file_path, YPage *pa
                 trim(&contents);
                 if(strcmp(page->page_pattern->regex, "") != 0)
                     get_nested_json(&contents, page->page_pattern->regex);
-                 
+
                 if(0 < page->patterns->size)
                     replace_all(&contents, page->patterns, page->page_pattern->replace);
 
-                //appendStrToFile(output_file_path, contents);
-            } /*else {
-            //    printf("Empty content (extract_htmlpagedata)\n");
-            //}*/
+                appendStrToFile(output_file_path, contents);
+            } else {
+                printf("Empty content (extract_htmlpagedata)\n");
+            }
         }
     }
 
