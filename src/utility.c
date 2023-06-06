@@ -67,7 +67,6 @@ int init_str_array_struct(STR_ARRAY *array, size_t length) {
 int free_str_array_struct(STR_ARRAY *array) {
     STR *element;
     if(array != NULL) {
-        puts("free_str_array_struct");
         if(0 < array->length) {
             for(int i= 0; i < array->length; i++) {
                 element = &(array->elements[i]);
@@ -126,23 +125,30 @@ int get_matchIndex(char **str, char *pattern, int *start, int *end, int target) 
                 *end = m[0].rm_eo;
         }
     }
-
+    regfree(&reg);
     return 0;
 }
 
-int trim(char ** str) {
-    char *res;
+int trim(char **str) {
+    int len;
+    char *res = NULL;
     int start = -1, end = -1;
-    get_matchIndex(&(*str), "^[ \t]+", &end, &start, 1);
-    get_matchIndex(&(*str), "[ \t]+$", &end, &start, 0);
-    res = (char*) calloc((strlen(*str)), sizeof(char));
 
-    if(start != end && start != -1 && res != NULL) {
-        memcpy(res, &(*str)[start], (end-start));
-        sprintf(*str, "%s", res);
-        free(res);
+    if(*str != NULL) {
+        len = strlen(*str);
+        res = (char*) calloc(len, sizeof(char));
+
+        if(res != NULL) {
+            get_matchIndex(&(*str), "^[ \t]+", &end, &start, 1);
+            get_matchIndex(&(*str), "[ \t]+$", &end, &start, 0);
+
+            if(start != end && start != -1) {
+                memcpy(res, &(*str)[start], (end-start));
+                sprintf(*str, "%s", res);
+            }
+        }
     }
-
+    free(res);
     return 0;
 }
 

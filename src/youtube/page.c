@@ -181,9 +181,9 @@ int downloadPage_and_replace(char *parseContent, YPage *page) {
     char *downloadPageSrc = NULL; 
     get_pwd(&downloadPageSrc, DOWNLOAD_TEST_FILE);
 
-    if(downloadPageSrc != NULL) {
+    if(page != NULL && downloadPageSrc != NULL) {
         downloadPage_bycontains(&(page->page_pattern->url), downloadPageSrc, YINITDATA_VAR);
-        extract_htmlpagedata(downloadPageSrc, parseContent, page);
+        //extract_htmlpagedata(downloadPageSrc, parseContent, page);
         free(downloadPageSrc);
     }
 
@@ -570,12 +570,11 @@ int videopage_handler(YPage *page, char *url, char* parseFile) {
 
     if(page != NULL && url != NULL && parseFile != NULL) {
         set_page_pattern_url(page->page_pattern, url);
-        //downloadPage_and_replace(parseFile, page);
+        downloadPage_and_replace(parseFile, page);
         //file_tojson(parseFile, &json);
         //save_youtube_page_data(json, page);
     }
 
     json_object_put(json);
-
     return 0;
 }
