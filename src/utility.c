@@ -50,13 +50,14 @@ int init_default_str_array_struct(STR_ARRAY *array) {
 }
 
 int init_str_array_struct(STR_ARRAY *array, size_t length) {
+    STR *element;
     if(array != NULL && array->elements == NULL && array->length == 0) {
         array->elements = malloc(length * sizeof(array->elements));
         if(array->elements != NULL) {
-            /*for(int = 0; i < length; i++) {
-                // &(array->elements[i])
-                //init_str_struct(element);
-            }*/
+            for(int i = 0; i < length; i++) {
+                element = &(array->elements[i]);
+                init_str_struct(element);
+            }
             array->length = length;
         }
     }
@@ -64,17 +65,18 @@ int init_str_array_struct(STR_ARRAY *array, size_t length) {
 }
 
 int free_str_array_struct(STR_ARRAY *array) {
-  if(array != NULL) {
-    puts("free_str_array_struct");
-    /*if(0 < array->length) {
-        for(int = 0; i < array->length; i++) {
-            // &(array->elements[i])
-            //init_str_struct(element);
+    STR *element;
+    if(array != NULL) {
+        puts("free_str_array_struct");
+        if(0 < array->length) {
+            for(int i= 0; i < array->length; i++) {
+                element = &(array->elements[i]);
+                free(element->value);
+            }
         }
-    }*/
-    free(array->elements);
-  }
-  free(array);
+        free(array->elements);
+    }
+    free(array);
   return 0;
 }
 

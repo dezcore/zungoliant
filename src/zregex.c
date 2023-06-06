@@ -12,11 +12,11 @@ int set_pattern_value(PATTERN *pattern, char *value) {
     if(pattern != NULL && value != NULL) {
         new_value = (char*) realloc(pattern->value, (strlen(value)+1) * sizeof(char));
         if(new_value != NULL) {
+            sprintf(new_value, "%s", value);
             pattern->value = new_value;
-            sprintf(pattern->value, "%s", value);
         }
     }
-
+    
     return 0;
 }
 

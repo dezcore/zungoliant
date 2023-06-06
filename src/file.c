@@ -198,20 +198,20 @@ int fileToArray(char *filePath, STR_ARRAY *array) {
 
     if(fifo != NULL) {
         fileToFifo(filePath, fifo);
-        if(fifo != NULL && array != NULL) { 
+        if(fifo != NULL && array != NULL) {
             init_str_array_struct(array, fifo->size);
+            puts("fileToArray"); 
             while(0 < fifo->size) {
                 element = pop(fifo);
                 //displayElement(element);
                 set_str_value(&(array->elements[cpt]), element->value);
                 freeElement(element);
-                element = NULL;
                 cpt++;
             }
             freeFile(fifo);
         }
     }
-
+    
     return 0;
 }
 

@@ -44,7 +44,7 @@ int set_page_patterns(YPage *page, int type) {
     PATTERN * pattern;
     char **patterns = type == 0 ? DEFAULT_PATTERNS : CONTENTS_PATTERNS;
 
-    if(page != NULL) {
+    if(page != NULL && 0 < page->patterns->size) {
         for(int i = 0; i < page->patterns->size; i++) {
             pattern = &(page->patterns)->patterns[i];
             set_pattern_value(pattern, patterns[i]);
@@ -95,8 +95,8 @@ int set_page_pattern_replace(PAGEPATTERN  *pattern, char *replace) {
     if(pattern != NULL && replace != NULL) {
         new_replace = (char*) realloc(pattern->replace, (strlen(replace)+1) * sizeof(char));
         if(new_replace != NULL) {
+            sprintf(new_replace, "%s", replace);
             pattern->replace = new_replace;
-            sprintf(pattern->replace, "%s", replace);
         }
     }
 
@@ -126,13 +126,12 @@ int free_page_pattern(PAGEPATTERN *pattern) {
 
 int init_yPage(YPage *page) {
     if(page != NULL) {
-        puts("init_yPage");
         page->type = 0;
         page->mongo_client = NULL;
         page->patterns = malloc(sizeof(*page->patterns));
         page->page_pattern = malloc(sizeof(*page->page_pattern));
         page->titlesRegex = malloc(sizeof(*page->titlesRegex));
-        
+
         init_mongo_client(&(page->mongo_client));
         init_page_pattern_paramters(page->page_pattern);
         init_default_str_array_struct(page->titlesRegex);
@@ -143,7 +142,6 @@ int init_yPage(YPage *page) {
 
 int free_yPage(YPage *page) {
     if(page != NULL) {
-        puts("free_yPage");
         mongoc_cleanup();
         free_patterns(page->patterns);
         free_page_pattern(page->page_pattern);

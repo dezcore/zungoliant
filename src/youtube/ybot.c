@@ -161,31 +161,23 @@ int init_env() {
     return 0;
 }
 
-int init_bot_env(/*Ybot **bot*/) {
-    //char *parseFile = NULL, *urlsFileSrc = NULL;
-    /*init_env();
-    init_ybot(&(*bot));
-    init_urls(&bot->urls_fifo, &urlsFileSrc);
-    get_pwd(&parseFile, PARSE_FILE_PATH);
-    init_bot_pages(&page, &page1);*/
-    return 0;
-}
-
 int run_ybot() {
     Element *url = NULL; 
     struct json_object *json = NULL;
     Ybot *bot = malloc(sizeof(*bot));
-    YPage *page1 = NULL;
     YPage *page = malloc(sizeof(*page));
+    YPage *page1 =  malloc(sizeof(*page1));
     char *parseFile = NULL, *urlsFileSrc = NULL;
+    const char* titles_regex = "/data/file/titles_regex";
 
     init_env();
     init_ybot(bot);
     init_yPage(page);
+    init_yPage(page1);
     init_urls(&bot->urls_fifo, &urlsFileSrc);
 
     get_pwd(&parseFile, PARSE_FILE_PATH);
-    //init_bot_pages(&page, &page1);
+    set_yPage(page, 0,  "", " ", (char*)titles_regex);
 
     /*if(urlsFileSrc != NULL && page != NULL) {
         while(0 < bot->urls_fifo->size) {
