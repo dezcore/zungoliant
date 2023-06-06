@@ -255,8 +255,11 @@ int parseYFile(char *filePath) {
         extract_nodetext(tree, collection);
 
     //release resources
+    //myhtml_collection_clean(collection);
+    myhtml_collection_destroy(collection);
     myhtml_tree_destroy(tree);
     myhtml_destroy(myhtml);
+    free(res.html);
     return 0;
 }
 

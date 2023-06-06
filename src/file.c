@@ -58,10 +58,10 @@ int getfileContents(char **output, char* filename) {
     return 0;
 }
 
-char* load_file(const char* filename,  char *fileContent) {
+int load_file(const char* filename,  char **fileContent) {
     long size;
     size_t nread;
-    //char *fileContent;
+    char *content = NULL;
     FILE *fh = fopen(filename, "rb");
 
     if(fh == NULL) {
@@ -86,22 +86,23 @@ char* load_file(const char* filename,  char *fileContent) {
         exit(EXIT_FAILURE);
     }
 
-    //fileContent = (char*)malloc(size + 1);
-    fileContent = (char*)realloc(fileContent, size + 1);
+    content = (char*)realloc(*fileContent, size + 1);
 
-    if(fileContent == NULL) {
+    if(content == NULL) {
         fprintf(stderr, "Can't allocate mem for html file: %s\n", filename);
         exit(EXIT_FAILURE);
     }
 
-    nread = fread(fileContent, 1, size, fh);
-    
+    nread = fread(content, 1, size, fh);
+
     if(nread != size) {
         exit(EXIT_FAILURE);
     }
 
+    *fileContent = content;
+
     fclose(fh);
-    return fileContent;
+    return 0;
 }
 
 int createFile(char *fileName) {

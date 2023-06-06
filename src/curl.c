@@ -64,7 +64,7 @@ int downloadPage_bycontains(char **url, char *output, char* contains) {
     char *contents = NULL;  
     if(url != NULL && output != NULL) {
         downloadPage(url, output);
-        //getfileContents(&contents, output);
+        getfileContents(&contents, output);
         
         //if(contents != NULL && strstr(contents, contains) == NULL) {
         //    downloadPage_withsystem(*url, output);

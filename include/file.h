@@ -17,5 +17,5 @@ int appendStrToFile(char *fileName, const char* str);
 int init_urls(File **urls_fifo,  char **urlsFileSrc);
 int get_absolutePath(const char *path, char **filePath);
 int init_file_to_array(char *filePath, STR_ARRAY *array);
-char* load_file(const char* filename,  char *fileContent);
+int load_file(const char* filename,  char **fileContent);
 #endif

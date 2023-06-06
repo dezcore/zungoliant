@@ -1,35 +1,34 @@
 #include "./../../include/youtube/page.h"
 
 int extract_htmlpagedata(char *html_file_path, char *output_file_path, YPage *page) {
-    char *contents;
-    char *parseContentPath = NULL; 
-
-    if(html_file_path != NULL) {
+    char *parseContentPath = NULL;
+    char *contents = malloc(sizeof(*contents));
+    
+    if(page != NULL && html_file_path != NULL && contents != NULL) {
         parseYFile(html_file_path);
-        contents = (char*) malloc(sizeof(char));        
+        //contents = (char*) malloc(sizeof(char));        
         get_absolutePath(YINITDATA_FILE_PATH, &parseContentPath);
-
+        
         if(parseContentPath != NULL && output_file_path != NULL) {
-            contents = load_file(parseContentPath, contents);
+            load_file(parseContentPath, &contents);
             if(contents != NULL) {
                 trim(&contents);
-               
-                if(strcmp(page->page_pattern->regex, "") != 0)
-                    get_nested_json(&contents, page->page_pattern->regex);
+
+                //if(strcmp(page->page_pattern->regex, "") != 0)
+                //    get_nested_json(&contents, page->page_pattern->regex);
                  
-                if(0 < page->patterns->size)
-                    replace_all(&contents, page->patterns, page->page_pattern->replace);
+                //if(0 < page->patterns->size)
+                //    replace_all(&contents, page->patterns, page->page_pattern->replace);
 
-                appendStrToFile(output_file_path, contents);
-                free(contents);
-            } else {
+                //appendStrToFile(output_file_path, contents);
+            } /*else {
                 printf("Empty content (extract_htmlpagedata)\n");
-            }
-
-            free(parseContentPath);
+            }*/
         }
     }
 
+    free(contents);
+    free(parseContentPath);
     return 0;
 }
 
@@ -183,7 +182,7 @@ int downloadPage_and_replace(char *parseContent, YPage *page) {
 
     if(page != NULL && downloadPageSrc != NULL) {
         downloadPage_bycontains(&(page->page_pattern->url), downloadPageSrc, YINITDATA_VAR);
-        //extract_htmlpagedata(downloadPageSrc, parseContent, page);
+        extract_htmlpagedata(downloadPageSrc, parseContent, page);
         free(downloadPageSrc);
     }
 
