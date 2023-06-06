@@ -175,7 +175,7 @@ int run_ybot() {
     init_yPage(page);
     init_yPage(page1);
     init_urls(&bot->urls_fifo, &urlsFileSrc);
-
+    
     get_pwd(&parseFile, PARSE_FILE_PATH);
     set_yPage(page, 0,  "", " ", (char*)titles_regex);
     set_yPage(page1, 0,  "", " ", (char*)titles_regex);
@@ -185,8 +185,7 @@ int run_ybot() {
             url = pop(bot->urls_fifo);
             if(url != NULL) {
                 if(match_pattern(url->value, ".+watch\\?v.*")) {//VIDEOPAGE
-                    printf("Url : %s\n", url->value);
-                    //videopage_handler(page, url->value, parseFile); 
+                    videopage_handler(page, url->value, parseFile); 
                 } /*else if(match_pattern(url->value, "@.+")) {// Channel page
                     channelpage_handler(&bot, page1 , &json, url->value, parseFile);
                 }*/

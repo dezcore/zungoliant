@@ -16,7 +16,7 @@ int set_pattern_value(PATTERN *pattern, char *value) {
             pattern->value = new_value;
         }
     }
-    
+
     return 0;
 }
 
@@ -293,7 +293,6 @@ int regex_replace(char **str, const char *pattern, const char *replace) {
     } else {
         printf("Could not compile regex: %s, %s\n", replace, pattern);
     }
-
-
+    regfree(&reg);
     return 0;
 }
