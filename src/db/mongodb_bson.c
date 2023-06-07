@@ -1550,20 +1550,19 @@ int exist_season(char *title, struct json_object *serie) {
 
 int exist_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *documentName, SERIE *serie) {
   int exist = 0;
-
   const bson_t *document;
   mongoc_cursor_t *cursor = NULL;
-
+  
   if(selector != NULL && client != NULL) {
     find_document(client, dbName, documentName, selector, &cursor);
     if(mongoc_cursor_next(cursor, &document)) {
       //print_bson(document);
       bson_to_serie(serie, (bson_t *)document);
       exist = 1;
-    }
-    bson_free(cursor);
+    } 
   }
 
+  bson_free(cursor);
   return exist;
 }
 

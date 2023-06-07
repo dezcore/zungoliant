@@ -380,7 +380,7 @@ int is_matching_title(STR_ARRAY *titlesRegex, char *title) {
 }
 
 int get_title_selector(char *title, bson_t **selector) {
-    bson_t *select = NULL;
+    bson_t *select;
     File *fifo = malloc(sizeof(*fifo));
     char *regex = (char*) calloc(1, sizeof(char));
 
@@ -390,13 +390,12 @@ int get_title_selector(char *title, bson_t **selector) {
         join_file_element(fifo, &regex, ".*", 1);
         if(regex != NULL) {
             select = BCON_NEW("title", "{", "$regex", BCON_UTF8(regex), "$options", BCON_UTF8("i"),"}");
-            //if(select != NULL)
-            //    *selector = select;
+            if(select != NULL)
+                *selector = select;
         }
     }
     free(regex);
     freeFile(fifo);
-    bson_free(select);
     return 0;
 }
 
@@ -408,8 +407,7 @@ int exist_title_in_db(mongoc_client_t *client, char *title, SERIE *serie) {
     if(title != NULL && client != NULL && serie != NULL) {
         get_title_selector(title, &selector);
         if(selector != NULL) {
-            puts("exist_title_in_db");
-            //res = exist_serie(client, selector, (char*)db_name, (char*)document_name, serie);
+            res = exist_serie(client, selector, (char*)db_name, (char*)document_name, serie);
             //if(res)
             //  print_serie(serie);
         }
@@ -463,6 +461,8 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
     const char *dbName = "maboke", *collection = "serie";
 
     if(serie != NULL && video_json != NULL && title != NULL) {
+        //puts("update_serie");
+
         for(int i = 0; i < serie->seasons->length; i++) {
             season = &(serie->seasons->elements[i]);
 
@@ -545,8 +545,7 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
                     serie = (SERIE *) calloc(1, sizeof(*serie));
                     init_serie_default_parameters(serie);
                    if(exist_title_in_db(page->mongo_client, (char*)title, serie)) {
-                        puts("update_serie");
-                        //update_serie(page->mongo_client, serie, video_json, (char*)title);
+                        update_serie(page->mongo_client, serie, video_json, (char*)title);
                     }/* else {
                         create_new_serie(page->mongo_client, video_json, 0);
                     }*/
