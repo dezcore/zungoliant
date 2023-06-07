@@ -1043,7 +1043,7 @@ int init_season(bson_t *season_bson, SEASON *season, int index) {
     for(int i = 0; i < season->videos->length; i++) {
       init_video(&videos, &(season->videos->elements[i]), i);
     }
-    
+
     bson_append_array_end(&child2, &videos);
     bson_append_document_end(season_bson, &child2); 
   }
@@ -1103,7 +1103,7 @@ int serie_to_set_bson(bson_t **document, SERIE *serie) {
   //bson_t director, producer, studio, cast;
   
   if(serie != NULL) {
-    puts("serie_to_set_bson");
+    //puts("serie_to_set_bson");
     serie_set = &set;
     BSON_APPEND_DOCUMENT_BEGIN(*document, "$set", &set);
     init_keys_and_values(&serie_set, serie->key_value_array);

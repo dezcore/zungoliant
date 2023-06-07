@@ -376,18 +376,16 @@ int is_matching_title(STR_ARRAY *titlesRegex, char *title) {
 }
 
 int get_title_selector(char *title, bson_t **selector) {
-    bson_t *select;
     File *fifo = malloc(sizeof(*fifo));
     char *regex = (char*) calloc(1, sizeof(char));
 
     fifo_init(fifo);
     if(title != NULL) {
-        get_match(title, "[^0-9 \n]+", fifo);
+        get_match(title, "[^0-9 |\n]+", fifo);
         join_file_element(fifo, &regex, ".*", 1);
+        //printf("REGEX : %s\n", regex);
         if(regex != NULL) {
-            select = BCON_NEW("title", "{", "$regex", BCON_UTF8(regex), "$options", BCON_UTF8("i"),"}");
-            if(select != NULL)
-                *selector = select;
+            *selector = BCON_NEW("title", "{", "$regex", BCON_UTF8(regex), "$options", BCON_UTF8("i"),"}");
         }
     }
     free(regex);
@@ -397,15 +395,20 @@ int get_title_selector(char *title, bson_t **selector) {
 
 int exist_title_in_db(mongoc_client_t *client, char *title, SERIE *serie) {
     int res = 0;
+    //SEASON *season;
     bson_t *selector = NULL;
     const char* db_name =  "maboke";
     const char* document_name = "serie";
+
     if(title != NULL && client != NULL && serie != NULL) {
         get_title_selector(title, &selector);
         if(selector != NULL) {
             res = exist_serie(client, selector, (char*)db_name, (char*)document_name, serie);
-            //if(res)
-            //  print_serie(serie);
+            /*if(res) {
+                season = &(serie->seasons->elements[0]);
+                printf("Exist : %s, %s\n", title, season->title);
+                //print_serie(serie);
+            }*/
         }
     }
 
@@ -430,6 +433,7 @@ int update_season_videos(VIDEO_ARRAY *videos, struct json_object *video_json, ch
     if(videos != NULL && video_json != NULL && title != NULL) {
         for(int i = 0; i < videos->length; i++) {
             video = &(videos->elements[i]);
+            //printf("Title : %s, %s\n", video->title, title);
             if(strcmp(video->title, title) == 0) {
                 exist = 1;
                 break;
@@ -441,7 +445,7 @@ int update_season_videos(VIDEO_ARRAY *videos, struct json_object *video_json, ch
             video =  &(videos->elements[videos->length-1]);
             if(video != NULL)
                 json_mapping_to_video(video, video_json, 0);
-            puts("Add video");
+            printf("update_season_videos : %ld\n", videos->length);
         }
     }
 
@@ -472,12 +476,13 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
                 set_key_value_value(&(serie->key_value_array->elements[0]), title);
             //print_serie(serie);
         } else if(!existSeason) {
+            puts("No exist season");
             resize_season_array_struct(serie->seasons, serie->seasons->length+1, 1);
             season = &(serie->seasons->elements[serie->seasons->length-1]);
             json_mapping_to_video(&(season->videos->elements[0]), video_json, 0);
             //print_serie(serie);
         }
-
+        
         get_title_selector(title, &selector);
 
         if(selector != NULL) {
@@ -504,9 +509,9 @@ int create_new_serie(mongoc_client_t *client, struct json_object *video_json, in
         init_season_array_struct(serie->seasons, 1, 1);
         json_mapping_to_serie(serie, video_json, type);
         serie_to_bson(&document, serie);
+        insert_document(client, (char*)dbName, (char*)collection, document);
         //print_serie(serie);
         //print_serie_bson(document);
-        insert_document(client, (char*)dbName, (char*)collection, document);
     }
 
     bson_destroy(document);
@@ -535,14 +540,12 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
                 if(is_matching_title(page->titlesRegex, (char*)title)) {
                     serie = (SERIE *) calloc(1, sizeof(*serie));
                     init_serie_default_parameters(serie);
-                   if(!exist_title_in_db(page->mongo_client, (char*)title, serie)) {
+                   if(exist_title_in_db(page->mongo_client, (char*)title, serie)) {
+                        update_serie(page->mongo_client, serie, video_json, (char*)title);
+                    } else {
                         create_new_serie(page->mongo_client, video_json, 0);
-                        //update_serie(page->mongo_client, serie, video_json, (char*)title);
-                    }/* else {
-                        create_new_serie(page->mongo_client, video_json, 0);
-                    }*/
+                    }
                     free_serie(serie);
-                    //puts("save_youtube_page_data");
                 }
                 /*if(video != NULL && player_json != NULL) {
                     json_mapping_player_to_video(video, player_json);
