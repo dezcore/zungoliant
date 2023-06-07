@@ -272,7 +272,6 @@ int init_video_struct(VIDEO *video) {
 int set_video_title(VIDEO *video, char *title) {
   char *new_title;
   if(video != NULL && title != NULL) {
-    printf("len : %ld\n", strlen(title));
     new_title = (char*) realloc(video->title, (strlen(title)+1) * sizeof(char));
     if(new_title != NULL) {
       video->title = new_title;
@@ -506,7 +505,6 @@ int set_season_date(SEASON *season, char *date) {
 int set_season_summary(SEASON *season, char *summary) {
   char *new_summary;
   if(season != NULL && summary != NULL) {
-    printf("summary : %s\n", season->summary);
     new_summary = (char*) realloc(season->summary, (strlen(summary)+1) * sizeof(char));
     if(new_summary != NULL) {
       season->summary = new_summary;
@@ -878,14 +876,16 @@ int init_date(bson_t **bson, char *field, char *str_date) {
   STR_ARRAY *hoursPartArray = (STR_ARRAY *) malloc(sizeof(*hoursPartArray));
   struct tm year = { 0 };
 
+  init_default_str_array_struct(datePartArray);
+  init_default_str_array_struct(hoursPartArray);
+
   if(hoursPartArray != NULL) {
     parseDate(str_date, "[0-9]{2}:[0-9]{2}:[0-9]{2}", "[0-9]{2}", hoursPartArray);
-    print_array_str(hoursPartArray,"","\t", "\t\t", "\t\t\t");
+    //print_array_str(hoursPartArray,"","\t", "\t\t", "\t\t\t");
     year.tm_hour = atoi(hoursPartArray->elements[0].value) - 1; 
     year.tm_min = atoi(hoursPartArray->elements[1].value) - 1; 
     year.tm_sec = atoi(hoursPartArray->elements[2].value); 
     //print_array_str(hoursPartArray, "", "\t", "\t", "\t\t");
-    free_str_array_struct(hoursPartArray);
   }
 
   if(datePartArray != NULL) {
@@ -894,10 +894,12 @@ int init_date(bson_t **bson, char *field, char *str_date) {
     year.tm_mon = atoi(datePartArray->elements[1].value) - 1;  /* months are 0-based */
     year.tm_mday = atoi(datePartArray->elements[2].value);
     //print_array_str(datePartArray, "", "\t", "\t", "\t\t");
-    free_str_array_struct(datePartArray);   
   }
 
   BSON_APPEND_DATE_TIME(*bson, field, mktime(&year) * 1000);
+  
+  free_str_array_struct(datePartArray);
+  free_str_array_struct(hoursPartArray);
 
   return 0;
 }
@@ -1041,7 +1043,7 @@ int init_season(bson_t *season_bson, SEASON *season, int index) {
     for(int i = 0; i < season->videos->length; i++) {
       init_video(&videos, &(season->videos->elements[i]), i);
     }
-
+    
     bson_append_array_end(&child2, &videos);
     bson_append_document_end(season_bson, &child2); 
   }
@@ -1075,8 +1077,6 @@ int serie_to_bson(bson_t **document, SERIE *serie) {
   //bson_t director, producer, studio, cast;
 
   if(serie != NULL) {
-    puts("serie_to_bson");
-
     init_keys_and_values(&(*document), serie->key_value_array);
     init_date(&(*document), "year", serie->year);
     //BSON_APPEND_DOCUMENT_BEGIN(*document, "director", &director);
@@ -1373,8 +1373,7 @@ int set_serie_parameters(struct json_object *serie_json, SERIE *serie, int numb_
     episodes = numb_of_episodes(seasons_json);
     resize_key_value_array_struct(serie->key_value_array, numb_of_keys);
     //resize_str_array_struct(serie->contentTag, tags);
-    resize_season_array_struct(serie->seasons, seasons, episodes);
-    //printf("numb_of_tags : %d, numb_of_season : %d, num_of_episodes : %d\n", tags, seasons, episodes);
+    init_season_array_struct(serie->seasons, seasons, episodes);
   }
 
   return 0;

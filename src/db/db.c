@@ -151,7 +151,7 @@ int insert_document(mongoc_client_t *client, char *dbName, char *collection, bso
 
   /* insert a document */
   if(!mongoc_collection_insert_one(coll, to_insert, NULL, NULL, &error)) {
-    print_serie_bson(to_insert);
+    //print_serie_bson(to_insert);
     fprintf(stderr, "insert failed: %s\n", error.message);
     return EXIT_FAILURE;
   }

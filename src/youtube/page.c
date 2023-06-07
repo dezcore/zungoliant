@@ -280,7 +280,6 @@ int json_mapping_to_video(VIDEO *video, struct json_object *video_json, int type
         url = json_object_get_string(urlObj);
         title = json_object_get_string(titleObj);
         length = json_object_get_string(lengthObj);
-        //printf("json_mapping_to_video : %s, %s\n", url, title); 
         set_video(video, (char*)title, (char*)category, (char*)summary, (char*)url, (char*)length, (char*)censor_rating);
     }
     return 0;
@@ -289,7 +288,6 @@ int json_mapping_to_video(VIDEO *video, struct json_object *video_json, int type
 int json_mapping_to_videos(VIDEO_ARRAY *videos, struct json_object *videos_json, int type) {
     VIDEO *video;
     if(videos != NULL && videos_json != NULL) {
-        //printf("json_mapping_to_videos\n"); 
         for(int i = 0; i < videos->length; i++) {
             video = &(videos->elements[i]);
             json_mapping_to_video(video, videos_json, type);
@@ -303,10 +301,9 @@ int json_mapping_to_season(SEASON *season, struct json_object *season_json, int 
     struct json_object *titleObj;
 
     if(season != NULL && season_json != NULL) {
-        //printf("json_mapping_to_season\n");
         titleObj = getObj_rec(season_json, VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD);
         title = json_object_get_string(titleObj);
-        set_seson(season, (char*)title, "", "", NULL);
+        set_seson(season, (char*)title, "1970-01-01T10:42:00Z", "", NULL);
         json_mapping_to_videos(season->videos, season_json, type);
     }
     return 0;
@@ -314,7 +311,6 @@ int json_mapping_to_season(SEASON *season, struct json_object *season_json, int 
 
 int json_mapping_to_seasons(SEASON_ARRAY *seasons, struct json_object *seasons_json, int type) {
     if(seasons != NULL && seasons_json != NULL) {
-        //printf("json_mapping_to_seasons\n");
         for(int i = 0; i < seasons->length; i++) {
             json_mapping_to_season(&(seasons->elements[i]), seasons_json, type);
         }
@@ -352,7 +348,7 @@ int json_mapping_to_keys_values(KEY_VALUE_ARRAY *array, struct json_object *vide
 int json_mapping_to_serie(SERIE *serie, struct json_object *video_json, int type) {
     if(video_json != NULL && serie != NULL) {
         json_mapping_to_keys_values(serie->key_value_array, video_json);
-        //set_serie_year(serie, "");
+        set_serie_year(serie, "1970-01-01T10:42:00Z");
         //json_mapping_to_director(serie->director, NULL);
         //json_mapping_to_director(serie->producer, NULL);
         //json_mapping_to_studio(serie->studio, NULL);
@@ -422,7 +418,6 @@ int print_serie_bson(bson_t *document) {
     if(document != NULL) {
         str = bson_as_canonical_extended_json(document, NULL);
         //str = bson_as_json(document, NULL);
-        printf("NO EXIST : %s\n", str);
         bson_free(str);
     }
     return 0;
@@ -461,14 +456,10 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
     const char *dbName = "maboke", *collection = "serie";
 
     if(serie != NULL && video_json != NULL && title != NULL) {
-        //puts("update_serie");
-
         for(int i = 0; i < serie->seasons->length; i++) {
             season = &(serie->seasons->elements[i]);
 
             if(season->number == get_title_season(title)) {
-                //season->videos
-                //puts("update_serie");
                 existSeason = 1;
                 videoExist = update_season_videos(season->videos, video_json, title);
                 break;
@@ -492,7 +483,7 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
         if(selector != NULL) {
             serie_to_set_bson(&document, serie);
             update_document(client, (char*)dbName, (char*)collection, selector, document);
-            print_serie_bson(document);
+            //print_serie_bson(document);
             //print_serie(serie);
         }
 
@@ -510,12 +501,12 @@ int create_new_serie(mongoc_client_t *client, struct json_object *video_json, in
 
     if(video_json != NULL && serie != NULL) {
         init_serie_default_parameters(serie);
+        init_season_array_struct(serie->seasons, 1, 1);
         json_mapping_to_serie(serie, video_json, type);
         serie_to_bson(&document, serie);
-        
-        insert_document(client, (char*)dbName, (char*)collection, document);
-        //print_serie_bson(document);
         //print_serie(serie);
+        //print_serie_bson(document);
+        insert_document(client, (char*)dbName, (char*)collection, document);
     }
 
     bson_destroy(document);
@@ -544,8 +535,9 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
                 if(is_matching_title(page->titlesRegex, (char*)title)) {
                     serie = (SERIE *) calloc(1, sizeof(*serie));
                     init_serie_default_parameters(serie);
-                   if(exist_title_in_db(page->mongo_client, (char*)title, serie)) {
-                        update_serie(page->mongo_client, serie, video_json, (char*)title);
+                   if(!exist_title_in_db(page->mongo_client, (char*)title, serie)) {
+                        create_new_serie(page->mongo_client, video_json, 0);
+                        //update_serie(page->mongo_client, serie, video_json, (char*)title);
                     }/* else {
                         create_new_serie(page->mongo_client, video_json, 0);
                     }*/

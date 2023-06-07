@@ -121,7 +121,7 @@ int search(char *filePath, char *expression) {
         exit(1);
     }
 
-    fileContent = load_file(filePath, fileContent);
+    load_file(filePath, &fileContent);
     reti = regexec(&regex, fileContent, 0, NULL, 0);
 
     if(!reti) {
