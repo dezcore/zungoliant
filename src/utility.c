@@ -239,7 +239,7 @@ int get_match(char *str, char *pattern, File *fifo) {
         }
         free(strCpy);
     }
-
+    regfree(&reg);
     return 0;
 }
 
@@ -314,21 +314,26 @@ int get_title_season(char *title) {
 
 int join_file_element(File *file, char **str, char *delimiter, int start_delimiter) {
     Element *current;
+    char *res = (char*) calloc(JOIN_STR_LEN, sizeof(char));
 
-    if(file != NULL) {
-        *str = (char*) calloc(JOIN_STR_LEN, sizeof(char));
+    if(file != NULL && res != NULL) {
         current = file->head;
-
+        
         if(start_delimiter)
-            sprintf(*str, "%s", delimiter);
+            sprintf(res, "%s", delimiter);
 
         while(current != NULL) {
-            strcat(*str, current->value);
-            strcat(*str, delimiter);
+            strcat(res, current->value);
+            strcat(res, delimiter);
             current = current->next;
         }
-    }
 
+        *str = (char*)realloc(*str, (strlen(res)+1) * sizeof(char));
+        
+        if(*str != NULL)
+            strcpy(*str, res);
+    }
+    free(res);
     return 0;
 }
 

@@ -17,7 +17,7 @@
 #include "./youtube/yfields.h"
 
 #define PWD_STR_LEN 100
-#define JOIN_STR_LEN 100
+#define JOIN_STR_LEN 400
 
 #define YINITDATA_VAR "ytInitialData"
 #define DOWNLOAD_TEST_FILE "/data/test/download/test.html"

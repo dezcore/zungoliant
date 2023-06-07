@@ -14,13 +14,13 @@ int json_tobson(char *json, bson_t **bson) {
 
 int init_studio_struct(STUDIO *studio) {
   if(studio != NULL) {
-    studio->name = (char*)malloc(sizeof(char));
-    studio->startYear = (char*)malloc(sizeof(char));
-    studio->endYear = (char*)malloc(sizeof(char));
-    studio->bithYear = (char*)malloc(sizeof(char));
-    studio->city = (char*)malloc(sizeof(char));
-    studio->country = (char*)malloc(sizeof(char));
-    studio->fonder = (char*)malloc(sizeof(char));
+    studio->name =  (char*) calloc(1, sizeof(char));
+    studio->startYear =  (char*) calloc(1, sizeof(char));
+    studio->endYear =  (char*) calloc(1, sizeof(char));
+    studio->bithYear =  (char*) calloc(1, sizeof(char));
+    studio->city =  (char*) calloc(1, sizeof(char));
+    studio->country =  (char*) calloc(1, sizeof(char));
+    studio->fonder =  (char*) calloc(1, sizeof(char));
   }
   return 0;
 }
@@ -133,8 +133,8 @@ int free_studio(STUDIO *studio) {
     free(studio->startYear);
     free(studio->endYear);
     free(studio->bithYear);
-    free(studio);
   }
+  free(studio);
   return 0;
 }
 
@@ -162,10 +162,10 @@ int print_studio(STUDIO *studio, char *tabs, char *subtabs) {
 
 int init_director_struct(DIRECTOR *director) {
   if(director != NULL) {
-    director->name = (char*)malloc(sizeof(char));
-    director->startYear = (char*)malloc(sizeof(char));
-    director->endYear = (char*)malloc(sizeof(char));
-    director->bithYear = (char*)malloc(sizeof(char));
+    director->name = (char *) calloc(1, sizeof(char));
+    director->startYear = (char *) calloc(1, sizeof(char));
+    director->endYear = (char *) calloc( 1, sizeof(char));
+    director->bithYear = (char *) calloc(1, sizeof(char));
   }
   return 0;
 }
@@ -234,8 +234,8 @@ int free_director(DIRECTOR *director) {
     free(director->startYear);
     free(director->endYear);
     free(director->bithYear);
-    free(director);
   }
+  free(director);
   return 0;
 }
 
@@ -259,12 +259,12 @@ int print_director(DIRECTOR *director, char *tabs, char *subtabs) {
 
 int init_video_struct(VIDEO *video) {
   if(video != NULL) {
-    video->title = (char*)malloc(sizeof(char));
-    video->category = (char*)malloc(sizeof(char));
-    video->summary = (char*)malloc(sizeof(char));
-    video->url = (char*)malloc(sizeof(char));
-    video->length = (char*)malloc(sizeof(char));
-    video->censor_rating = (char*)malloc(sizeof(char));
+    video->title = (char*) calloc(1, sizeof(char));
+    video->category = (char*) calloc(1, sizeof(char)); 
+    video->summary = (char*) calloc(1, sizeof(char));
+    video->url = (char*) calloc(1, sizeof(char));
+    video->length = (char*) calloc(1, sizeof(char));
+    video->censor_rating = (char*) calloc(1, sizeof(char));
   }
   return 0;
 }
@@ -377,13 +377,20 @@ int free_video_struct(VIDEO *video) {
   return 0;
 }
 
+int init_video_default_array_struct(VIDEO_ARRAY *array) {
+  if(array != NULL) {
+    array->elements = NULL;
+    array->length = 0;
+  }
+  return 0;
+}
+
 int init_video_array_struct(VIDEO_ARRAY *array, size_t length) {
   VIDEO *video;
-  if(array != NULL) {
+  if(array != NULL && array->elements == NULL) {
     array->elements = malloc(length * sizeof(*array->elements));
     for(int i = 0; i < length; i++) {
       video = &(array->elements[i]);
-      video = (VIDEO *) malloc(sizeof(*video));
       init_video_struct(video);
     }
     array->length = length;
@@ -445,19 +452,16 @@ int print_array_video(VIDEO_ARRAY *array, char *tabs, char* subtabs) {
 }
 
 int init_season_struct(SEASON *season, size_t videoLen) {
-  char *title, *date, *summary;
 
   if(season != NULL) {
-    title = (char*)malloc(sizeof(*title));
-    date = (char*)malloc(sizeof(*date));
-    summary = (char*)malloc(sizeof(*summary));
-
-    season->title = title;
-    season->date = date;
-    season->summary = summary;
     season->number = 0;
+    season->title = (char*) calloc(1, sizeof(char));
+    season->date = (char*) calloc(1, sizeof(char));
+    season->summary = (char*) calloc(1, sizeof(char));
     season->videos =  malloc(sizeof(*season->videos));
-    if(season->videos != NULL) {
+    init_video_default_array_struct(season->videos);
+
+    if(season->videos != NULL && 0 < videoLen) {
       init_video_array_struct(season->videos, videoLen);
     }
   }
@@ -555,18 +559,56 @@ int print_season(SEASON *season, char *tabs, char *videos_tabs, char *videos_sub
   return 0;
 }
 
+int init_season_default_array_struct(SEASON_ARRAY *array) {
+  if(array != NULL) {
+    array->elements = NULL;
+    array->length = 0;
+  }
+  return 0;
+}
+
 int init_season_array_struct(SEASON_ARRAY *array, size_t length, size_t videosLen) {
     SEASON *season;
-    if(array != NULL) {
+    if(array != NULL && array->elements == NULL) {
         array->elements = malloc(length * sizeof(*array->elements));
         for(int i = 0; i < length; i++) {
           season = &(array->elements[i]);
-          season = (SEASON *) malloc(sizeof(*season));
           init_season_struct(season, videosLen);
         }
         array->length = length;
     }
     return 0;
+}
+
+int free_season_array_struct(SEASON_ARRAY *array) {
+  VIDEO *video;
+  SEASON *season;
+
+  if(array != NULL) {
+    if(0 < array->length) {
+      for(int i = 0; i < array->length; i++) {
+        season = &(array->elements[i]);
+        free(season->date);
+        free(season->summary);
+        free(season->title);
+        if(0 < season->videos->length) {
+          for(int j = 0; j < season->videos->length; j++) {
+            video = &(season->videos->elements[j]);
+            free(video->category);
+            free(video->censor_rating);
+            free(video->length);
+            free(video->summary);
+            free(video->title);
+            free(video->url);
+          }
+          free(season->videos);
+        }
+      }
+    }
+    free(array->elements);
+  }
+  free(array);
+  return 0;
 }
 
 int resize_season_array_struct(SEASON_ARRAY *array, size_t length,  size_t videoLen) {
@@ -586,15 +628,6 @@ int resize_season_array_struct(SEASON_ARRAY *array, size_t length,  size_t video
   return 0;
 }
 
-int free_season_array_struct(SEASON_ARRAY *array) {
-  if(array != NULL) {
-    free(array->elements);
-    free(array);
-  }
-
-  return 0;
-}
-
 int print_array_season(SEASON_ARRAY *array, char *tabs, char* subtabs, char *season_tabs, char *season_subtabs) {
   if(array != NULL) {
     printf("%s", tabs);
@@ -611,8 +644,8 @@ int print_array_season(SEASON_ARRAY *array, char *tabs, char* subtabs, char *sea
 
 int init_key_value(KEY_VALUE *key_value) {
   if(key_value != NULL) {
-    key_value->key = (char*) malloc(sizeof(char));
-    key_value->value = (char*) malloc(sizeof(char));
+    key_value->key = (char*) calloc(1, sizeof(char));
+    key_value->value = (char*) calloc(1, sizeof(char));
   }
   return 0;
 }
@@ -662,21 +695,32 @@ int print_key_value(KEY_VALUE *key_value, char *kv_tabs, char *kv_subtabs) {
 }
 
 int init_key_value_array_struct(KEY_VALUE_ARRAY *array, size_t length) {
-    if(array != NULL) {
-        array->elements = malloc(length * sizeof(*array->elements));
-        for(int i = 0; i < length; i++) {
-          init_key_value(&(array->elements[i]));
-        }
-        array->length = length;
+  KEY_VALUE *element;
+
+  if(array != NULL) {
+    array->elements = malloc(length * sizeof(*array->elements));
+    for(int i = 0; i < length; i++) {
+      element = &(array->elements[i]);
+      init_key_value(element);
     }
-    return 0;
+    array->length = length;
+  }
+  return 0;
 }
 
 int free_key_value_array_struct(KEY_VALUE_ARRAY *array) {
+  KEY_VALUE *element;
   if(array != NULL) {
+    if(0 < array->length) {
+      for(int i = 0; i < array->length; i++) {
+        element = &(array->elements[i]);
+        free(element->key);
+        free(element->value);
+      }
+    }
     free(array->elements);
-    free(array);
   }
+  free(array);
   return 0;
 }
 
@@ -722,7 +766,7 @@ int free_key_value(KEY_VALUE *key_value) {
 
 int init_serie_default_parameters(SERIE *serie) {
   if(serie != NULL) {
-    serie->year =(char*) calloc(1, sizeof(char));
+    serie->year =(char*) calloc(1, sizeof(*serie->year));
     serie->director = malloc(sizeof(*serie->director));
     serie->producer = malloc(sizeof(*serie->producer));
     serie->studio =  malloc(sizeof(*serie->studio));
@@ -733,9 +777,9 @@ int init_serie_default_parameters(SERIE *serie) {
     init_director_struct(serie->director);
     init_director_struct(serie->producer);
     init_studio_struct(serie->studio);
-    init_str_array_struct(serie->contentTag, 1);
+    init_default_str_array_struct(serie->contentTag);
     init_key_value_array_struct(serie->key_value_array, 1);
-    init_season_array_struct(serie->seasons, 1, 1);
+    init_season_default_array_struct(serie->seasons);
     //serie->cats = NULL; 
   }
   return 0;
@@ -750,8 +794,8 @@ int free_serie(SERIE *serie) {
     free_str_array_struct(serie->contentTag);
     free_key_value_array_struct(serie->key_value_array);
     free_season_array_struct(serie->seasons);
-    free(serie);
   }
+  free(serie);
   return 0;
 }
 

@@ -380,25 +380,23 @@ int is_matching_title(STR_ARRAY *titlesRegex, char *title) {
 }
 
 int get_title_selector(char *title, bson_t **selector) {
-    char *regex = NULL;
+    bson_t *select = NULL;
     File *fifo = malloc(sizeof(*fifo));
+    char *regex = (char*) calloc(1, sizeof(char));
 
     fifo_init(fifo);
     if(title != NULL) {
         get_match(title, "[^0-9 \n]+", fifo);
         join_file_element(fifo, &regex, ".*", 1);
-        //printf("Regex : %s, %s\n", regex, title);
         if(regex != NULL) {
-            *selector =  BCON_NEW(
-                "title", "{",
-                    "$regex", BCON_UTF8(regex),
-                    "$options", BCON_UTF8("i"),
-                "}"
-            );
+            select = BCON_NEW("title", "{", "$regex", BCON_UTF8(regex), "$options", BCON_UTF8("i"),"}");
+            //if(select != NULL)
+            //    *selector = select;
         }
     }
     free(regex);
     freeFile(fifo);
+    bson_free(select);
     return 0;
 }
 
@@ -407,11 +405,11 @@ int exist_title_in_db(mongoc_client_t *client, char *title, SERIE *serie) {
     bson_t *selector = NULL;
     const char* db_name =  "maboke";
     const char* document_name = "serie";
-
     if(title != NULL && client != NULL && serie != NULL) {
         get_title_selector(title, &selector);
         if(selector != NULL) {
-            res = exist_serie(client, selector, (char*)db_name, (char*)document_name, serie);
+            puts("exist_title_in_db");
+            //res = exist_serie(client, selector, (char*)db_name, (char*)document_name, serie);
             //if(res)
             //  print_serie(serie);
         }
@@ -533,8 +531,10 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
     
     if(json != NULL && page != NULL) {
         videos_josn = getObj_rec(json, VIDEO_PAGE_ROOT_FIELD);
+        
         //player_json = getObj_rec(json, VIDEO_PAGE_CHANNEL_ROOT_FIELD);
         ///printf("save_youtube_page_data(1) : %s\n", json_object_get_string(video_json));
+        
         if(videos_josn != NULL) {
             for(int i = 0; i < json_object_array_length(videos_josn); i++) {
 		        video_json = json_object_array_get_idx(videos_josn, i);
@@ -542,15 +542,16 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
                 title = json_object_get_string(titleObj);
 
                 if(is_matching_title(page->titlesRegex, (char*)title)) {
-                    serie = malloc(sizeof(*serie));
+                    serie = (SERIE *) calloc(1, sizeof(*serie));
                     init_serie_default_parameters(serie);
-                    if(exist_title_in_db(page->mongo_client, (char*)title, serie)) {
-                        update_serie(page->mongo_client, serie, video_json, (char*)title);
-                    } else {
+                   if(exist_title_in_db(page->mongo_client, (char*)title, serie)) {
+                        puts("update_serie");
+                        //update_serie(page->mongo_client, serie, video_json, (char*)title);
+                    }/* else {
                         create_new_serie(page->mongo_client, video_json, 0);
-                    }
+                    }*/
                     free_serie(serie);
-                    serie = NULL;
+                    //puts("save_youtube_page_data");
                 }
                 /*if(video != NULL && player_json != NULL) {
                     json_mapping_player_to_video(video, player_json);
@@ -558,6 +559,7 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
                 }*/
 	        }
         }
+    //json_object_put(json);
     }
     return 0;
 }
@@ -569,7 +571,7 @@ int videopage_handler(YPage *page, char *url, char* parseFile) {
         set_page_pattern_url(page->page_pattern, url);
         downloadPage_and_replace(parseFile, page);
         file_tojson(parseFile, &json);
-        //save_youtube_page_data(json, page);
+        save_youtube_page_data(json, page);
     }
 
     json_object_put(json);
