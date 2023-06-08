@@ -482,7 +482,7 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
             json_mapping_to_video(&(season->videos->elements[0]), video_json, 0);
             //print_serie(serie);
         }
-        
+
         get_title_selector(title, &selector);
 
         if(selector != NULL) {
@@ -519,18 +519,38 @@ int create_new_serie(mongoc_client_t *client, struct json_object *video_json, in
     return 0;
 }
 
-int save_youtube_page_data(struct json_object *json, YPage *page) {
-    const char *title;
+int add_url_to_file(File *urls_fifo, struct json_object *video_json) {
+    const char *videoId;
+    struct json_object *videoIdObj;
+    char *url = (char*) calloc(100, sizeof(char));
+
+    if(urls_fifo != NULL && video_json != NULL && url != NULL) {
+        videoIdObj = getObj_rec(video_json, VIDEO_PAGE_PLAYLIST_ITEM_VIDEOID_FIELD);
+        videoId = json_object_get_string(videoIdObj);
+        //https://www.youtube.com/watch?v=Hy2S3AZJeI4
+        if(videoId != NULL) {
+            strcat(url, "https://www.youtube.com/watch?v=");
+            strcat(url, videoId);
+            //printf("VideoId : %s\n", url);
+            push(urls_fifo, url);
+        }
+    }
+    
+    free(url);
+    return 0;
+}
+
+int save_youtube_page_data(struct json_object *json, YPage *page, File *urls_fifo) {
     SERIE *serie = NULL;
+    const char *title;
     struct json_object *video_json, *titleObj;
     struct json_object *videos_josn/*, *player_json*/;
-    
-    if(json != NULL && page != NULL) {
+
+    if(json != NULL && page != NULL && urls_fifo != NULL) {
         videos_josn = getObj_rec(json, VIDEO_PAGE_ROOT_FIELD);
-        
         //player_json = getObj_rec(json, VIDEO_PAGE_CHANNEL_ROOT_FIELD);
         ///printf("save_youtube_page_data(1) : %s\n", json_object_get_string(video_json));
-        
+
         if(videos_josn != NULL) {
             for(int i = 0; i < json_object_array_length(videos_josn); i++) {
 		        video_json = json_object_array_get_idx(videos_josn, i);
@@ -546,26 +566,29 @@ int save_youtube_page_data(struct json_object *json, YPage *page) {
                         create_new_serie(page->mongo_client, video_json, 0);
                     }
                     free_serie(serie);
-                }
+                }/* else {
+                    logsFile
+                }*/
+                add_url_to_file(urls_fifo, video_json);
+
                 /*if(video != NULL && player_json != NULL) {
                     json_mapping_player_to_video(video, player_json);
                     json_mapping_player_channel(video, player_json);
                 }*/
 	        }
         }
-    //json_object_put(json);
     }
     return 0;
 }
 
-int videopage_handler(YPage *page, char *url, char* parseFile) {
+int videopage_handler(YPage *page, char *url, char* parseFile, File *urls_fifo) {
     struct json_object *json = NULL;
 
     if(page != NULL && url != NULL && parseFile != NULL) {
         set_page_pattern_url(page->page_pattern, url);
         downloadPage_and_replace(parseFile, page);
         file_tojson(parseFile, &json);
-        save_youtube_page_data(json, page);
+        save_youtube_page_data(json, page, urls_fifo);
     }
 
     json_object_put(json);

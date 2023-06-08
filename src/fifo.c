@@ -145,6 +145,22 @@ int display(File *file) {
     return 0;
 }
 
+int exist_in_file(File *file, char *element) {
+    int exist = 0;   
+    if(file == NULL || element == NULL) return exist;
+    Element *current = file->head;
+
+    while(current != NULL) {
+        if(strcmp(current->value, element) == 0) {
+            exist = 1;
+            break;
+        }
+        current = current->next;
+    }
+
+    return exist;
+}
+
 int print_yfile(Yfile *file) {   
     if(file == NULL) exit(EXIT_FAILURE);
     Ydata *current = file->head;

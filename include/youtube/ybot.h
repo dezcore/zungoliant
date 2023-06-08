@@ -12,6 +12,7 @@
 typedef struct _Ybot {
     File *urls_fifo;
     Yfile *data_fifo;
+    File *explored_urls;
 } Ybot;
 
 int run_ybot();

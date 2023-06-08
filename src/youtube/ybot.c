@@ -183,19 +183,21 @@ int run_ybot() {
     if(urlsFileSrc != NULL && page != NULL) {
         while(0 < bot->urls_fifo->size) {
             url = pop(bot->urls_fifo);
-            if(url != NULL) {
+            if(url != NULL && !exist_in_file(bot->explored_urls, url->value)) {
                 if(match_pattern(url->value, ".+watch\\?v.*")) {//VIDEOPAGE
-                    videopage_handler(page, url->value, parseFile); 
+                    videopage_handler(page, url->value, parseFile, bot->urls_fifo); 
                 } /*else if(match_pattern(url->value, "@.+")) {// Channel page
                     channelpage_handler(&bot, page1 , &json, url->value, parseFile);
                 }*/
                 //print_yfile(bot->data_fifo);
                 //json_object_put(json);
+
+                push(bot->explored_urls, url->value);
                 freeElement(url);
             }
         }
     }
-
+    
     free(parseFile);
     free(urlsFileSrc);
     free_yPage(page);
@@ -204,33 +206,15 @@ int run_ybot() {
     return 0;
 }
 
-/*int init_bot_pages(YPage **page, YPage **page1) {
-    const char* titles_regex = "/data/file/titles_regex";
-    YPage *p = (YPage *)malloc(sizeof(*p));
-    YPage *p1 = (YPage *)malloc(sizeof(*p1));
-
-    if(p != NULL && p1 != NULL) {
-        init_yPage(p);
-        //init_yPage(p1);
-        puts("init_pages");
-        //set_yPage(p, 0,  "", " ", (char*)titles_regex);
-        //set_yPage(p1, 1,  "", " ", (char*)titles_regex);
-        //set_yPage(YPage *page, int type, char *url, char *replace, char *titlesRegexFilePath)
-
-        *page = p;
-        //*page1 = p1;
-    }
-
-    return 0;
-}*/
-
 int init_ybot(Ybot *bot) {
     if(bot != NULL) {
         bot->urls_fifo = malloc(sizeof(*bot->urls_fifo));        
         bot->data_fifo = malloc(sizeof(*bot->data_fifo));
+        bot->explored_urls = malloc(sizeof(*bot->explored_urls)); 
 
         init_yfile(bot->data_fifo);
         init_file_struct(bot->urls_fifo);
+        init_file_struct(bot->explored_urls);  
     }
     return 0;
 }
@@ -239,6 +223,7 @@ int free_ybot(Ybot *bot) {
     if(bot != NULL) {
         freeFile(bot->urls_fifo);
         free_yfile(bot->data_fifo);
+        freeFile(bot->explored_urls);
     }
     free(bot);
     return 0;

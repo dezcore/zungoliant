@@ -43,5 +43,6 @@ int freeElement(Element *element);
 int push(File *file, char *value);
 int displayElement(Element *element);
 int pop_yfile(Yfile **file, Ydata **data);
+int exist_in_file(File *file, char *element);
 int push_ydata(Yfile **file, const char *title, const char *img, const char *videoId);
 #endif
