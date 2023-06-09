@@ -59,10 +59,15 @@
 #define CHANNELS_PAGE_ITEM_CHANNELSUBSCRIBERCOUNT_FIELD "/gridChannelRenderer/subscriberCountText/simpleText"
 #define CHANNELS_PAGE_ITEM_CHANNELURL_FIELD "/gridChannelRenderer/navigationEndpoint/commandMetadata/webCommandMetadata/url"
 
+#define CHANNEL_PAGE_HOME_ITEM_VIDEOID_FIELD "/gridVideoRenderer/videoId"
 #define CHANNEL_PAGE_HOME_ITEM_TITLE_FIELD "/gridVideoRenderer/title/simpleText"
+#define CHANNEL_PAGE_HOME_ITEM_VIEW_COUNT_FIELD "/gridVideoRenderer/viewCountText/simpleText"
+#define CHANNEL_PAGE_HOME_ITEM_URL_FIELD "/gridVideoRenderer/navigationEndpoint/commandMetadata/webCommandMetadata/url"
 #define CHANNEL_PAGE_HOME_ITEMS_FIELD "/itemSectionRenderer/contents/0/shelfRenderer/content/horizontalListRenderer/items"
+#define CHANNEL_PAGE_HOME_ITEM_LENGTH_FIELD "/gridVideoRenderer/thumbnailOverlays/0/thumbnailOverlayTimeStatusRenderer/text/simpleText"
 
-#define CHANNEL_PAGE_HOME_ITEM_VIDEOID_FIELD "/itemSectionRenderer/contents/0/shelfRenderer/content/horizontalListRenderer/items/0/gridVideoRenderer/videoId"
+
+//#define CHANNEL_PAGE_HOME_ITEM_VIDEOID_FIELD "/itemSectionRenderer/contents/0/shelfRenderer/content/horizontalListRenderer/items/0/gridVideoRenderer/videoId"
 #define CHANNEL_PAGE_HOME_ITEM_IMG_FIELD "/itemSectionRenderer/contents/0/shelfRenderer/content/horizontalListRenderer/items/0/gridVideoRenderer/thumbnail/thumbnails/0/url"
 #define CHANNEL_PAGE_HOME_ITEM_VIDEO_TITLE_FIELD "/itemSectionRenderer/contents/0/shelfRenderer/content/horizontalListRenderer/items/0/gridVideoRenderer/title/simpleText"
 #define CHANNEL_PAGE_HOME_ITEM_VIDEO_DESCRIPTION_FIELD "/itemSectionRenderer/contents/0/shelfRenderer/description/runs/0/text"
