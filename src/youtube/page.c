@@ -18,6 +18,7 @@ int extract_htmlpagedata(char *html_file_path, char *output_file_path, YPage *pa
                 if(0 < page->patterns->size)
                     replace_all(&contents, page->patterns, page->page_pattern->replace);
 
+                //write_file(output_file_path,  contents, "w");
                 appendStrToFile(output_file_path, contents);
             } else {
                 printf("Empty content (extract_htmlpagedata)\n");
@@ -706,6 +707,7 @@ int videopage_handler(YPage *page, char *url, char* parseFile, File *urls_fifo) 
 
     if(page != NULL && url != NULL && parseFile != NULL) {
         set_page_pattern_url(page->page_pattern, url);
+        //write_file(parseFile, "", "w");
         downloadPage_and_replace(parseFile, page);
         file_tojson(parseFile, &json);
         save_youtube_page_data(json, page, urls_fifo);

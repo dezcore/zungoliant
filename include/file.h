@@ -18,4 +18,5 @@ int init_urls(File **urls_fifo,  char **urlsFileSrc);
 int get_absolutePath(const char *path, char **filePath);
 int init_file_to_array(char *filePath, STR_ARRAY *array);
 int load_file(const char* filename,  char **fileContent);
+int write_file(char *fileName, char* str, char *accessMode);
 #endif

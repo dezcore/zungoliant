@@ -222,10 +222,22 @@ int fileToArray(char *filePath, STR_ARRAY *array) {
     return 0;
 }
 
-int appendStrToFile(char *fileName,const char* str) {
+int appendStrToFile(char *fileName, const char* str) {
     FILE *fptr;
     fptr = fopen(fileName, "a");
-    
+    puts("appendStrToFile");
+    if(fptr!= NULL) {
+        //fprintf(fptr, "This is testing for fprintf...\n");
+        fputs(str, fptr);
+    }
+    fclose(fptr);
+    return 0;
+}
+
+int write_file(char *fileName, char* str, char *accessMode) {
+    FILE *fptr;
+    fptr = fopen(fileName, accessMode);
+
     if(fptr!= NULL) {
         //fprintf(fptr, "This is testing for fprintf...\n");
         fputs(str, fptr);
