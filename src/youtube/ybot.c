@@ -46,9 +46,9 @@ int run_ybot() {
             url = pop(bot->urls_fifo);
             if(url != NULL && !exist_in_file(bot->explored_urls, url->value)) {
                 if(match_pattern(url->value, ".+watch\\?v.*")) {//VIDEOPAGE
-                    videopage_handler(page, url->value, parseFile, bot->urls_fifo); 
+                    pages_handler(page, url->value, parseFile, bot->urls_fifo); 
                 } else if(match_pattern(url->value, "@.+")) {// Channel page
-                    channelpage_handler(page1, url->value, parseFile, bot->urls_fifo);
+                    pages_handler(page1, url->value, parseFile, bot->urls_fifo);
                 }
                 //print_yfile(bot->data_fifo);
                 //json_object_put(json);
@@ -56,7 +56,6 @@ int run_ybot() {
                 push(bot->explored_urls, url->value);
                 freeElement(url);
             }
-            break;
         }
     }
     

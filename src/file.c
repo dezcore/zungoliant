@@ -225,8 +225,8 @@ int fileToArray(char *filePath, STR_ARRAY *array) {
 int appendStrToFile(char *fileName, const char* str) {
     FILE *fptr;
     fptr = fopen(fileName, "a");
-    puts("appendStrToFile");
     if(fptr!= NULL) {
+        printf("fileName : %s\n", fileName);
         //fprintf(fptr, "This is testing for fprintf...\n");
         fputs(str, fptr);
     }
@@ -236,13 +236,15 @@ int appendStrToFile(char *fileName, const char* str) {
 
 int write_file(char *fileName, char* str, char *accessMode) {
     FILE *fptr;
+    
     fptr = fopen(fileName, accessMode);
 
-    if(fptr!= NULL) {
-        //fprintf(fptr, "This is testing for fprintf...\n");
+    if(fptr!= NULL)
         fputs(str, fptr);
-    }
-    fclose(fptr);
+        
+    if(fclose(fptr)==EOF)
+        puts("file close error\0");
+
     return 0;
 }
 

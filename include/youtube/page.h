@@ -40,8 +40,7 @@ int set_page_pattern_url(PAGEPATTERN  *pattern, char *url);
 int downloadPage_and_replace(char *parseContent, YPage *page);
 int set_page_pattern_regex(PAGEPATTERN  *pattern, char *regex);
 int set_page_pattern_replace(PAGEPATTERN  *pattern, char *replace);
+int pages_handler(YPage *page, char *url, char* parseFile, File *urls_fifo);
 int extract_htmlpagedata(char *html_file_path, char *saveFilePath, YPage *page);
-int videopage_handler(YPage *page, char *url, char* parseFile, File *urls_fifo);
-int channelpage_handler(YPage *page, char *url, char* parseFile, File *urls_fifo);
 int set_yPage(YPage *page, int type, char *url, char *replace, char *titlesRegexFilePath);
 #endif

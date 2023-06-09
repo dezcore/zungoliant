@@ -157,37 +157,20 @@ int getTagName(myhtml_tree_t* tree,  myhtml_tree_node_t *root) {
     return 0;
 }
 
-int saveText(const char* node_text, char *fileName) {
-    char *filePath;
-
-    if(node_text != NULL && fileName != NULL) {
-        filePath = (char*) malloc(STR_SIZE * sizeof(char));
-        getCurrentDir(filePath, STR_SIZE);
-        strcat(filePath, FILES_PATH);
-        strcat(filePath, fileName);
-        //var ytInitialData =
-        //;
-        appendStrToFile(filePath, node_text);  
-        free(filePath);
-    }
-
-    return 0;
-}
-
-int getNodeText(myhtml_tree_t* tree, myhtml_tree_node_t *node, size_t inc, char *playerdata_file, char *yinitdata_file) {
+int getNodeText(myhtml_tree_t* tree, myhtml_tree_node_t *node, size_t inc, char *yDataOutput, char *yPlayerDataOutput) {
     while(node) {
         myhtml_tag_id_t tag_id = myhtml_node_tag_id(node);
 
         if(tag_id == MyHTML_TAG__TEXT || tag_id == MyHTML_TAG__COMMENT) {
             const char* node_text = myhtml_node_text(node, NULL);
-            if(strstr(node_text, YINITPLAYERDATA_FILE) != NULL) {
-                saveText(node_text, playerdata_file);
-            } else if(strstr(node_text, YINITDATA_FILE) != NULL) {
-                saveText(node_text, yinitdata_file);
+            if(strstr(node_text, YINITPLAYERDATA_FILE) != NULL && yPlayerDataOutput != NULL) {
+                write_file(yPlayerDataOutput, node_text, "a");
+            } else if(strstr(node_text, YINITDATA_FILE) != NULL && yDataOutput != NULL) {
+                write_file(yDataOutput, node_text, "a");
             }
         }
         //print children
-        getNodeText(tree, myhtml_node_child(node), (inc + 1), playerdata_file, yinitdata_file);
+        getNodeText(tree, myhtml_node_child(node), (inc + 1), yDataOutput, yPlayerDataOutput);
         node = myhtml_node_next(node);
     }
     return 0;
@@ -197,29 +180,53 @@ int getTargetNodesByName(myhtml_tree_t* tree, char *tag_name) {
     //tag_name : div, script, etc ...
     myhtml_collection_t *collection;
     myhtml_tree_node_t *root;
+    char *yDataOutput = NULL;
+    char *yPlayerDataOutput = NULL;
 
     if(tree != NULL) {
         collection = myhtml_get_nodes_by_name(tree, NULL, tag_name, 1, NULL);
-        for(size_t i = 0; i < collection->length; ++i) {
-            root = collection->list[i];  
-            getNodeText(tree, root, 0, YINITPLAYERDATA_FILE, YINITDATA_FILE);
+        get_absolutePath("/data/file/ytInitialData", &yDataOutput);
+        get_absolutePath("/data/file/ytInitialPlayerResponse", &yPlayerDataOutput);
+
+        if(yDataOutput != NULL && yPlayerDataOutput != NULL) {
+            write_file(yDataOutput, "", "w+");
+            write_file(yPlayerDataOutput, "", "w+");
+
+            for(size_t i = 0; i < collection->length; ++i) {
+                root = collection->list[i];  
+                getNodeText(tree, root, 0, yDataOutput, yPlayerDataOutput);
+            }
+            printf("getTargetNodes (collection->length) : %lu\n", collection->length); 
         }
-        printf("getTargetNodes (collection->length) : %lu\n", collection->length); 
     }
 
+    free(yDataOutput);
+    free(yPlayerDataOutput);
     return 0;
 }
 
 int extract_nodetext(myhtml_tree_t* tree, myhtml_collection_t *collection) {
     myhtml_tree_node_t *root;
+    char *yDataOutput = NULL;
+    char *yPlayerDataOutput = NULL;
 
     if(collection != NULL) {
-        for(size_t i = 0; i < collection->length; ++i) {
-            root = collection->list[i];  
-            getNodeText(tree, root, 0, YINITPLAYERDATA_FILE, YINITDATA_FILE);
+        get_absolutePath("/data/file/ytInitialData", &yDataOutput);
+        get_absolutePath("/data/file/ytInitialPlayerResponse", &yPlayerDataOutput);
+
+        if(yDataOutput != NULL && yPlayerDataOutput != NULL) {
+            write_file(yDataOutput, "", "w+");
+            write_file(yPlayerDataOutput, "", "w+");
+
+            for(int i = 0; i < collection->length; ++i) {
+                root = collection->list[i];  
+                getNodeText(tree, root, 0, yDataOutput, yPlayerDataOutput);
+            }
         }
     }
-
+    
+    free(yDataOutput);
+    free(yPlayerDataOutput);
     return 0;
 }
 

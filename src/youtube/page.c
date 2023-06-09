@@ -7,19 +7,19 @@ int extract_htmlpagedata(char *html_file_path, char *output_file_path, YPage *pa
     if(page != NULL && html_file_path != NULL && contents != NULL) {
         parseYFile(html_file_path);
         get_absolutePath(YINITDATA_FILE_PATH, &parseContentPath);
-        
+
         if(parseContentPath != NULL && output_file_path != NULL) {
             load_file(parseContentPath, &contents);
             if(contents != NULL) {
                 trim(&contents);
+
                 if(strcmp(page->page_pattern->regex, "") != 0)
                     get_nested_json(&contents, page->page_pattern->regex);
 
                 if(0 < page->patterns->size)
                     replace_all(&contents, page->patterns, page->page_pattern->replace);
 
-                //write_file(output_file_path,  contents, "w");
-                appendStrToFile(output_file_path, contents);
+                write_file(output_file_path, contents, "w+");
             } else {
                 printf("Empty content (extract_htmlpagedata)\n");
             }
@@ -702,30 +702,21 @@ int channel_videos_tabs_videos(struct json_object *videosContentObj) {
     return 0;
 }
 
-int videopage_handler(YPage *page, char *url, char* parseFile, File *urls_fifo) {
+int pages_handler(YPage *page, char *url, char* parseFile, File *urls_fifo) {
     struct json_object *json = NULL;
 
     if(page != NULL && url != NULL && parseFile != NULL) {
-        set_page_pattern_url(page->page_pattern, url);
-        //write_file(parseFile, "", "w");
-        downloadPage_and_replace(parseFile, page);
-        file_tojson(parseFile, &json);
-        save_youtube_page_data(json, page, urls_fifo);
-    }
-
-    json_object_put(json);
-    return 0;
-}
-
-int channelpage_handler(YPage *page, char *url, char* parseFile, File *urls_fifo) {
-    struct json_object *json = NULL;
-    if(page != NULL && url != NULL && parseFile != NULL) {
+        //puts("videopage_handler");
         set_page_pattern_url(page->page_pattern, url);
         downloadPage_and_replace(parseFile, page);
         file_tojson(parseFile, &json);
-        save_channel_page_data(json, page, urls_fifo);
-        //printf("channelsPage : %s\n", url);
+
+        if(page->type == 0)
+            save_youtube_page_data(json, page, urls_fifo);
+        else
+            save_channel_page_data(json, page, urls_fifo);
     }
+
     json_object_put(json);
     return 0;
 }
