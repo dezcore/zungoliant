@@ -1114,6 +1114,14 @@ int serie_to_set_bson(bson_t **document, SERIE *serie) {
   return 0;
 }
 
+int search_to_bson(bson_t **document, char *title, char *videoId) {
+  if(title != NULL && videoId != NULL) {
+    BSON_APPEND_UTF8(*document, "title", title);
+    BSON_APPEND_UTF8(*document, "videoId", videoId);
+  }
+  return 0;
+}
+
 char* deserialize_date(struct json_object *date_json) {
   char *res = NULL;
   json_object *timestamp_json = getObj_rec(date_json, "/$date/$numberLong");
@@ -1547,16 +1555,15 @@ int exist_season(char *title, struct json_object *serie) {
   return exist;
 }
 
-int exist_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *documentName, SERIE *serie) {
+int exist_document(mongoc_client_t *client, bson_t *selector, char *dbName, char *collection) {
   int exist = 0;
   const bson_t *document;
   mongoc_cursor_t *cursor = NULL;
-  
+
   if(selector != NULL && client != NULL) {
-    find_document(client, dbName, documentName, selector, &cursor);
+    find_document(client, dbName, collection, selector, &cursor);
     if(mongoc_cursor_next(cursor, &document)) {
       //print_bson(document);
-      bson_to_serie(serie, (bson_t *)document);
       exist = 1;
     } 
   }
@@ -1564,6 +1571,25 @@ int exist_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *d
   bson_free(cursor);
   return exist;
 }
+
+int find_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *collection, SERIE *serie) {
+  int exist = 0;
+  const bson_t *document;
+  mongoc_cursor_t *cursor = NULL;
+
+  if(selector != NULL && client != NULL) {
+    find_document(client, dbName, collection, selector, &cursor);
+    if(mongoc_cursor_next(cursor, &document)) {
+      //print_bson(document);
+      bson_to_serie(serie, (bson_t *)document);
+    } 
+  }
+
+  bson_free(cursor);
+  return 0;
+}
+
+
 
 int check_beforeinsert(SERIE *serie) {
   bson_t *document = bson_new();

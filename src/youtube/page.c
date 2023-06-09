@@ -434,17 +434,19 @@ int exist_title_in_db(mongoc_client_t *client, char *title, SERIE *serie) {
     //SEASON *season;
     bson_t *selector = NULL;
     const char* db_name =  "maboke";
-    const char* document_name = "serie";
+    const char *serie_collection = "serie", *search_collection = "search";
 
     if(title != NULL && client != NULL && serie != NULL) {
         get_title_selector(title, &selector);
         if(selector != NULL) {
-            res = exist_serie(client, selector, (char*)db_name, (char*)document_name, serie);
-            /*if(res) {
-                season = &(serie->seasons->elements[0]);
-                printf("Exist : %s, %s\n", title, season->title);
+            res = exist_document(client, selector, (char*)db_name, search_collection); 
+            //exist_serie(client, selector, (char*)db_name, (char*)serie_collection, serie);
+            if(res) {
+                find_serie(client, selector, (char*)db_name, (char*)serie_collection, serie);
+                //season = &(serie->seasons->elements[0]);
+                //printf("Exist : %s, %s\n", title, season->title);
                 //print_serie(serie);
-            }*/
+            }
         }
     }
 
@@ -462,7 +464,7 @@ int print_serie_bson(bson_t *document) {
     return 0;
 }
 
-int update_season_videos(VIDEO_ARRAY *videos, struct json_object *video_json, char *title, int type) {
+int update_season_videos(mongoc_client_t *client, VIDEO_ARRAY *videos, struct json_object *video_json, char *title, int type) {
     VIDEO *video;
     int exist = 0;
 
@@ -479,8 +481,10 @@ int update_season_videos(VIDEO_ARRAY *videos, struct json_object *video_json, ch
         if(!exist) {
             resize_video_array_struct(videos, videos->length+1);
             video =  &(videos->elements[videos->length-1]);
-            if(video != NULL)
+            if(video != NULL) {
                 json_mapping_to_video(video, video_json, type);
+                add_search_values_to_db(client, video);
+            }
             //printf("update_season_videos : %ld\n", videos->length);
         }
     }
@@ -501,7 +505,7 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
 
             if(season->number == get_title_season(title)) {
                 existSeason = 1;
-                videoExist = update_season_videos(season->videos, video_json, title, type);
+                videoExist = update_season_videos(client, season->videos, video_json, title, type);
                 break;
             }
         }
@@ -513,7 +517,7 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
             //print_serie(serie);
         } else if(!existSeason) {
             puts("No exist season");
-            resize_season_array_struct(serie->seasons, serie->seasons->length+1, 1);
+            resize_season_array_struct(serie->seasons, serie->seasons->length+1, 1); 
             season = &(serie->seasons->elements[serie->seasons->length-1]);
             json_mapping_to_video(&(season->videos->elements[0]), video_json, 0);
             //print_serie(serie);
@@ -535,7 +539,22 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
     return 0;
 }
 
+int add_search_values_to_db(mongoc_client_t *client, VIDEO *video) {
+    bson_t *document = bson_new();
+    const char *dbName = "maboke", *collection = "search";
+
+    if(video != NULL) {
+        search_to_bson(&document, video->title, video->url);
+        insert_document(client, (char*)dbName, (char*)collection, document);
+        //print_serie_bson(document);
+    }
+    bson_destroy(document);
+    return 0;
+}
+
 int create_new_serie(mongoc_client_t *client, struct json_object *video_json, int type) {
+    VIDEO *video;
+    SEASON *season;
     bson_t *document = bson_new();
     SERIE *serie = malloc(sizeof(*serie));
     const char *dbName = "maboke", *collection = "serie";
@@ -546,6 +565,12 @@ int create_new_serie(mongoc_client_t *client, struct json_object *video_json, in
         json_mapping_to_serie(serie, video_json, type);
         serie_to_bson(&document, serie);
         insert_document(client, (char*)dbName, (char*)collection, document);
+        
+        if((season=&(serie->seasons->elements[0])) != NULL) {
+            if((video = &(season->videos->elements[0])) != NULL) {
+                add_search_values_to_db(client, video);
+            }
+        }
         //print_serie(serie);
         //print_serie_bson(document);
     }
