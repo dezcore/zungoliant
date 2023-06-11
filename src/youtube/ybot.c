@@ -45,6 +45,7 @@ int run_ybot() {
         while(0 < bot->urls_fifo->size) {
             url = pop(bot->urls_fifo);
             if(url != NULL && !exist_in_file(bot->explored_urls, url->value)) {
+                printf("Url : %s\n", url->value);
                 if(match_pattern(url->value, ".+watch\\?v.*")) {//VIDEOPAGE
                     pages_handler(page, url->value, parseFile, bot->urls_fifo); 
                 } else if(match_pattern(url->value, "@.+")) {// Channel page

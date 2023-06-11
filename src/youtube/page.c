@@ -300,10 +300,10 @@ int json_mapping_to_video(VIDEO *video, struct json_object *video_json, int type
     struct json_object *urlObj, *titleObj, *lengthObj;
     const char *summary = "", *category = "", *censor_rating= "";
 
-    const char *urlField = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_URL_FIELD : CHANNEL_PAGE_HOME_ITEM_URL_FIELD;
-    const char *titleField = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD : CHANNEL_PAGE_HOME_ITEM_TITLE_FIELD;
-    const char *lengthField = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_LENGTH_FIELD : CHANNEL_PAGE_HOME_ITEM_LENGTH_FIELD;
-    
+    const char *urlField = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_URL_FIELD : (type == 1 ? CHANNEL_PAGE_HOME_ITEM_URL_FIELD : VIDEOS_PAGE_VIDEO_URL_FIELD);
+    const char *titleField = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD : (type == 1 ? CHANNEL_PAGE_HOME_ITEM_TITLE_FIELD : VIDEOS_PAGE_VIDEO_TITLE_FIELD);
+    const char *lengthField = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_LENGTH_FIELD : (type == 1 ? CHANNEL_PAGE_HOME_ITEM_LENGTH_FIELD : VIDEOS_PAGE_VIDEO_LENGTH_FIELD);
+
     if(video != NULL && video_json != NULL) {
         urlObj = getObj_rec(video_json, (char*)urlField);
         titleObj = getObj_rec(video_json,(char*)titleField);
@@ -331,7 +331,7 @@ int json_mapping_to_videos(VIDEO_ARRAY *videos, struct json_object *videos_json,
 int json_mapping_to_season(SEASON *season, struct json_object *season_json, int type) {
     const char *title;
     struct json_object *titleObj;
-    const char *title_field = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD : CHANNEL_PAGE_HOME_ITEM_TITLE_FIELD;
+    const char *title_field = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD : (type == 1 ? CHANNEL_PAGE_HOME_ITEM_TITLE_FIELD : VIDEOS_PAGE_VIDEO_TITLE_FIELD);
 
     if(season != NULL && season_json != NULL) {
         titleObj = getObj_rec(season_json, title_field);
@@ -339,6 +339,7 @@ int json_mapping_to_season(SEASON *season, struct json_object *season_json, int 
         set_seson(season, (char*)title, "1970-01-01T10:42:00Z", "", NULL);
         json_mapping_to_videos(season->videos, season_json, type);
     }
+
     return 0;
 }
 
@@ -355,9 +356,9 @@ int json_mapping_to_keys_values(KEY_VALUE_ARRAY *array, struct json_object *vide
     int numb_of_keys = 3;
     const char *title, /*img,*/ *videoId, *viewCount;
     struct json_object *titleObj, /*imgObj,*/ *videoIdObj, *viewCountObj;
-    const char *title_field = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD : CHANNEL_PAGE_HOME_ITEM_TITLE_FIELD;
-    const char *videoId_field = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_VIDEOID_FIELD : CHANNEL_PAGE_HOME_ITEM_VIDEOID_FIELD;
-    const char *viewCount_field = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_VIEW_COUNT_FIELD : CHANNEL_PAGE_HOME_ITEM_VIEW_COUNT_FIELD;
+    const char *title_field = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD : (type == 1 ? CHANNEL_PAGE_HOME_ITEM_TITLE_FIELD : VIDEOS_PAGE_VIDEO_TITLE_FIELD);
+    const char *videoId_field = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_VIDEOID_FIELD : (type == 1 ? CHANNEL_PAGE_HOME_ITEM_VIDEOID_FIELD : VIDEOS_PAGE_VIDEOID_FIELD);
+    const char *viewCount_field = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_VIEW_COUNT_FIELD : (type == 1 ? CHANNEL_PAGE_HOME_ITEM_VIEW_COUNT_FIELD : VIDEOS_PAGE_VIDEO_VIEWCOUNT_FIELD);
 
     if(video_json != NULL) {
         titleObj = getObj_rec(video_json, title_field);
@@ -556,12 +557,13 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
             //print_serie(serie);
         } else if(!existSeason) {
             puts("No exist season");
-            printf("title : %s\n", title);
-            print_serie(serie);
-            resize_season_array_struct(serie->seasons, serie->seasons->length+1, 1); 
+            printf("Title : %s\n", title);
+            //print_serie(serie);
+            resize_season_array_struct(serie->seasons, serie->seasons->length+1, 1);
+            puts("After resize"); 
             season = &(serie->seasons->elements[serie->seasons->length-1]);
             if(season != NULL) {
-                json_mapping_to_video(&(season->videos->elements[0]), video_json, 0);
+                json_mapping_to_video(&(season->videos->elements[0]), video_json, type);
                 //print_serie(serie);
             }
         }
@@ -595,7 +597,7 @@ int add_search_values_to_db(mongoc_client_t *client, VIDEO *video) {
     return 0;
 }
 
-int create_new_serie(mongoc_client_t *client, struct json_object *video_json, int type, char *dbName, char *collection) {
+int create_new_serie(mongoc_client_t *client, struct json_object *video_json, int type, char *dbName, char *collection, int index_title) {
     VIDEO *video;
     SEASON *season;
     bson_t *document = bson_new();
@@ -608,7 +610,7 @@ int create_new_serie(mongoc_client_t *client, struct json_object *video_json, in
         serie_to_bson(&document, serie);
         insert_document(client, (char*)dbName, (char*)collection, document);
         
-        if((season=&(serie->seasons->elements[0])) != NULL) {
+        if((season=&(serie->seasons->elements[0])) != NULL && index_title) {
             if((video = &(season->videos->elements[0])) != NULL) {
                 add_search_values_to_db(client, video);
             }
@@ -623,11 +625,13 @@ int create_new_serie(mongoc_client_t *client, struct json_object *video_json, in
 }
 
 int add_url_to_file(File *urls_fifo, struct json_object *video_json, int type) {
-    const char *videoId;
-    struct json_object *videoIdObj;
+    const char *videoId, *channelUrlId;
+    struct json_object *videoIdObj, *channelUrlObj;
     char *url = (char*) calloc(100, sizeof(char));
-    const char *videoId_field = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_VIDEOID_FIELD : CHANNEL_PAGE_HOME_ITEM_VIDEOID_FIELD;
-
+    char *channelUrl = (char*) calloc(100, sizeof(char));
+    const char *channel_url_field =  type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_CHANNEL_URL_FIELD : NULL;
+    const char *videoId_field = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_VIDEOID_FIELD : (type == 1 ? CHANNEL_PAGE_HOME_ITEM_VIDEOID_FIELD : VIDEOS_PAGE_VIDEO_URL_FIELD);
+    puts("add_url_to_file");
     if(urls_fifo != NULL && video_json != NULL && url != NULL) {
         videoIdObj = getObj_rec(video_json, videoId_field);
         videoId = json_object_get_string(videoIdObj);
@@ -637,13 +641,27 @@ int add_url_to_file(File *urls_fifo, struct json_object *video_json, int type) {
             //printf("VideoId : %s\n", url);
             push(urls_fifo, url);
         }
+
+        if(channel_url_field != NULL) {
+            channelUrlObj = getObj_rec(video_json, channel_url_field);
+            if((channelUrlId = json_object_get_string(channelUrlObj)) != NULL) {
+                strcat(channelUrl, "https://www.youtube.com");
+                strcat(channelUrl, channelUrlId);
+                //printf("Url : %s\n", channelUrl);
+                push(urls_fifo, channelUrl);
+                strcat(channelUrl, "/videos"); 
+                //printf("Url : %s\n", channelUrl);
+                push(urls_fifo, channelUrl);
+            }
+        }
     }
 
     free(url);
+    free(channelUrl);
     return 0;
 }
 
-int json_video_handler(YPage *page, struct json_object *video_json, char *title,  File *urls_fifo) {
+int json_video_handler(YPage *page, struct json_object *video_json, char *title,  File *urls_fifo, int type) {
     int exist = 0;
     SERIE *serie = NULL;
     const char *dbName = "maboke", *serie_collection = "serie", *nomatch_collection = "nomatch";
@@ -651,13 +669,13 @@ int json_video_handler(YPage *page, struct json_object *video_json, char *title,
     if(page != NULL && video_json != NULL && title != NULL && is_matching_title(page->titlesRegex, title)) {
         serie = (SERIE *) calloc(1, sizeof(*serie));
         init_serie_default_parameters(serie);
-        
+
         if((exist = exist_serie_in_db(page->mongo_client, title, serie)) == 1) {
-            update_serie(page->mongo_client, serie, video_json, title, page->type);
+            update_serie(page->mongo_client, serie, video_json, title, type);
         } else if(exist == 0) {
-            create_new_serie(page->mongo_client, video_json, page->type, dbName, serie_collection);
+            create_new_serie(page->mongo_client, video_json, type, dbName, serie_collection, 1);
         } else if(exist == -1 && !exist_title_in_collection(page->mongo_client, title, dbName, nomatch_collection)) {
-            create_new_serie(page->mongo_client, video_json, page->type, dbName, nomatch_collection);
+            create_new_serie(page->mongo_client, video_json, type, dbName, nomatch_collection, 0);
         }
 
         add_url_to_file(urls_fifo, video_json, page->type);
@@ -684,7 +702,7 @@ int save_youtube_page_data(struct json_object *json, YPage *page, File *urls_fif
                 titleObj = getObj_rec(video_json, TITLE_FIELD);
 
                 if((title = json_object_get_string(titleObj)) != NULL)
-                    json_video_handler(page, video_json, (char*)title, urls_fifo);
+                    json_video_handler(page, video_json, (char*)title, urls_fifo, page->type);
                 /*if(video != NULL && player_json != NULL) {
                     json_mapping_player_to_video(video, player_json);
                     json_mapping_player_channel(video, player_json);
@@ -712,13 +730,31 @@ int channel_home_page_videos(struct json_object *contents_json, YPage *page, Fil
                     video_json = json_object_array_get_idx(videos_json, i);
                     if((titleObj = getObj_rec(video_json, CHANNEL_PAGE_HOME_ITEM_TITLE_FIELD)) != NULL) {
                         if((title = json_object_get_string(titleObj)) != NULL)
-                            json_video_handler(page, video_json, (char*)title, urls_fifo);
+                            json_video_handler(page, video_json, (char*)title, urls_fifo, page->type);
                     }
                 }
             }
             //printf("%s\n", json_object_get_string(item));
         }
     }
+    return 0;
+}
+
+int channel_videos_page(struct json_object *videos_json, YPage *page, File *urls_fifo) {
+    const char *title;
+    int videosIndex = 1;
+    struct json_object *video_json,  *titleObj;
+
+    if(videos_json != NULL) {
+        for(int i = 0; i < json_object_array_length(videos_json); i++) {
+            video_json = json_object_array_get_idx(videos_json, i);
+            if((titleObj = getObj_rec(video_json,  VIDEOS_PAGE_VIDEO_TITLE_FIELD)) != NULL) {
+                if((title = json_object_get_string(titleObj)) != NULL)
+                    json_video_handler(page, video_json, (char*)title, urls_fifo, 2);
+            }
+        }
+    }
+
     return 0;
 }
 
@@ -731,46 +767,18 @@ int save_channel_page_data(struct json_object *json, YPage *page, File *urls_fif
             if((tabsObj = getObj_rec(rootObj, CHANNEL_PAGE_TABS_FIELD)) != NULL) {
                 for(int i = 0; i < json_object_array_length(tabsObj); i++) {
                     if((tabObj = json_object_array_get_idx(tabsObj, i)) != NULL) {
-
                         if((contents = getObj_rec(tabObj, CHANNELS_PAGE_TAB_CONTENTS_FIELD)) != NULL)
                             json_mapping_channels_tabs_data(contents);
                         else if((contents = getObj_rec(tabObj, CHANNEL_PAGE_HOME_TAB_CONTENTS_FIELD)) != NULL)
                             channel_home_page_videos(contents, page, urls_fifo);
-                        //else if((contents = getObj_rec(tabObj, CHANNEL_PAGE_VIDEOS_TAB_CONTENTS_FIELD)) != NULL)
-                            //channel_videos_tabs_videos(contents);
+                        if((contents = getObj_rec(tabObj, CHANNEL_PAGE_VIDEOS_TAB_CONTENTS_FIELD)) != NULL)
+                            channel_videos_page(contents, page, urls_fifo);
                     }
                 }
             }
         }
         //puts("save_channel_page_data");
         //printf("%s\n", json_object_get_string(json));
-    }
-    return 0;
-}
-
-int channel_videos_tabs_videos(struct json_object *videosContentObj) {
-    unsigned int i;
-    struct json_object *videoObj;
-    struct json_object *videoIdObj, *titleObj, /* *descriptionObj,*/ *viewCountObj, /*videoCountObj,*/ *videoUrlObj;
-
-    printf("\n  channel_videos_tabs : \n");
-    if(videosContentObj != NULL) {
-        for(i = 0; i < json_object_array_length(videosContentObj); i++) {
-            videoObj = json_object_array_get_idx(videosContentObj, i);
-            if(videoObj != NULL) {
-                if(i == 0) {
-                    videoIdObj = getObj_rec(videoObj, VIDEOS_PAGE_VIDEOID_FIELD);
-                    titleObj =  getObj_rec(videoObj, VIDEOS_PAGE_VIDEO_TITLE_FIELD);
-                    viewCountObj =  getObj_rec(videoObj, VIDEOS_PAGE_VIDEO_VIEWCOUNT_FIELD);
-                    videoUrlObj = getObj_rec(videoObj, VIDEOS_PAGE_VIDEO_URL_FIELD);
-                    //descriptionObj = getObj_rec(videoObj, VIDEOS_PAGE_VIDEO_DESCRIPTION_FIELD);
-                    printf("VideoId : %s\n", json_object_get_string(videoIdObj));
-                    printf("Title : %s\n", json_object_get_string(titleObj));
-                    printf("ViewCount : %s\n", json_object_get_string(viewCountObj));
-                    printf("Url : %s\n", json_object_get_string(videoUrlObj));
-                }
-            }
-        }
     }
     return 0;
 }

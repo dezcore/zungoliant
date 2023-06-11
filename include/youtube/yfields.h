@@ -22,6 +22,7 @@
 #define VIDEO_PAGE_PLAYLIST_ITEM_IMG_FIELD "/compactVideoRenderer/thumbnail/thumbnails/0/url"
 #define VIDEO_PAGE_PLAYLIST_ITEM_VIEW_COUNT_FIELD "/compactVideoRenderer/viewCountText/simpleText"
 #define VIDEO_PAGE_PLAYLIST_ITEM_URL_FIELD "/compactVideoRenderer/navigationEndpoint/commandMetadata/webCommandMetadata/url"
+#define VIDEO_PAGE_PLAYLIST_ITEM_CHANNEL_URL_FIELD "/compactVideoRenderer/shortBylineText/runs/0/navigationEndpoint/commandMetadata/webCommandMetadata/url"
 
 #define VIDEO_PAGE_TITLE_FIELD "/contents/0/videoPrimaryInfoRenderer/title/runs/0/text"
 #define VIDEO_PAGE_DATE_FIELD "/contents/0/videoPrimaryInfoRenderer/dateText/simpleText"
@@ -41,6 +42,7 @@
 #define CHANNEL_PAGE_VIDEOS_TAB_CONTENTS_FIELD "/tabRenderer/content/richGridRenderer/contents"
 #define CHANNELS_PAGE_TAB_CONTENTS_FIELD "/tabRenderer/content/sectionListRenderer/contents/0/itemSectionRenderer/contents/0/gridRenderer/items"
 
+
 #define CHANNEL_PAGE_HOME_VIDEOID_FIELD "/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/videoId"
 #define CHANNEL_PAGE_HOME_VIDEO_TITLE_FIELD "/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/title/runs/0/text"
 #define CHANNEL_PAGE_HOME_VIDEO_DESCRIPTION_FIELD "/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/description/runs/0/text"
@@ -49,8 +51,9 @@
 
 #define VIDEOS_PAGE_VIDEOID_FIELD "/richItemRenderer/content/videoRenderer/videoId"
 #define VIDEOS_PAGE_VIDEO_TITLE_FIELD "/richItemRenderer/content/videoRenderer/title/runs/0/text"
+#define VIDEOS_PAGE_VIDEO_LENGTH_FIELD "/richItemRenderer/content/videoRenderer/lengthText/simpleText"
 #define VIDEOS_PAGE_VIDEO_DESCRIPTION_FIELD "/richItemRenderer/content/videoRenderer/descriptionSnippet/runs/0/text"
-#define VIDEOS_PAGE_VIDEO_VIEWCOUNT_FIELD "/richItemRenderer/content/videoRenderer/viewCountText/simpleText"
+#define VIDEOS_PAGE_VIDEO_VIEWCOUNT_FIELD "/richItemRenderer/content/videoRenderer/viewCountText/simpleText"   
 #define VIDEOS_PAGE_VIDEO_URL_FIELD "/richItemRenderer/content/videoRenderer/navigationEndpoint/commandMetadata/webCommandMetadata/url"
 
 #define CHANNELS_PAGE_ITEM_CHANNELID_FIELD "/gridChannelRenderer/channelId"

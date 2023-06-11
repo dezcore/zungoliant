@@ -451,7 +451,6 @@ int print_array_video(VIDEO_ARRAY *array, char *tabs, char* subtabs) {
 }
 
 int init_season_struct(SEASON *season, size_t videoLen) {
-
   if(season != NULL) {
     season->number = 0;
     season->title = (char*) calloc(1, sizeof(char));
@@ -614,15 +613,23 @@ int resize_season_array_struct(SEASON_ARRAY *array, size_t length,  size_t video
   SEASON *elements;
 
   if(array != NULL && array->length < length) {
-    //printf("Len : %ld, %d\n", length, array->length);
-    if(array->length < length && (elements = (SEASON*) realloc(array->elements, length * sizeof(*array->elements)) != NULL)) {
-      for(int i = array->length; i < length; i++) {
+    printf("Len : %ld, %d\n", length, array->length);
+    elements = (SEASON*) realloc(array->elements, length * sizeof(SEASON));
+    if(elements != NULL) {
+      season = &(array->elements[1]);
+      init_season_struct(season, 1);
+      //printf("title : %s\n", season->title);
+      //print_season(season, "", "\t\t", "\t\t\t");
+    }
+    /*if(array->length < length && (elements) != NULL)) {
+      for(int i = 0; i < length; i++) {
         season = &(elements[i]);
-        init_season_struct(season, 1);
+        print_season(season, "", "\t\t", "\t\t\t");
+        //init_season_struct(season, 1);
       }
       array->elements = elements;
       array->length = length;
-    }
+    }*/
   }
   return 0;
 }
@@ -1578,7 +1585,7 @@ int find_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *co
   int exist = 0;
   const bson_t *document;
   mongoc_cursor_t *cursor = NULL;
-  
+
   if(selector != NULL && client != NULL) {
     find_document(client, dbName, collection, selector, &cursor);
     if(mongoc_cursor_next(cursor, &document)) {
