@@ -57,7 +57,7 @@ int run_ybot() {
                 push(bot->explored_urls, url->value);
                 freeElement(url);
             }
-            //break;
+            break;
         }
     }
     

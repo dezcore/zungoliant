@@ -613,7 +613,7 @@ int resize_season_array_struct(SEASON_ARRAY *array, size_t length,  size_t video
   SEASON *elements;
 
   if(array != NULL && array->length < length) {
-    printf("Len : %ld, %d\n", length, array->length);
+    printf("Len : %ld, %ld\n", length, array->length);
     elements = (SEASON*) realloc(array->elements, length * sizeof(SEASON));
     if(elements != NULL) {
       season = &(array->elements[1]);
@@ -1014,6 +1014,7 @@ int init_video(bson_t *video_bson, VIDEO *video, int index) {
   size_t keylen;
   bson_t child2;
   const char *key;
+  char *videoId = NULL;
 
   if(video_bson != NULL && video != NULL) {
     keylen = bson_uint32_to_string(index, &key, buf, sizeof buf);
@@ -1024,11 +1025,21 @@ int init_video(bson_t *video_bson, VIDEO *video, int index) {
     BSON_APPEND_UTF8(&child2, "url", video->url);
     BSON_APPEND_UTF8(&child2, "length", video->length);
     BSON_APPEND_UTF8(&child2, "censor_rating", video->censor_rating);
+
+    get_str_match(video->url, "=.*", &videoId);
+
+    if(videoId != NULL) {
+      videoId[0] = ' ';
+      //trim(&videoId);
+      BSON_APPEND_UTF8(&child2, "videoId", videoId);
+      //printf("VideoId : %s\n", videoId);
+    }
     //int_date_(&child2, "created_at");
     //int_date_(&child2, "upDated_at");
     bson_append_document_end(video_bson, &child2);
   }
 
+  free(videoId);
   return 0;
 }
 
@@ -1056,6 +1067,7 @@ int init_season(bson_t *season_bson, SEASON *season, int index) {
     bson_append_document_end(season_bson, &child2); 
   }
 
+  
   return 0;
 }
 
