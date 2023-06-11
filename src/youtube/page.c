@@ -418,7 +418,8 @@ int get_title_selector(char *title, bson_t **selector) {
     fifo_init(fifo);
     if(title != NULL) {
         get_match(title, "[a-zA-Z]{4,}", fifo);
-        join_file_element(fifo, &regex, ".*", 1);
+        join_file_element(fifo, &regex, ".*", 1, -1);
+        //printf("title : %s\n", title);
         //printf("REGEX : %s\n", regex);
         if(regex != NULL) {
             *selector = BCON_NEW("title", "{", "$regex", BCON_UTF8(regex), "$options", BCON_UTF8("i"),"}");
@@ -429,24 +430,62 @@ int get_title_selector(char *title, bson_t **selector) {
     return 0;
 }
 
-int exist_title_in_db(mongoc_client_t *client, char *title, SERIE *serie) {
+int get_selector_by_numb_of_match(char *key, char *value, char *pattern,  char *delimiter, bson_t **selector, int numb_match) {
+    File *fifo = malloc(sizeof(*fifo));
+    char *regex = (char*) calloc(1, sizeof(char));
+
+    fifo_init(fifo);
+
+    if(key != NULL && value != NULL && pattern != NULL && delimiter != NULL) {
+        get_match(value, pattern, fifo);
+        join_file_element(fifo, &regex, delimiter, 1, numb_match);
+        if(regex != NULL) {
+            *selector = BCON_NEW(key, "{", "$regex", BCON_UTF8(regex), "$options", BCON_UTF8("i"),"}");
+        }
+    }
+    free(regex);
+    freeFile(fifo);
+
+    return 0;
+}
+
+int exist_serie_in_db(mongoc_client_t *client, char *title, SERIE *serie) {
     int res = 0;
     //SEASON *season;
-    bson_t *selector = NULL;
     const char* db_name =  "maboke";
+    bson_t *selector = NULL, *prefix_selector = NULL;
     const char *serie_collection = "serie", *search_collection = "search";
 
     if(title != NULL && client != NULL && serie != NULL) {
         get_title_selector(title, &selector);
         if(selector != NULL) {
-            res = exist_document(client, selector, (char*)db_name, search_collection); 
-            //exist_serie(client, selector, (char*)db_name, (char*)serie_collection, serie);
+            res = exist_document(client, selector, (char*)db_name, (char*)search_collection);
             if(res) {
-                find_serie(client, selector, (char*)db_name, (char*)serie_collection, serie);
+                res = find_serie(client, selector, (char*)db_name, (char*)serie_collection, serie);
                 //season = &(serie->seasons->elements[0]);
                 //printf("Exist : %s, %s\n", title, season->title);
                 //print_serie(serie);
+            } else {
+                get_selector_by_numb_of_match("title", title, "[a-zA-Z]{4,}", ".*", &prefix_selector, 3);
+                if(exist_document(client, prefix_selector, (char*)db_name, serie_collection))
+                    res = -1;
             }
+        }
+    }
+
+    bson_free(selector);
+    bson_free(prefix_selector);
+    return res;
+}
+
+int exist_title_in_collection(mongoc_client_t *client, char *title, char *db_name, char *collection) {
+    int res = 0;
+    bson_t *selector = NULL;
+
+    if(title != NULL && client != NULL) {
+        get_title_selector(title, &selector);
+        if(selector != NULL) {
+            res = exist_document(client, selector, db_name, collection);
         }
     }
 
@@ -517,10 +556,14 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
             //print_serie(serie);
         } else if(!existSeason) {
             puts("No exist season");
+            printf("title : %s\n", title);
+            print_serie(serie);
             resize_season_array_struct(serie->seasons, serie->seasons->length+1, 1); 
             season = &(serie->seasons->elements[serie->seasons->length-1]);
-            json_mapping_to_video(&(season->videos->elements[0]), video_json, 0);
-            //print_serie(serie);
+            if(season != NULL) {
+                json_mapping_to_video(&(season->videos->elements[0]), video_json, 0);
+                //print_serie(serie);
+            }
         }
 
         get_title_selector(title, &selector);
@@ -552,12 +595,11 @@ int add_search_values_to_db(mongoc_client_t *client, VIDEO *video) {
     return 0;
 }
 
-int create_new_serie(mongoc_client_t *client, struct json_object *video_json, int type) {
+int create_new_serie(mongoc_client_t *client, struct json_object *video_json, int type, char *dbName, char *collection) {
     VIDEO *video;
     SEASON *season;
     bson_t *document = bson_new();
     SERIE *serie = malloc(sizeof(*serie));
-    const char *dbName = "maboke", *collection = "serie";
 
     if(video_json != NULL && serie != NULL) {
         init_serie_default_parameters(serie);
@@ -602,16 +644,22 @@ int add_url_to_file(File *urls_fifo, struct json_object *video_json, int type) {
 }
 
 int json_video_handler(YPage *page, struct json_object *video_json, char *title,  File *urls_fifo) {
+    int exist = 0;
     SERIE *serie = NULL;
+    const char *dbName = "maboke", *serie_collection = "serie", *nomatch_collection = "nomatch";
 
     if(page != NULL && video_json != NULL && title != NULL && is_matching_title(page->titlesRegex, title)) {
         serie = (SERIE *) calloc(1, sizeof(*serie));
         init_serie_default_parameters(serie);
-        if(exist_title_in_db(page->mongo_client, title, serie)) {
+        
+        if((exist = exist_serie_in_db(page->mongo_client, title, serie)) == 1) {
             update_serie(page->mongo_client, serie, video_json, title, page->type);
-        } else {
-            create_new_serie(page->mongo_client, video_json, page->type);
+        } else if(exist == 0) {
+            create_new_serie(page->mongo_client, video_json, page->type, dbName, serie_collection);
+        } else if(exist == -1 && !exist_title_in_collection(page->mongo_client, title, dbName, nomatch_collection)) {
+            create_new_serie(page->mongo_client, video_json, page->type, dbName, nomatch_collection);
         }
+
         add_url_to_file(urls_fifo, video_json, page->type);
     } /* else {
         logsFile

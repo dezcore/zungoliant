@@ -312,8 +312,9 @@ int get_title_season(char *title) {
     return res;
 }
 
-int join_file_element(File *file, char **str, char *delimiter, int start_delimiter) {
+int join_file_element(File *file, char **str, char *delimiter, int start_delimiter, int numb_of_words) {
     Element *current;
+    int cpt_words = 0;
     char *res = (char*) calloc(JOIN_STR_LEN, sizeof(char));
 
     if(file != NULL && res != NULL) {
@@ -325,6 +326,13 @@ int join_file_element(File *file, char **str, char *delimiter, int start_delimit
         while(current != NULL) {
             strcat(res, current->value);
             strcat(res, delimiter);
+
+            if(0 < numb_of_words) {
+                cpt_words++;
+                if(cpt_words == numb_of_words)
+                    break;
+            }
+            
             current = current->next;
         }
 

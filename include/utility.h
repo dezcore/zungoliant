@@ -48,7 +48,7 @@ int get_match(char *str, char *pattern,  File *fifo);
 int get_str_match(char *str, char *pattern, char **match);
 int init_str_array_struct(STR_ARRAY *array, size_t length);
 int resize_str_array_struct(STR_ARRAY *array, size_t length);
-int join_file_element(File *file, char **str, char *delimiter, int start_delimiter);
 int parseDate(char *str_date, char *datePartRegex, char *datePartDelimiter, STR_ARRAY *array);
 int print_array_str(STR_ARRAY *array, char *tabs, char* subtabs, char *str_tabs, char *str_subtabs);
+int join_file_element(File *file, char **str, char *delimiter, int start_delimiter, int numb_of_words);
 #endif

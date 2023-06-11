@@ -610,14 +610,15 @@ int free_season_array_struct(SEASON_ARRAY *array) {
 }
 
 int resize_season_array_struct(SEASON_ARRAY *array, size_t length,  size_t videoLen) {
+  SEASON *season;
   SEASON *elements;
 
   if(array != NULL && array->length < length) {
-    elements = (SEASON*) realloc(array->elements, length * sizeof(*array->elements));
-
-    if(elements != NULL) {
+    //printf("Len : %ld, %d\n", length, array->length);
+    if(array->length < length && (elements = (SEASON*) realloc(array->elements, length * sizeof(*array->elements)) != NULL)) {
       for(int i = array->length; i < length; i++) {
-        init_season_struct(&(elements[i]), 1);
+        season = &(elements[i]);
+        init_season_struct(season, 1);
       }
       array->elements = elements;
       array->length = length;
@@ -1564,7 +1565,8 @@ int exist_document(mongoc_client_t *client, bson_t *selector, char *dbName, char
     find_document(client, dbName, collection, selector, &cursor);
     if(mongoc_cursor_next(cursor, &document)) {
       //print_bson(document);
-      exist = 1;
+      if(document != NULL)
+        exist = 1;
     } 
   }
 
@@ -1576,17 +1578,19 @@ int find_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *co
   int exist = 0;
   const bson_t *document;
   mongoc_cursor_t *cursor = NULL;
-
+  
   if(selector != NULL && client != NULL) {
     find_document(client, dbName, collection, selector, &cursor);
     if(mongoc_cursor_next(cursor, &document)) {
-      //print_bson(document);
+      exist = 1;
       bson_to_serie(serie, (bson_t *)document);
-    } 
+    } else {
+      exist = -1;
+    }
   }
 
   bson_free(cursor);
-  return 0;
+  return exist;
 }
 
 
