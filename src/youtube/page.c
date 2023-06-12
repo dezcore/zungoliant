@@ -572,20 +572,17 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
             //print_serie(serie);
         } else if(!existSeason) {
             puts("No exist season");
-            printf("Title : %s\n", title);
-            //print_serie(serie);
             resize_season_array_struct(serie->seasons, serie->seasons->length+1, 1);
-            puts("After resize"); 
             season = &(serie->seasons->elements[serie->seasons->length-1]);
             if(season != NULL) {
-                json_mapping_to_video(&(season->videos->elements[0]), video_json, type);
-                //print_serie(serie);
+                json_mapping_to_season(season, video_json, type);
             }
         }
-
+        
         get_title_selector(title, &selector);
 
         if(selector != NULL && (!videoExist || !existSeason)) {
+            //print_serie(serie);
             serie_to_set_bson(&document, serie);
             update_document(client, (char*)dbName, (char*)collection, selector, document);
             //print_serie_bson(document);
