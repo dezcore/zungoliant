@@ -16,3 +16,6 @@ CMD ["./bin/test"]
 
 FROM base as debug
 RUN make
+
+FROM base as debug_test
+RUN make test

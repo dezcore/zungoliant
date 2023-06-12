@@ -566,8 +566,9 @@ int init_season_default_array_struct(SEASON_ARRAY *array) {
 
 int init_season_array_struct(SEASON_ARRAY *array, size_t length, size_t videosLen) {
     SEASON *season;
-    if(array != NULL && array->elements == NULL) {
+    if(array != NULL && array->elements != NULL) {
         array->elements = malloc(length * sizeof(SEASON));
+        //memset(array->elements,0, length * sizeof(SEASON));
         for(int i = 0; i < length; i++) {
           season = &(array->elements[i]);
           init_season_struct(season, videosLen);
@@ -613,15 +614,15 @@ int resize_season_array_struct(SEASON_ARRAY *array, size_t length,  size_t video
   SEASON *elements;
 
   if(array != NULL && array->length < length) {
-    printf("Len : %ld, %ld\n", length, array->length);
-    elements = (SEASON*) realloc(array->elements, length * sizeof(SEASON));
+    //printf("Len : %ld, %ld\n", length, array->length);
+    elements = (SEASON*) realloc(array->elements, length * sizeof(*array->elements));
     if(elements != NULL) {
       for(int i = array->length; i < length; i++) {
-        season = &(array->elements[i]);
+        season = &(elements[i]);
         init_season_struct(season, videoLen);
       }
-      //printf("title : %s\n", season->title);
-      //print_season(season, "", "\t\t", "\t\t\t");
+      array->elements = elements;
+      array->length = length;
     }
   }
   return 0;
@@ -779,6 +780,7 @@ int init_serie_default_parameters(SERIE *serie) {
     init_default_str_array_struct(serie->contentTag);
     init_key_value_array_struct(serie->key_value_array, 1);
     init_season_default_array_struct(serie->seasons);
+    serie->seasons->elements = malloc(sizeof(*serie->seasons->elements));
     init_season_array_struct(serie->seasons, 1, 1);
     //serie->cats = NULL; 
   }

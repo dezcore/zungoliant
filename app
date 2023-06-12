@@ -27,6 +27,12 @@ debug() {
     docker compose up
 }
 
+debug_test() {
+    clean
+    docker build -t zungoliant . --target debug_test
+    docker compose up
+}
+
 build() {
     cd zungoliantenv
     docker build -t zungoliantenv .
@@ -52,6 +58,8 @@ elif [[ "$1" == "test" ]];then
 test
 elif [[ "$1" == "debug" ]];then
 debug
+elif [[ "$1" == "debug_test" ]];then
+debug_test
 elif [[ "$1" == "build" ]];then
 build
 elif [[ "$1" == "push" ]];then

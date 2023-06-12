@@ -15,3 +15,4 @@ https://doc.ubuntu-fr.org/valgrind
 
 valgrind --tool=memcheck --leak-check=yes --leak-resolution=med --show-reachable=yes --track-origins=yes ./bin/main
 valgrind --tool=memcheck --leak-check=summary --leak-resolution=med --show-reachable=yes ./bin/main
+valgrind --tool=memcheck --leak-check=yes --leak-resolution=med --show-reachable=yes --track-origins=yes ./bin/test

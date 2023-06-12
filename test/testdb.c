@@ -439,12 +439,13 @@ int test_bson_to_serie() {
 
     if(serie != NULL) {
         init_serie_default_parameters(serie1);
-        resize_season_array_struct(serie->seasons, 2, 1);
+        resize_season_array_struct(serie->seasons, 2, 1);        
+        test_set_seson(&(serie->seasons->elements[1]));
         serie_to_bson(&document, serie); 
         bson_to_serie(serie1, document);
         print_serie(serie1);
     }
-    
+
     bson_destroy(document);
     free_serie(serie);
     free_serie(serie1);
