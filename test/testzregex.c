@@ -3,11 +3,12 @@
 
 int test_downloadPage_and_replace() {
     Element *url = NULL; 
-    File *urls_fifo = init();
     char *urlsFileSrc =  NULL;
-    char *downloadPageSrc = NULL; 
+    char *downloadPageSrc = NULL;
+    File *urls_fifo = malloc(sizeof(*urls_fifo)); 
 
     get_absolutePath(TEST_URLS_FILE, &urlsFileSrc);
+    init_file_struct(urls_fifo);
     
     if(urlsFileSrc != NULL)
         fileToFifo(urlsFileSrc, urls_fifo);

@@ -4,7 +4,8 @@
 
 int test_init() {
     printf("test_init : \n");
-    File *file = init();
+    File *file = malloc(sizeof(*file));
+    init_file_struct(file);
     display(file);
     freeFile(file);
     return 0;
@@ -15,11 +16,12 @@ int test_push() {
     char * str1 = (char *) malloc(STR_SIZE * sizeof(char*));
     char * str2 = (char *) malloc(STR_SIZE * sizeof(char*));
 
-    File *file = init();
+    File *file =  malloc(sizeof(*file));
     strcpy(str, "Hello world !");
     strcpy(str1, "Hello world 1 !");
     strcpy(str2, "Hello world 2 !");
 
+    init_file_struct(file);
     push(file, str);
     push(file, str1);
     push(file, str2);
@@ -36,13 +38,14 @@ int test_push() {
 
 int test_pop() {
     Element *element;
-    File *file = init();
+    File *file =  malloc(sizeof(*file));
     char * str = (char *) malloc(STR_SIZE * sizeof(char*));
     char * str1 = (char *) malloc(STR_SIZE * sizeof(char*));
 
     strcpy(str, "Hello world !");
     strcpy(str1, "Hello world 1 !");
-
+    
+    init_file_struct(file);
     push(file, str);
     push(file, str1);
     printf("size : %lu\n", file->size);

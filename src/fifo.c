@@ -40,11 +40,10 @@ int push(File *file, char *value) {
     if(file == NULL) exit(EXIT_FAILURE);
 
     element = malloc(sizeof(*element));
-    element->value = malloc( len * sizeof(char*));
+    element->value = malloc(len * sizeof(char*));
     element->next = NULL;
     stpcpy(element->value, value);
     
-   
     if(file->head != NULL) {
         current = file->head;
 

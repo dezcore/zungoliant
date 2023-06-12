@@ -15,13 +15,16 @@ int test_printContent() {
 
 int test_filetoFifo() {
     char *filePath = (char*) malloc(STR_SIZE * sizeof(char));
-    File *file = init();
+    File *file = malloc(sizeof(*file));
+
+    init_file_struct(file);
     getCurrentDir(filePath, STR_SIZE);
     strcat(filePath, "/data/file/test");
     fileToFifo(filePath, file);
     display(file);
     free(filePath);
     freeFile(file);
+    
     return 0;
 }
 
@@ -36,7 +39,7 @@ int test_createFile() {
 
 int test_downloadPage() {
     Element *element;
-    File *file = init();
+    File *file = malloc(sizeof(*file));
     char *filePath = (char*) malloc(STR_SIZE * sizeof(char));
     char *urlsFile = (char*) malloc(STR_SIZE * sizeof(char));
 
@@ -46,6 +49,7 @@ int test_downloadPage() {
     strcat(filePath, "/data/file/test.html");
     createFile(filePath);
 
+    init_file_struct(file);
     fileToFifo(urlsFile, file);
     element = pop(file);
 
@@ -63,7 +67,7 @@ int test_downloadPage() {
 
 int test_parseFile() {
     Element *element;
-    File *file = init();
+    File *file = malloc(sizeof(*file));
     char *filePath = (char*) malloc(STR_SIZE * sizeof(char));
     char *urlsFile = (char*) malloc(STR_SIZE * sizeof(char));
 
@@ -73,6 +77,7 @@ int test_parseFile() {
     strcat(filePath, "/data/file/model2.html");
     createFile(filePath);
 
+    init_file_struct(file);
     fileToFifo(urlsFile, file);
     element = pop(file);
 
@@ -104,7 +109,7 @@ int test_loadFile() {
     char *filePath = (char*) malloc(STR_SIZE * sizeof(char));
     getCurrentDir(filePath, STR_SIZE);
     strcat(filePath, "/data/file/model2.html");
-    fileContent = load_file(filePath, fileContent);
+    load_file(filePath, &fileContent);
     //printf("content : %s\n", fileContent);
     free(filePath);
     free(fileContent);

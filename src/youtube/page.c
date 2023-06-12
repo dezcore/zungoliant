@@ -461,7 +461,7 @@ int exist_serie_in_db(mongoc_client_t *client, char *title, SERIE *serie) {
         get_title_selector(title, &selector);
         if(selector != NULL) {
             res = exist_document(client, selector, (char*)db_name, (char*)search_collection);
-            if(res) {
+            if(res) { 
                 res = find_serie(client, selector, (char*)db_name, (char*)serie_collection, serie);
                 //season = &(serie->seasons->elements[0]);
                 //printf("Exist : %s, %s\n", title, season->title);
@@ -627,7 +627,6 @@ int create_new_serie(mongoc_client_t *client, struct json_object *video_json, in
 
     if(video_json != NULL && serie != NULL) {
         init_serie_default_parameters(serie);
-        init_season_array_struct(serie->seasons, 1, 1);
         json_mapping_to_serie(serie, video_json, type);
         serie_to_bson(&document, serie);
         insert_document(client, (char*)dbName, (char*)collection, document);

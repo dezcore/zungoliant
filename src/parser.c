@@ -164,9 +164,9 @@ int getNodeText(myhtml_tree_t* tree, myhtml_tree_node_t *node, size_t inc, char 
         if(tag_id == MyHTML_TAG__TEXT || tag_id == MyHTML_TAG__COMMENT) {
             const char* node_text = myhtml_node_text(node, NULL);
             if(strstr(node_text, YINITPLAYERDATA_FILE) != NULL && yPlayerDataOutput != NULL) {
-                write_file(yPlayerDataOutput, node_text, "a");
+                write_file(yPlayerDataOutput, (char*)node_text, "a");
             } else if(strstr(node_text, YINITDATA_FILE) != NULL && yDataOutput != NULL) {
-                write_file(yDataOutput, node_text, "a");
+                write_file(yDataOutput, (char*)node_text, "a");
             }
         }
         //print children

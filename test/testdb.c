@@ -139,7 +139,7 @@ int test_match_patterns() {
 
     if(fifo != NULL && client != NULL) {
         //display(fifo);
-        join_file_element(fifo, &regex, ".*", 1);
+        join_file_element(fifo, &regex, ".*", 1, -1);
 
         if(regex != NULL) {
             //printf("Regex : %s\n", regex);
@@ -439,11 +439,12 @@ int test_bson_to_serie() {
 
     if(serie != NULL) {
         init_serie_default_parameters(serie1);
+        resize_season_array_struct(serie->seasons, 2, 1);
         serie_to_bson(&document, serie); 
         bson_to_serie(serie1, document);
         print_serie(serie1);
     }
-
+    
     bson_destroy(document);
     free_serie(serie);
     free_serie(serie1);
@@ -451,22 +452,22 @@ int test_bson_to_serie() {
 }
 
 int test_parse_date() {
-    STR_ARRAY *datePartArray = NULL;
-    STR_ARRAY *hoursPartArray = NULL;
+    STR_ARRAY *datePartArray =(STR_ARRAY *) malloc(sizeof(*datePartArray));
+    STR_ARRAY *hoursPartArray = (STR_ARRAY *) malloc(sizeof(*hoursPartArray));
     const char *date = "2014-01-01T08:15:39.736Z";
 
-    parseDate((char*)date, "[0-9]{2}:[0-9]{2}:[0-9]{2}", "[0-9]{2}", &hoursPartArray);
+    parseDate((char*)date, "[0-9]{2}:[0-9]{2}:[0-9]{2}", "[0-9]{2}", hoursPartArray);
     if(hoursPartArray != NULL) {
         print_array_str(hoursPartArray, "", "\t", "\t", "\t\t");
-        free_str_array_struct(hoursPartArray);
     }
 
-    parseDate((char *)date, "[0-9]{4}-[0-9]{2}-[0-9]{2}", "[0-9]+", &datePartArray);
+    parseDate((char *)date, "[0-9]{4}-[0-9]{2}-[0-9]{2}", "[0-9]+", datePartArray);
     if(datePartArray != NULL) {
         print_array_str(datePartArray, "", "\t", "\t", "\t\t");
-        free_str_array_struct(datePartArray);   
     }
 
+    free_str_array_struct(datePartArray);
+    free_str_array_struct(hoursPartArray);
     return 0;
 }
 
@@ -484,16 +485,15 @@ int test_date() {
 int test_matching_title() {
     SERIE *serie = NULL;
     STR_ARRAY *array = NULL;
-    File *titles_fifo = NULL;
     Element *title = NULL;
     size_t keysLen = 1;
+    File *titles_fifo = malloc(sizeof(*titles_fifo));
     //char *keys[] = {"title", "img", "category", "summary"};
 
-    titles_fifo = init();
-
     if(titles_fifo != NULL) {
+        init_file_struct(titles_fifo);
         init_fifo(&titles_fifo, "/data/file/titles");
-        init_file_to_array("/data/file/titles_regex", &array);
+        init_file_to_array("/data/file/titles_regex", array);
 
         //print_array(array);
         //display(titles_fifo);
@@ -530,10 +530,10 @@ int test_matching_title() {
 
 int test_title_regex() {
     Element *title = NULL;
-    File *titles_fifo = NULL;
-    titles_fifo = init();
+    File *titles_fifo = malloc(sizeof(*titles_fifo));
 
     if(titles_fifo != NULL) {
+        init_file_struct(titles_fifo);
         init_fifo(&titles_fifo, "/data/file/titles");
         while(0 < titles_fifo->size) {
             title = pop(titles_fifo);
@@ -547,11 +547,13 @@ int test_title_regex() {
 
 int test_title_episode_regex() {
     Element *title = NULL;
-    File *titles_fifo = NULL;
-    titles_fifo = init();
+    File *titles_fifo = malloc(sizeof(*titles_fifo));
 
     if(titles_fifo != NULL) {
+        init_file_struct(titles_fifo);
         init_fifo(&titles_fifo, "/data/file/titles");
+        //init_urls(&bot->urls_fifo, &urlsFileSrc);  
+
         while(0 < titles_fifo->size) {
             title = pop(titles_fifo);
             //get_title_episode(title->value);
