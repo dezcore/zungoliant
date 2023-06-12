@@ -567,7 +567,7 @@ int init_season_default_array_struct(SEASON_ARRAY *array) {
 int init_season_array_struct(SEASON_ARRAY *array, size_t length, size_t videosLen) {
     SEASON *season;
     if(array != NULL && array->elements == NULL) {
-        array->elements = malloc(length * sizeof(*array->elements));
+        array->elements = malloc(length * sizeof(SEASON));
         for(int i = 0; i < length; i++) {
           season = &(array->elements[i]);
           init_season_struct(season, videosLen);
@@ -621,15 +621,6 @@ int resize_season_array_struct(SEASON_ARRAY *array, size_t length,  size_t video
       //printf("title : %s\n", season->title);
       //print_season(season, "", "\t\t", "\t\t\t");
     }
-    /*if(array->length < length && (elements) != NULL)) {
-      for(int i = 0; i < length; i++) {
-        season = &(elements[i]);
-        print_season(season, "", "\t\t", "\t\t\t");
-        //init_season_struct(season, 1);
-      }
-      array->elements = elements;
-      array->length = length;
-    }*/
   }
   return 0;
 }
@@ -1130,6 +1121,13 @@ int serie_to_set_bson(bson_t **document, SERIE *serie) {
     init_date(&serie_set, "year", serie->year);
     init_seasons(&serie_set, serie->seasons);
     bson_append_document_end(*document, &set);
+  }
+  return 0;
+}
+
+int url_to_bson(bson_t **document, char *url) {
+  if(url != NULL) {
+    BSON_APPEND_UTF8(*document, "url", url);
   }
   return 0;
 }

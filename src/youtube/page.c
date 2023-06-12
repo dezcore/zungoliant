@@ -494,6 +494,21 @@ int exist_title_in_collection(mongoc_client_t *client, char *title, char *db_nam
     return res;
 }
 
+int exist_url_in_collection(mongoc_client_t *client, char *url, char *db_name, char *collection) {
+    int res = 0;
+    bson_t *selector = NULL;
+    
+    if(url != NULL && client != NULL) {
+        selector =  BCON_NEW("url", BCON_UTF8(url));
+        if(selector != NULL) {
+            res = exist_document(client, selector, db_name, collection);
+        }
+    }
+
+    bson_free(selector);
+    return res;
+}
+
 int print_serie_bson(bson_t *document) {
     char *str;
     if(document != NULL) {
@@ -790,9 +805,11 @@ int save_channel_page_data(struct json_object *json, YPage *page, File *urls_fif
 }
 
 int pages_handler(YPage *page, char *url, char* parseFile, File *urls_fifo) {
+    bson_t *document = bson_new(); 
     struct json_object *json = NULL;
+    const char *dbName = "maboke", *collection = "urls";
 
-    if(page != NULL && url != NULL && parseFile != NULL) {
+    if(page != NULL && url != NULL && parseFile != NULL && !exist_url_in_collection(page->mongo_client, url, (char*)dbName, (char*)collection)) {
         //puts("videopage_handler");
         set_page_pattern_url(page->page_pattern, url);
         downloadPage_and_replace(parseFile, page);
@@ -802,8 +819,12 @@ int pages_handler(YPage *page, char *url, char* parseFile, File *urls_fifo) {
             save_youtube_page_data(json, page, urls_fifo);
         else
             save_channel_page_data(json, page, urls_fifo);
+
+        url_to_bson(&document, url);
+        insert_document(page->mongo_client, (char*)dbName, (char*)collection, document);
     }
 
     json_object_put(json);
+    bson_destroy(document);
     return 0;
 }

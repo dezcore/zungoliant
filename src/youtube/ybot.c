@@ -23,7 +23,7 @@ int init_env() {
 }
 
 int run_ybot() {
-    Element *url = NULL; 
+    Element *url = NULL;
     struct json_object *json = NULL;
     Ybot *bot = malloc(sizeof(*bot));
     YPage *page = malloc(sizeof(*page));
@@ -36,7 +36,7 @@ int run_ybot() {
     init_yPage(page);
     init_yPage(page1);
     init_urls(&bot->urls_fifo, &urlsFileSrc);  
-    
+
     get_pwd(&parseFile, PARSE_FILE_PATH);
     set_yPage(page, 0,  "", " ", (char*)titles_regex);
     set_yPage(page1, 1, "", " ", (char*)titles_regex);
@@ -44,20 +44,18 @@ int run_ybot() {
     if(urlsFileSrc != NULL && page != NULL) {
         while(0 < bot->urls_fifo->size) {
             url = pop(bot->urls_fifo);
-            if(url != NULL && !exist_in_file(bot->explored_urls, url->value)) {
+            if(url != NULL) {
                 printf("Url : %s\n", url->value);
                 if(match_pattern(url->value, ".+watch\\?v.*")) {//VIDEOPAGE
-                    pages_handler(page, url->value, parseFile, bot->urls_fifo); 
+                    pages_handler(page, url->value, parseFile, bot->urls_fifo);
                 } else if(match_pattern(url->value, "@.+")) {// Channel page
                     pages_handler(page1, url->value, parseFile, bot->urls_fifo);
                 }
                 //print_yfile(bot->data_fifo);
                 //json_object_put(json);
-
-                push(bot->explored_urls, url->value);
                 freeElement(url);
             }
-            break;
+            //break;
         }
     }
     
@@ -73,11 +71,9 @@ int init_ybot(Ybot *bot) {
     if(bot != NULL) {
         bot->urls_fifo = malloc(sizeof(*bot->urls_fifo));        
         bot->data_fifo = malloc(sizeof(*bot->data_fifo));
-        bot->explored_urls = malloc(sizeof(*bot->explored_urls)); 
 
         init_yfile(bot->data_fifo);
         init_file_struct(bot->urls_fifo);
-        init_file_struct(bot->explored_urls);  
     }
     return 0;
 }
@@ -86,7 +82,6 @@ int free_ybot(Ybot *bot) {
     if(bot != NULL) {
         freeFile(bot->urls_fifo);
         free_yfile(bot->data_fifo);
-        freeFile(bot->explored_urls);
     }
     free(bot);
     return 0;
