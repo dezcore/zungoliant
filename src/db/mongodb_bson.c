@@ -766,6 +766,7 @@ int free_key_value(KEY_VALUE *key_value) {
 
 int init_serie_default_parameters(SERIE *serie) {
   if(serie != NULL) {
+    serie->hide = 1;
     serie->year =(char*) calloc(1, sizeof(*serie->year));
     serie->director = malloc(sizeof(*serie->director));
     serie->producer = malloc(sizeof(*serie->producer));
@@ -1091,9 +1092,10 @@ int init_keys_and_values(bson_t **bson, KEY_VALUE_ARRAY *array) {
 
 int serie_to_bson(bson_t **document, SERIE *serie) {
   //bson_t director, producer, studio, cast;
-
+  
   if(serie != NULL) {
-    init_keys_and_values(&(*document), serie->key_value_array);
+    init_keys_and_values(document, serie->key_value_array);
+    BSON_APPEND_BOOL(*document, "hide", serie->hide);
     init_date(&(*document), "year", serie->year);
     //BSON_APPEND_DOCUMENT_BEGIN(*document, "director", &director);
     //init_director(&director, serie->director);
@@ -1155,6 +1157,15 @@ char* deserialize_date(struct json_object *date_json) {
 
   return res;
 }
+
+int deserialize_hide(SERIE *serie, struct json_object *hide) {
+  const char *hide_str = json_object_get_string(hide);
+  if(serie != NULL && hide_str != NULL) {
+    serie->hide = strcmp(hide_str, "true") == 0 ? 1 : 0;
+  }
+  return 0;
+}
+
 int deserialize_year(SERIE *serie, struct json_object *year) {
   char *date = deserialize_date(year);
 
@@ -1419,6 +1430,7 @@ int bson_to_serie(SERIE *serie, bson_t *document) {
     serie_json = getJson(str);
     set_serie_parameters(serie_json, serie, 3);
 
+    deserialize_hide(serie, getObj_rec(serie_json, "/hide"));
     deserialize_year(serie, getObj_rec(serie_json, "/year"));
     deserialize_bykey(serie->key_value_array, serie_json, "title", 0);
     deserialize_bykey(serie->key_value_array, serie_json, "img", 1);

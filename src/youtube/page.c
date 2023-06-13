@@ -12,10 +12,8 @@ int extract_htmlpagedata(char *html_file_path, char *output_file_path, YPage *pa
             load_file(parseContentPath, &contents);
             if(contents != NULL) {
                 trim(&contents);
-
                 if(strcmp(page->page_pattern->regex, "") != 0)
                     get_nested_json(&contents, page->page_pattern->regex);
-
                 if(0 < page->patterns->size)
                     replace_all(&contents, page->patterns, page->page_pattern->replace);
 
@@ -24,6 +22,7 @@ int extract_htmlpagedata(char *html_file_path, char *output_file_path, YPage *pa
                 printf("Empty content (extract_htmlpagedata)\n");
             }
         }
+       
     }
 
     free(contents);
@@ -499,6 +498,7 @@ int exist_url_in_collection(mongoc_client_t *client, char *url, char *db_name, c
     bson_t *selector = NULL;
     
     if(url != NULL && client != NULL) {
+        printf("exist_url : %s\n", url);
         selector =  BCON_NEW("url", BCON_UTF8(url));
         if(selector != NULL) {
             res = exist_document(client, selector, db_name, collection);
@@ -683,7 +683,6 @@ int json_video_handler(YPage *page, struct json_object *video_json, char *title,
     int exist = 0;
     SERIE *serie = NULL;
     const char *dbName = "maboke", *serie_collection = "serie", *nomatch_collection = "nomatch";
-
     if(page != NULL && video_json != NULL && title != NULL && is_matching_title(page->titlesRegex, title)) {
         serie = (SERIE *) calloc(1, sizeof(*serie));
         init_serie_default_parameters(serie);
@@ -806,11 +805,9 @@ int pages_handler(YPage *page, char *url, char* parseFile, File *urls_fifo) {
     const char *dbName = "maboke", *collection = "urls";
 
     if(page != NULL && url != NULL && parseFile != NULL && !exist_url_in_collection(page->mongo_client, url, (char*)dbName, (char*)collection)) {
-        //puts("videopage_handler");
         set_page_pattern_url(page->page_pattern, url);
         downloadPage_and_replace(parseFile, page);
         file_tojson(parseFile, &json);
-
         if(page->type == 0)
             save_youtube_page_data(json, page, urls_fifo);
         else

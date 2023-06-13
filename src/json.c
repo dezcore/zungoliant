@@ -96,7 +96,7 @@ int json_tofile(const char *outfile,struct json_object *jso) {
 }
 
 int file_tojson_byfd(char* fileName, struct json_object **json) {
-     int fd = open(fileName, O_RDONLY);
+    int fd = open(fileName, O_RDONLY);
 
     if(fd ==-1) {
         // print which type of error have in a code
@@ -107,7 +107,7 @@ int file_tojson_byfd(char* fileName, struct json_object **json) {
 
     lseek(fd, 0, SEEK_SET);
     *json = json_object_from_fd(fd);
-    
+
     if(close(fd) < 0) {
         perror("c1");
         exit(1);

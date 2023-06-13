@@ -71,6 +71,7 @@ typedef struct _KEY_VALUE_ARRAY {
 } KEY_VALUE_ARRAY;
 
 typedef struct _SERIE {
+    int hide;
     char *year;
     DIRECTOR *director;
     DIRECTOR *producer;
