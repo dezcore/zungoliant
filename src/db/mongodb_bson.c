@@ -1023,13 +1023,12 @@ int init_video(bson_t *video_bson, VIDEO *video, int index) {
     BSON_APPEND_UTF8(&child2, "length", video->length);
     BSON_APPEND_UTF8(&child2, "censor_rating", video->censor_rating);
 
-    get_str_match(video->url, "=.*", &videoId);
+    videoId = (char*) calloc(1, sizeof(char));
 
     if(videoId != NULL) {
-      videoId[0] = ' ';
-      //trim(&videoId);
+      extraxt_url_videoId(video->url, &videoId);
       BSON_APPEND_UTF8(&child2, "videoId", videoId);
-      //printf("VideoId : %s\n", videoId);
+      //printf("VIDEOID : %s, %s, %d\n", video->url, videoId); 
     }
     //int_date_(&child2, "created_at");
     //int_date_(&child2, "upDated_at");
@@ -1041,6 +1040,7 @@ int init_video(bson_t *video_bson, VIDEO *video, int index) {
 }
 
 int init_season(bson_t *season_bson, SEASON *season, int index) {
+  VIDEO *video;
   bson_t videos;
   char buf[16];
   size_t keylen;
@@ -1057,7 +1057,12 @@ int init_season(bson_t *season_bson, SEASON *season, int index) {
     BSON_APPEND_ARRAY_BEGIN(&child2, "videos", &videos);
 
     for(int i = 0; i < season->videos->length; i++) {
-      init_video(&videos, &(season->videos->elements[i]), i);
+      video = &(season->videos->elements[i]);
+      if(strstr(video->url, "watch") !=   NULL) {
+        init_video(&videos, video, i);
+      }/* else {
+        print_season(season, "", "\t", "\t\t");  
+      }*/
     }
 
     bson_append_array_end(&child2, &videos);
@@ -1283,6 +1288,7 @@ int deserialize_tags(STR_ARRAY *contentTag, struct json_object *tags) {
 }
 
 int deserialize_video(VIDEO *video, struct json_object *video_json) {
+  const char *url;
   struct json_object *titleObj, *summaryObj, *categoryObj, *lengthObj, *urlObj, *censor_ratingObj;
 
   if(video != NULL && video_json != NULL) {
@@ -1291,12 +1297,14 @@ int deserialize_video(VIDEO *video, struct json_object *video_json) {
     categoryObj = json_object_object_get(video_json, "category");
     lengthObj = json_object_object_get(video_json, "length");
     urlObj = json_object_object_get(video_json, "url");
-    censor_ratingObj = json_object_object_get(video_json, "url");
+    censor_ratingObj = json_object_object_get(video_json, "censor_rating");
+
+    url = json_object_get_string(urlObj);
 
     set_video_title(video, (char*)json_object_get_string(titleObj));
     set_video_category(video, (char*) json_object_get_string(categoryObj));
     set_video_summary(video, (char*)json_object_get_string(summaryObj));
-    set_video_url(video, (char*)json_object_get_string(urlObj));
+    set_video_url(video, (char*)url);
     set_video_length(video, (char*)json_object_get_string(lengthObj));
     set_video_censor_rating(video, (char*) json_object_get_string(censor_ratingObj));
   }
@@ -1305,16 +1313,19 @@ int deserialize_video(VIDEO *video, struct json_object *video_json) {
 }
 
 int deserialize_videos(VIDEO_ARRAY *videos, struct json_object *videosObj) {
+  VIDEO *video;
   struct json_object *videoObj;
 
   if(videos != NULL && videosObj != NULL && json_object_get_type(videosObj) == json_type_array) {
     for(int i = 0; i < json_object_array_length(videosObj); i++) {
       videoObj = json_object_array_get_idx(videosObj, i);
       if(videoObj != NULL) {
-        deserialize_video(&(videos->elements[i]), videoObj);
+        video = &(videos->elements[i]);
+        deserialize_video(video, videoObj);
       }
     }
   }
+
   return 0;
 }
 
@@ -1336,53 +1347,35 @@ int deserialize_season(SEASON *season, struct json_object *season_json) {
 
     if(date != NULL)
       set_season_date(season, date);
-    //printf("NUMBER : %ld\n", json_object_get_int(numberObj));
+
     deserialize_videos(season->videos, videosObj);
+    
     free(date);
   }
 
   return 0;
 }
 
-int numb_of_episodes(struct json_object *seasons_json) {
-  int numb = 0;
-  struct json_object *season_json, *videosObj;
+int json_array_length(struct json_object *json) {
+  int numb = 1;
 
-  if(seasons_json != NULL && json_object_get_type(seasons_json) == json_type_array) {
-    for(int i = 0; i < json_object_array_length(seasons_json); i++) {
-      season_json = json_object_array_get_idx(seasons_json, i);
-
-      if(season_json != NULL) {
-        videosObj = json_object_object_get(season_json, "videos");
-        if(videosObj != NULL && json_object_get_type(videosObj) == json_type_array) {
-          if(numb < json_object_array_length(videosObj))
-            numb = json_object_array_length(videosObj);
-        }
-      }
-    }
-  }
-
-  return numb;
-}
-
-int numb_of_seasons(struct json_object *seasons_json) {
-  int numb = 0;
-
-  if(seasons_json != NULL && json_object_get_type(seasons_json) == json_type_array) {
-    numb = json_object_array_length(seasons_json);
+  if(json != NULL && json_object_get_type(json) == json_type_array) {
+    numb = json_object_array_length(json);
   }
 
   return numb;
 }
 
 int deserialize_seasons(SEASON_ARRAY *seasons, struct json_object *seasons_json) {
+  SEASON *season;
   struct json_object *season_json;
 
   if(seasons != NULL && seasons_json != NULL && json_object_get_type(seasons_json) == json_type_array) {
     for(int i = 0; i < json_object_array_length(seasons_json); i++) {
       season_json = json_object_array_get_idx(seasons_json, i);
       if(season_json != NULL) {
-        deserialize_season(&(seasons->elements[i]), season_json);
+        season = &(seasons->elements[i]);
+        deserialize_season(season, season_json);
       }
     }
   }
@@ -1404,18 +1397,40 @@ int deserialize_bykey(KEY_VALUE_ARRAY *array, struct json_object *obj, char *key
   return 0;
 }
 
-int set_serie_parameters(struct json_object *serie_json, SERIE *serie, int numb_of_keys) {
-  int seasons, episodes/*, tags*/;
-  struct json_object *seasons_json = getObj_rec(serie_json, "/seasons");
-  //struct json_object *tags_json = getObj_rec(serie_json, "/contentTag");
-  //puts("set_serie_parameters");
+int resize_seasons_videos(SERIE *serie, struct json_object *seasons_json) {
+  int episodes;
+  SEASON *season;
+  struct json_object *season_json, *videosObj;
+
   if(serie != NULL) {
-    //tags = numb_of_tags(tags_json); 
-    seasons = numb_of_seasons(seasons_json);
-    episodes = numb_of_episodes(seasons_json);
+    for(int i = 0; i < serie->seasons->length; i++) {
+      if(json_object_get_type(seasons_json) == json_type_array) {
+        season_json = json_object_array_get_idx(seasons_json, i);
+
+        if(season_json != NULL) {
+          videosObj = json_object_object_get(season_json, "videos");
+          if(videosObj != NULL && json_object_get_type(videosObj) == json_type_array) {
+            episodes = json_object_array_length(videosObj);
+            season = &(serie->seasons->elements[i]);
+            resize_video_array_struct(season->videos, episodes);
+          }
+        }
+      }
+    }
+  }
+
+  return 0;
+}
+
+int set_serie_parameters(struct json_object *serie_json, SERIE *serie, int numb_of_keys) {  
+  int seasons;
+  struct json_object *seasons_json = getObj_rec(serie_json, "/seasons");
+
+  if(serie != NULL) {
+    seasons = json_array_length(seasons_json);
     resize_key_value_array_struct(serie->key_value_array, numb_of_keys);
-    //resize_str_array_struct(serie->contentTag, tags);
-    init_season_array_struct(serie->seasons, seasons, episodes);
+    init_season_array_struct(serie->seasons, seasons, 1);
+    resize_seasons_videos(serie, seasons_json);
   }
 
   return 0;

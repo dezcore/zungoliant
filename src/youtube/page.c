@@ -313,6 +313,11 @@ int json_mapping_to_video(VIDEO *video, struct json_object *video_json, int type
         length = json_object_get_string(lengthObj);
         set_video(video, (char*)title, (char*)category, (char*)summary, (char*)url, (char*)length, (char*)censor_rating);
     }
+    
+    if(strcmp(video->title, "") == 0) {
+        printf("%s, TYPE : %d\n", json_object_get_string(video_json), type);
+    }
+
     return 0;
 }
 
@@ -451,7 +456,6 @@ int get_selector_by_numb_of_match(char *key, char *value, char *pattern,  char *
 
 int exist_serie_in_db(mongoc_client_t *client, char *title, SERIE *serie) {
     int res = 0;
-    //SEASON *season;
     const char* db_name =  "maboke";
     bson_t *selector = NULL, *prefix_selector = NULL;
     const char *serie_collection = "serie", *search_collection = "search";
@@ -462,8 +466,6 @@ int exist_serie_in_db(mongoc_client_t *client, char *title, SERIE *serie) {
             res = exist_document(client, selector, (char*)db_name, (char*)search_collection);
             if(res) { 
                 res = find_serie(client, selector, (char*)db_name, (char*)serie_collection, serie);
-                //season = &(serie->seasons->elements[0]);
-                //printf("Exist : %s, %s\n", title, season->title);
                 //print_serie(serie);
             } else {
                 get_selector_by_numb_of_match("title", title, "[a-zA-Z]{4,}", ".*", &prefix_selector, 3);
@@ -519,9 +521,11 @@ int print_serie_bson(bson_t *document) {
     return 0;
 }
 
-int update_season_videos(mongoc_client_t *client, VIDEO_ARRAY *videos, struct json_object *video_json, char *title, int type) {
+int update_season_videos(mongoc_client_t *client,SERIE *serie, SEASON *season, struct json_object *video_json, char *title, int type) {
     VIDEO *video;
     int exist = 0;
+    char *videoId = NULL;
+    VIDEO_ARRAY *videos = season->videos;
 
     if(videos != NULL && video_json != NULL && title != NULL) {
         for(int i = 0; i < videos->length; i++) {
@@ -538,12 +542,24 @@ int update_season_videos(mongoc_client_t *client, VIDEO_ARRAY *videos, struct js
             video =  &(videos->elements[videos->length-1]);
             if(video != NULL) {
                 json_mapping_to_video(video, video_json, type);
+
+                if(get_title_episode(title) < get_title_episode(season->title)) {
+                    set_season_title(season, title);
+                    videoId = (char*) calloc(1, sizeof(char));
+                    if(season->number == 1 && videoId != NULL) {
+                        extraxt_url_videoId(video->url, &videoId);
+                        //printf("VIDEOID : %s, %s\n", video->url, videoId); 
+                        set_key_value_value(&(serie->key_value_array->elements[0]), title);
+                        set_key_value_value(&(serie->key_value_array->elements[1]), videoId);
+                    }
+                    //print_serie(serie);
+                }
                 add_search_values_to_db(client, video, video_json, type);
             }
-            //printf("update_season_videos : %ld\n", videos->length);
         }
     }
 
+    free(videoId);
     return exist;
 }
 
@@ -560,17 +576,12 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
 
             if(season->number == get_title_season(title)) {
                 existSeason = 1;
-                videoExist = update_season_videos(client, season->videos, video_json, title, type);
+                videoExist = update_season_videos(client, serie, season, video_json, title, type);
                 break;
             }
         }
 
-        if(existSeason && !videoExist && season != NULL && get_title_episode(title) < get_title_episode(season->title)) {
-            set_season_title(season, title);
-            if(season->number == 1)
-                set_key_value_value(&(serie->key_value_array->elements[0]), title);
-            //print_serie(serie);
-        } else if(!existSeason) {
+        if(!existSeason) {
             puts("No exist season");
             resize_season_array_struct(serie->seasons, serie->seasons->length+1, 1);
             season = &(serie->seasons->elements[serie->seasons->length-1]);
@@ -578,11 +589,9 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
                 json_mapping_to_season(season, video_json, type);
             }
         }
-        
-        get_title_selector(title, &selector);
 
+        get_title_selector(title, &selector);
         if(selector != NULL && (!videoExist || !existSeason)) {
-            //print_serie(serie);
             serie_to_set_bson(&document, serie);
             update_document(client, (char*)dbName, (char*)collection, selector, document);
             //print_serie_bson(document);

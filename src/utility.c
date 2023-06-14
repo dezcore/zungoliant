@@ -256,7 +256,11 @@ int get_str_match(char *str, char *pattern, char **match) {
         if(!regexec(&reg, str, nmatch + 1, m, 0)) {
             start = m[0].rm_so;
             end = m[0].rm_eo;
-            res = (char*) malloc((end-start+1) * sizeof(char));
+
+            if(*match == NULL)
+                res = (char*) malloc((end-start+1) * sizeof(char));
+            else 
+                res = (char*) realloc(*match, (end-start+1) * sizeof(char));
 
             if(res != NULL) {
                 strncpy(res, &str[start], end-start);
@@ -418,5 +422,19 @@ int timestamp_to_utc(char *date, char **res) {
         
     }
 
+    return 0;
+}
+
+int extraxt_url_videoId(char *url, char **videoId) {
+    char *videoParam =(char*) malloc(sizeof(char)); 
+
+    if(url != NULL && *videoId != NULL) {
+        get_str_match(url, "=.*", &videoParam);
+        if(videoParam != NULL) {
+            get_str_match(videoParam, "[^=]+", videoId);        
+        }
+    }
+
+    free(videoParam);
     return 0;
 }
