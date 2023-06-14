@@ -500,7 +500,6 @@ int exist_url_in_collection(mongoc_client_t *client, char *url, char *db_name, c
     bson_t *selector = NULL;
     
     if(url != NULL && client != NULL) {
-        printf("exist_url : %s\n", url);
         selector =  BCON_NEW("url", BCON_UTF8(url));
         if(selector != NULL) {
             res = exist_document(client, selector, db_name, collection);

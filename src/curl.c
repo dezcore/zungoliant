@@ -43,16 +43,14 @@ int downloadPage(char **url, char *output) {
 
 int downloadPage_withsystem(char *url, char *output) {
     char *command = (char*) malloc(COMMAND_SIZE * sizeof(char));
-    
+
     if(url != NULL && command != NULL) {
         sprintf(command, "curl %s -L -o %s", url, output);
 
         if(system(command) != 0 ) {
-            fprintf( stderr, 
-                "Impossible de lancer la commande : %s\n",
-                command );
+            fprintf(stderr, "Impossible de lancer la commande : %s\n", command);
         }
-        
+
         system(command);
         free(command);
     }
@@ -66,6 +64,7 @@ int downloadPage_bycontains(char **url, char *output, char* contains) {
         downloadPage(url, output);
         getfileContents(&contents, output);
         if(contents != NULL && strstr(contents, contains) == NULL) {
+            write_file(output, "", "w+");
             downloadPage_withsystem(*url, output);
         }
         free(contents);
