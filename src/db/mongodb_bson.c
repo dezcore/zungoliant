@@ -260,6 +260,7 @@ int print_director(DIRECTOR *director, char *tabs, char *subtabs) {
 int init_video_struct(VIDEO *video) {
   if(video != NULL) {
     video->title = (char*) calloc(1, sizeof(char));
+    video->img = (char*) calloc(1, sizeof(char));
     video->category = (char*) calloc(1, sizeof(char)); 
     video->summary = (char*) calloc(1, sizeof(char));
     video->url = (char*) calloc(1, sizeof(char));
@@ -276,6 +277,18 @@ int set_video_title(VIDEO *video, char *title) {
     if(new_title != NULL) {
       video->title = new_title;
       sprintf(video->title, "%s", title);
+    }
+  }
+  return 0;
+}
+
+int set_video_img(VIDEO *video, char *img) {
+  char *new_img;
+  if(video != NULL && img != NULL) {
+    new_img = (char*) realloc(video->img, (strlen(img)+1) * sizeof(char));
+    if(new_img != NULL) {
+      video->img = new_img;
+      sprintf(video->img, "%s", img);
     }
   }
   return 0;
@@ -348,6 +361,8 @@ int print_video(VIDEO *video, char *tabs) {
     printf("%s", tabs);
     printf("\t\"Title\" : \"%s\",\n", video->title);
     printf("%s", tabs);
+    printf("\t\"Title\" : \"%s\",\n", video->img);
+    printf("%s", tabs);
     printf("\t\"Category\" : \"%s\",\n", video->category);
     printf("%s", tabs);
     printf("\t\"Summary\" : \"%s\"\n", video->summary);
@@ -366,6 +381,7 @@ int print_video(VIDEO *video, char *tabs) {
 int free_video_struct(VIDEO *video) {
   if(video != NULL) {
     free(video->title);
+    free(video->img);
     free(video->category);
     free(video->summary);
     free(video->url);
@@ -398,9 +414,10 @@ int init_video_array_struct(VIDEO_ARRAY *array, size_t length) {
   return 0;
 }
 
-int set_video(VIDEO *video, char *title, char *category, char *summary, char *url, char *length, char *censor_rating) {
-    if(video != NULL && title != NULL && category != NULL && summary != NULL && url != NULL && length != NULL && censor_rating != NULL) {
+int set_video(VIDEO *video, char *title, char *img, char *category, char *summary, char *url, char *length, char *censor_rating) {
+    if(video != NULL && title != NULL && img != NULL && category != NULL && summary != NULL && url != NULL && length != NULL && censor_rating != NULL) {
         set_video_title(video, title);
+        set_video_img(video, img);
         set_video_category(video, category);
         set_video_summary(video, summary);
         set_video_url(video, url);
@@ -454,6 +471,7 @@ int init_season_struct(SEASON *season, size_t videoLen) {
   if(season != NULL) {
     season->number = 0;
     season->title = (char*) calloc(1, sizeof(char));
+    season->img = (char*) calloc(1, sizeof(char));
     season->date = (char*) calloc(1, sizeof(char));
     season->summary = (char*) calloc(1, sizeof(char));
     season->videos =  malloc(sizeof(*season->videos));
@@ -469,6 +487,7 @@ int init_season_struct(SEASON *season, size_t videoLen) {
 int free_season_struct(SEASON *season) {
   if(season != NULL) {
     free(season->title);
+    free(season->img);
     free(season->date);
     free(season->summary);
     free_video_array_struct(season->videos);
@@ -484,6 +503,18 @@ int set_season_title(SEASON *season, char *title) {
     if(new_title != NULL) {
       season->title = new_title;
       sprintf(season->title, "%s", title);
+    }
+  }
+  return 0;
+}
+
+int set_season_img(SEASON *season, char *img) {
+  char *new_img;
+  if(season != NULL && img != NULL) {
+    new_img = (char*) realloc(season->img, (strlen(img)+1) * sizeof(char));
+    if(new_img != NULL) {
+      season->img = new_img;
+      sprintf(season->img, "%s", img);
     }
   }
   return 0;
@@ -513,9 +544,10 @@ int set_season_summary(SEASON *season, char *summary) {
   return 0;
 }
 
-int set_seson(SEASON *season, char *title, char *date, char *summary, VIDEO_ARRAY *videos) {
+int set_seson(SEASON *season, char *title, char *img, char *date, char *summary, VIDEO_ARRAY *videos) {
   if(season != NULL && title != NULL && date != NULL && summary != NULL) {
     set_season_title(season, title);
+    set_season_img(season, img);
     set_season_date(season, date);
     set_season_summary(season, summary);
     season->number = get_title_season(title);
@@ -525,13 +557,12 @@ int set_seson(SEASON *season, char *title, char *date, char *summary, VIDEO_ARRA
         resize_video_array_struct(season->videos, videos->length);
 
       for(int i = 0; i < videos->length; i++) {
-        set_video(&(season->videos->elements[i]) , videos->elements[i].title, 
+        set_video(&(season->videos->elements[i]) , videos->elements[i].title, videos->elements[i].img, 
           videos->elements[i].category, videos->elements[i].summary, 
           videos->elements[i].url, videos->elements[i].length, videos->elements[i].censor_rating
         );
       }
     }
-    
   }
   return 0;
 }
@@ -542,6 +573,8 @@ int print_season(SEASON *season, char *tabs, char *videos_tabs, char *videos_sub
     printf("Season : {\n");
     printf("%s", tabs);
     printf("\t\"Title\" : \"%s\",\n", season->title);
+    printf("%s", tabs);
+    printf("\t\"Img\" : \"%s\",\n", season->img);
     printf("%s", tabs);
     printf("\t\"Date\" : \"%s\",\n", season->date);
     printf("%s", tabs);
@@ -1011,31 +1044,22 @@ int init_video(bson_t *video_bson, VIDEO *video, int index) {
   size_t keylen;
   bson_t child2;
   const char *key;
-  char *videoId = NULL;
 
   if(video_bson != NULL && video != NULL) {
     keylen = bson_uint32_to_string(index, &key, buf, sizeof buf);
     bson_append_document_begin(video_bson, key, (int)keylen, &child2);
     BSON_APPEND_UTF8(&child2, "title", video->title);
+    BSON_APPEND_UTF8(&child2, "img", video->img);
     BSON_APPEND_UTF8(&child2, "category", video->category);
     BSON_APPEND_UTF8(&child2, "summary", video->summary);
     BSON_APPEND_UTF8(&child2, "url", video->url);
     BSON_APPEND_UTF8(&child2, "length", video->length);
     BSON_APPEND_UTF8(&child2, "censor_rating", video->censor_rating);
-
-    videoId = (char*) calloc(1, sizeof(char));
-
-    if(videoId != NULL) {
-      extraxt_url_videoId(video->url, &videoId);
-      BSON_APPEND_UTF8(&child2, "videoId", videoId);
-      //printf("VIDEOID : %s, %s, %d\n", video->url, videoId); 
-    }
     //int_date_(&child2, "created_at");
     //int_date_(&child2, "upDated_at");
     bson_append_document_end(video_bson, &child2);
   }
 
-  free(videoId);
   return 0;
 }
 
@@ -1051,6 +1075,7 @@ int init_season(bson_t *season_bson, SEASON *season, int index) {
     keylen = bson_uint32_to_string(index, &key, buf, sizeof buf);
     bson_append_document_begin(season_bson, key, (int)keylen, &child2);
     BSON_APPEND_UTF8(&child2, "title", season->title);
+    BSON_APPEND_UTF8(&child2, "img", season->img);
     int_date_(&child2, "date", season->date);
     BSON_APPEND_UTF8(&child2, "summary", season->summary);
     BSON_APPEND_INT32(&child2, "number", season->number);
@@ -1289,9 +1314,10 @@ int deserialize_tags(STR_ARRAY *contentTag, struct json_object *tags) {
 
 int deserialize_video(VIDEO *video, struct json_object *video_json) {
   const char *url;
-  struct json_object *titleObj, *summaryObj, *categoryObj, *lengthObj, *urlObj, *censor_ratingObj;
+  struct json_object *titleObj, *imgObj, *summaryObj, *categoryObj, *lengthObj, *urlObj, *censor_ratingObj;
 
   if(video != NULL && video_json != NULL) {
+    imgObj = json_object_object_get(video_json, "img");
     titleObj = json_object_object_get(video_json, "title");
     summaryObj = json_object_object_get(video_json, "summary");
     categoryObj = json_object_object_get(video_json, "category");
@@ -1301,6 +1327,7 @@ int deserialize_video(VIDEO *video, struct json_object *video_json) {
 
     url = json_object_get_string(urlObj);
 
+    set_video_img(video, (char*)json_object_get_string(imgObj));
     set_video_title(video, (char*)json_object_get_string(titleObj));
     set_video_category(video, (char*) json_object_get_string(categoryObj));
     set_video_summary(video, (char*)json_object_get_string(summaryObj));
@@ -1331,9 +1358,10 @@ int deserialize_videos(VIDEO_ARRAY *videos, struct json_object *videosObj) {
 
 int deserialize_season(SEASON *season, struct json_object *season_json) {
   char *date;
-  struct json_object *titleObj, *summaryObj, *numberObj, *dateObj, *videosObj;
+  struct json_object *titleObj, *summaryObj, *numberObj, *dateObj, *videosObj,  *imgObj;
 
   if(season != NULL && season_json != NULL) {
+    imgObj = json_object_object_get(season_json, "img");
     titleObj = json_object_object_get(season_json, "title");
     summaryObj = json_object_object_get(season_json, "summary");
     numberObj =  getObj_rec(season_json, "/number/$numberInt");
@@ -1341,6 +1369,7 @@ int deserialize_season(SEASON *season, struct json_object *season_json) {
     videosObj = json_object_object_get(season_json, "videos");
 
     set_season_title(season,(char*)json_object_get_string(titleObj));
+    set_season_img(season,(char*)json_object_get_string(imgObj));
     set_season_summary(season, (char*)json_object_get_string(summaryObj));
     season->number = json_object_get_int(numberObj);
     date = deserialize_date(dateObj);

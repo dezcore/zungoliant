@@ -295,23 +295,28 @@ int json_mapping_player_channel(VIDEO *video, struct json_object *player_json) {
 }
 
 int json_mapping_to_video(VIDEO *video, struct json_object *video_json, int type) {
-    const char *title, *url, *length;
-    struct json_object *urlObj, *titleObj, *lengthObj;
+    const char *title, *url, *length, *videoId;
+    struct json_object *urlObj, *titleObj, *lengthObj, *videoIdObj;
     const char *summary = "", *category = "", *censor_rating= "";
 
     const char *urlField = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_URL_FIELD : (type == 1 ? CHANNEL_PAGE_HOME_ITEM_URL_FIELD : VIDEOS_PAGE_VIDEO_URL_FIELD);
     const char *titleField = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD : (type == 1 ? CHANNEL_PAGE_HOME_ITEM_TITLE_FIELD : VIDEOS_PAGE_VIDEO_TITLE_FIELD);
     const char *lengthField = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_LENGTH_FIELD : (type == 1 ? CHANNEL_PAGE_HOME_ITEM_LENGTH_FIELD : VIDEOS_PAGE_VIDEO_LENGTH_FIELD);
+    const char *videoId_field = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_VIDEOID_FIELD : (type == 1 ? CHANNEL_PAGE_HOME_ITEM_VIDEOID_FIELD : VIDEOS_PAGE_VIDEOID_FIELD);
+
 
     if(video != NULL && video_json != NULL) {
         urlObj = getObj_rec(video_json, (char*)urlField);
         titleObj = getObj_rec(video_json,(char*)titleField);
         lengthObj = getObj_rec(video_json, (char*)lengthField);
+        videoIdObj = getObj_rec(video_json, (char *) videoId_field);
         
         url = json_object_get_string(urlObj);
         title = json_object_get_string(titleObj);
         length = json_object_get_string(lengthObj);
-        set_video(video, (char*)title, (char*)category, (char*)summary, (char*)url, (char*)length, (char*)censor_rating);
+        videoId = json_object_get_string(videoIdObj);
+
+        set_video(video, (char*)title, (char*) videoId, (char*)category, (char*)summary, (char*)url, (char*)length, (char*)censor_rating);
     }
     
     if(strcmp(video->title, "") == 0) {
@@ -333,14 +338,19 @@ int json_mapping_to_videos(VIDEO_ARRAY *videos, struct json_object *videos_json,
 }
 
 int json_mapping_to_season(SEASON *season, struct json_object *season_json, int type) {
-    const char *title;
-    struct json_object *titleObj;
+    const char *title, *videoId;
+    struct json_object *titleObj, *videoIdObj;
     const char *title_field = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD : (type == 1 ? CHANNEL_PAGE_HOME_ITEM_TITLE_FIELD : VIDEOS_PAGE_VIDEO_TITLE_FIELD);
+    const char *videoId_field = type == 0 ? VIDEO_PAGE_PLAYLIST_ITEM_VIDEOID_FIELD : (type == 1 ? CHANNEL_PAGE_HOME_ITEM_VIDEOID_FIELD : VIDEOS_PAGE_VIDEOID_FIELD);
 
     if(season != NULL && season_json != NULL) {
         titleObj = getObj_rec(season_json, (char *)title_field);
+        videoIdObj = getObj_rec(season_json, (char *) videoId_field);
+
         title = json_object_get_string(titleObj);
-        set_seson(season, (char*)title, "1970-01-01T10:42:00Z", "", NULL);
+        videoId = json_object_get_string(videoIdObj);
+
+        set_seson(season, (char*)title, videoId, "1970-01-01T10:42:00Z", "", NULL);
         json_mapping_to_videos(season->videos, season_json, type);
     }
 
@@ -543,10 +553,11 @@ int update_season_videos(mongoc_client_t *client,SERIE *serie, SEASON *season, s
                 json_mapping_to_video(video, video_json, type);
 
                 if(get_title_episode(title) < get_title_episode(season->title)) {
-                    set_season_title(season, title);
                     videoId = (char*) calloc(1, sizeof(char));
+                    extraxt_url_videoId(video->url, &videoId);
+                    set_season_title(season, title);
+                    set_season_img(season, videoId);
                     if(season->number == 1 && videoId != NULL) {
-                        extraxt_url_videoId(video->url, &videoId);
                         //printf("VIDEOID : %s, %s\n", video->url, videoId); 
                         set_key_value_value(&(serie->key_value_array->elements[0]), title);
                         set_key_value_value(&(serie->key_value_array->elements[1]), videoId);
