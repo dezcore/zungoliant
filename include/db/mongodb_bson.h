@@ -75,6 +75,7 @@ typedef struct _KEY_VALUE_ARRAY {
 typedef struct _SERIE {
     int hide;
     char *year;
+    char *state;
     DIRECTOR *director;
     DIRECTOR *producer;
     STUDIO *studio;
@@ -104,6 +105,7 @@ int set_serie_year(SERIE *serie, char *year);
 int init_director_struct(DIRECTOR *director);
 int url_to_bson(bson_t **document, char *url);
 int set_season_img(SEASON *season, char *img);
+int set_serie_state(SERIE *serie, char *state);
 int set_video_title(VIDEO *video, char *title);
 int set_season_date(SEASON *season, char *date);
 int free_video_array_struct(VIDEO_ARRAY *array);

@@ -801,6 +801,7 @@ int init_serie_default_parameters(SERIE *serie) {
   if(serie != NULL) {
     serie->hide = 1;
     serie->year =(char*) calloc(1, sizeof(*serie->year));
+    serie->state =(char*) calloc(1, sizeof(*serie->state));
     serie->director = malloc(sizeof(*serie->director));
     serie->producer = malloc(sizeof(*serie->producer));
     serie->studio =  malloc(sizeof(*serie->studio));
@@ -824,6 +825,7 @@ int init_serie_default_parameters(SERIE *serie) {
 int free_serie(SERIE *serie) {
   if(serie != NULL) {
     free(serie->year);
+    free(serie->state);
     free_director(serie->director);
     free_director(serie->producer);
     free_studio(serie->studio);
@@ -850,6 +852,7 @@ int set_serie_default_parameters(SERIE *serie, int numb_of_keys,  int seasons,  
 int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes, int content_tags) {
   if(serie != NULL) {
     serie->year = (char*) malloc(sizeof(char));
+    serie->state =(char*) calloc(1, sizeof(*serie->state));
     serie->director = malloc(sizeof(*serie->director));
     serie->producer = malloc(sizeof(*serie->producer));
     serie->studio =  malloc(sizeof(*serie->studio));
@@ -894,10 +897,26 @@ int set_serie_year(SERIE *serie, char *year) {
   return 0;
 }
 
+int set_serie_state(SERIE *serie, char *state) {
+  char *new_state;
+
+  if(serie != NULL && state != NULL) {
+    new_state = (char*) realloc(serie->state, (strlen(state)+1) * sizeof(char));
+    if(new_state != NULL) {
+      serie->state = new_state;
+      sprintf(serie->state, "%s", state);
+    }
+  }
+
+  return 0;
+}
+
 int print_serie(SERIE *serie) {
   if(serie != NULL) {
     printf("\"Serie\" : {\n");
     printf("\tYear : %s,\n", serie->year);
+    print_director(serie->director, "\t", "\t\t");
+    printf("\tState : %s,\n", serie->state);
     print_director(serie->director, "\t", "\t\t");
     print_director(serie->producer,  "\t", "\t\t");
     print_studio(serie->studio, "\t", "\t\t");
@@ -1126,6 +1145,7 @@ int serie_to_bson(bson_t **document, SERIE *serie) {
   if(serie != NULL) {
     init_keys_and_values(document, serie->key_value_array);
     BSON_APPEND_BOOL(*document, "hide", serie->hide);
+    BSON_APPEND_UTF8(*document, "state", serie->state);
     init_date(&(*document), "year", serie->year);
     //BSON_APPEND_DOCUMENT_BEGIN(*document, "director", &director);
     //init_director(&director, serie->director);
@@ -1205,6 +1225,17 @@ int deserialize_year(SERIE *serie, struct json_object *year) {
     free(date);
   }
 
+  return 0;
+}
+
+int deserialize_state(SERIE *serie, struct json_object *stateObj) {
+  char *state = json_object_get_string(stateObj);
+
+  if(serie != NULL && state != NULL) {
+    set_serie_state(serie, state);
+    //printf("%s\n", json_object_get_string(stateObj));
+    free(state);
+  }
   return 0;
 }
 
@@ -1476,6 +1507,8 @@ int bson_to_serie(SERIE *serie, bson_t *document) {
 
     deserialize_hide(serie, getObj_rec(serie_json, "/hide"));
     deserialize_year(serie, getObj_rec(serie_json, "/year"));
+    deserialize_state(serie, getObj_rec(serie_json, "/state"));
+
     deserialize_bykey(serie->key_value_array, serie_json, "title", 0);
     deserialize_bykey(serie->key_value_array, serie_json, "img", 1);
     deserialize_bykey(serie->key_value_array, serie_json, "viewCount", 2);

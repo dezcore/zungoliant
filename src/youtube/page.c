@@ -350,7 +350,7 @@ int json_mapping_to_season(SEASON *season, struct json_object *season_json, int 
         title = json_object_get_string(titleObj);
         videoId = json_object_get_string(videoIdObj);
 
-        set_seson(season, (char*)title, videoId, "1970-01-01T10:42:00Z", "", NULL);
+        set_seson(season, (char*)title, (char*)videoId, "1970-01-01T10:42:00Z", "", NULL);
         json_mapping_to_videos(season->videos, season_json, type);
     }
 
@@ -624,7 +624,7 @@ int add_search_values_to_db(mongoc_client_t *client, VIDEO *video, struct json_o
     if(video != NULL && video_json != NULL) {
         if((videoIdObj = getObj_rec(video_json, (char*)videoId_field)) != NULL) {
             if((videoId = json_object_get_string(videoIdObj)) != NULL) {
-                search_to_bson(&document, video->title, videoId);
+                search_to_bson(&document, video->title, (char *)videoId);
                 insert_document(client, (char*)dbName, (char*)collection, document);
             }
         }
@@ -635,7 +635,7 @@ int add_search_values_to_db(mongoc_client_t *client, VIDEO *video, struct json_o
     return 0;
 }
 
-int create_new_serie(mongoc_client_t *client, struct json_object *video_json, int type, char *dbName, char *collection, int index_title) {
+int create_new_serie(mongoc_client_t *client, struct json_object *video_json, int type, char *dbName, char *collection, int index_title, char *state) {
     VIDEO *video;
     SEASON *season;
     bson_t *document = bson_new();
@@ -644,6 +644,7 @@ int create_new_serie(mongoc_client_t *client, struct json_object *video_json, in
     if(video_json != NULL && serie != NULL) {
         init_serie_default_parameters(serie);
         json_mapping_to_serie(serie, video_json, type);
+        set_serie_state(serie, state);
         serie_to_bson(&document, serie);
         insert_document(client, (char*)dbName, (char*)collection, document);
         
@@ -701,19 +702,21 @@ int add_url_to_file(File *urls_fifo, struct json_object *video_json, int type) {
 int json_video_handler(YPage *page, struct json_object *video_json, char *title,  File *urls_fifo, int type) {
     int exist = 0;
     SERIE *serie = NULL;
-    const char *dbName = "maboke", *serie_collection = "serie", *nomatch_collection = "nomatch";
+    const char *dbName = "maboke", *serie_collection = "serie";
+
     if(page != NULL && video_json != NULL && title != NULL && is_matching_title(page->titlesRegex, title)) {
         serie = (SERIE *) calloc(1, sizeof(*serie));
         init_serie_default_parameters(serie);
 
         if((exist = exist_serie_in_db(page->mongo_client, title, serie)) == 1) {
+            //puts("Update");
             update_serie(page->mongo_client, serie, video_json, title, type);
         } else if(exist == 0) {
-            create_new_serie(page->mongo_client, video_json, type, (char *) dbName, (char *)serie_collection, 1);
-        } else if(exist == -1 && !exist_title_in_collection(page->mongo_client, title, (char*)dbName, (char*)nomatch_collection)) {
-            create_new_serie(page->mongo_client, video_json, type, (char *)dbName, (char *)nomatch_collection, 0);
+            create_new_serie(page->mongo_client, video_json, type, (char *) dbName, (char *)serie_collection, 1, "match");
+        } else if(exist == -1 && !exist_title_in_collection(page->mongo_client, title, (char*)dbName, (char *)serie_collection)) {
+            //puts("No match");
+            create_new_serie(page->mongo_client, video_json, type, (char *)dbName, (char *)serie_collection, 0, "no match");
         }
-
         add_url_to_file(urls_fifo, video_json, page->type);
     } /* else {
         logsFile
@@ -827,9 +830,10 @@ int pages_handler(YPage *page, char *url, char* parseFile, File *urls_fifo) {
         set_page_pattern_url(page->page_pattern, url);
         downloadPage_and_replace(parseFile, page);
         file_tojson(parseFile, &json);
+
         if(page->type == 0)
             save_youtube_page_data(json, page, urls_fifo);
-        else
+        else if(page->type == 1)
             save_channel_page_data(json, page, urls_fifo);
 
         url_to_bson(&document, url);

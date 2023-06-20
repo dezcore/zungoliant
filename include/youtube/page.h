@@ -43,4 +43,5 @@ int set_page_pattern_replace(PAGEPATTERN  *pattern, char *replace);
 int pages_handler(YPage *page, char *url, char* parseFile, File *urls_fifo);
 int extract_htmlpagedata(char *html_file_path, char *saveFilePath, YPage *page);
 int set_yPage(YPage *page, int type, char *url, char *replace, char *titlesRegexFilePath);
+int add_search_values_to_db(mongoc_client_t *client, VIDEO *video, struct json_object *video_json, int type);
 #endif
