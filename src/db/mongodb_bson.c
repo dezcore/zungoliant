@@ -266,6 +266,7 @@ int init_video_struct(VIDEO *video) {
     video->url = (char*) calloc(1, sizeof(char));
     video->length = (char*) calloc(1, sizeof(char));
     video->censor_rating = (char*) calloc(1, sizeof(char));
+    video->year = (char*) calloc(1, sizeof(char));
   }
   return 0;
 }
@@ -277,6 +278,18 @@ int set_video_title(VIDEO *video, char *title) {
     if(new_title != NULL) {
       video->title = new_title;
       sprintf(video->title, "%s", title);
+    }
+  }
+  return 0;
+}
+
+int set_video_year(VIDEO *video, char *year) {
+  char *new_year;
+  if(video != NULL && year != NULL) {
+    new_year = (char*) realloc(video->year, (strlen(year)+1) * sizeof(char));
+    if(new_year != NULL) {
+      video->year = new_year;
+      sprintf(video->year, "%s", year);
     }
   }
   return 0;
@@ -361,6 +374,8 @@ int print_video(VIDEO *video, char *tabs) {
     printf("%s", tabs);
     printf("\t\"Title\" : \"%s\",\n", video->title);
     printf("%s", tabs);
+    printf("\t\"Title\" : \"%s\",\n", video->year);
+    printf("%s", tabs);
     printf("\t\"Title\" : \"%s\",\n", video->img);
     printf("%s", tabs);
     printf("\t\"Category\" : \"%s\",\n", video->category);
@@ -381,6 +396,7 @@ int print_video(VIDEO *video, char *tabs) {
 int free_video_struct(VIDEO *video) {
   if(video != NULL) {
     free(video->title);
+    free(video->year); 
     free(video->img);
     free(video->category);
     free(video->summary);
@@ -414,7 +430,7 @@ int init_video_array_struct(VIDEO_ARRAY *array, size_t length) {
   return 0;
 }
 
-int set_video(VIDEO *video, char *title, char *img, char *category, char *summary, char *url, char *length, char *censor_rating) {
+int set_video(VIDEO *video, char *title, char *img, char *category, char *summary, char *url, char *length, char *censor_rating, char *year) {
     if(video != NULL && title != NULL && img != NULL && category != NULL && summary != NULL && url != NULL && length != NULL && censor_rating != NULL) {
         set_video_title(video, title);
         set_video_img(video, img);
@@ -423,6 +439,7 @@ int set_video(VIDEO *video, char *title, char *img, char *category, char *summar
         set_video_url(video, url);
         set_video_length(video, length);
         set_video_censor_rating(video, censor_rating);
+        set_video_year(video, year);
     }
     return 0;
 }
@@ -559,7 +576,7 @@ int set_seson(SEASON *season, char *title, char *img, char *date, char *summary,
       for(int i = 0; i < videos->length; i++) {
         set_video(&(season->videos->elements[i]) , videos->elements[i].title, videos->elements[i].img, 
           videos->elements[i].category, videos->elements[i].summary, 
-          videos->elements[i].url, videos->elements[i].length, videos->elements[i].censor_rating
+          videos->elements[i].url, videos->elements[i].length, videos->elements[i].censor_rating, videos->elements[i].year
         );
       }
     }
@@ -801,6 +818,9 @@ int init_serie_default_parameters(SERIE *serie) {
   if(serie != NULL) {
     serie->hide = 1;
     serie->year =(char*) calloc(1, sizeof(*serie->year));
+    serie->gender =(char*) calloc(1, sizeof(*serie->gender));
+    serie->category =(char*) calloc(1, sizeof(*serie->category));
+    serie->country =(char*) calloc(1, sizeof(*serie->country));
     serie->state =(char*) calloc(1, sizeof(*serie->state));
     serie->director = malloc(sizeof(*serie->director));
     serie->producer = malloc(sizeof(*serie->producer));
@@ -826,6 +846,9 @@ int free_serie(SERIE *serie) {
   if(serie != NULL) {
     free(serie->year);
     free(serie->state);
+    free(serie->gender);
+    free(serie->country);
+    free(serie->category);
     free_director(serie->director);
     free_director(serie->producer);
     free_studio(serie->studio);
@@ -839,7 +862,6 @@ int free_serie(SERIE *serie) {
 
 int set_serie_default_parameters(SERIE *serie, int numb_of_keys,  int seasons,  int episodes, int tags) {
   if(serie != NULL) {
-
     resize_key_value_array_struct(serie->key_value_array, numb_of_keys);
     resize_str_array_struct(serie->contentTag, tags);
     resize_season_array_struct(serie->seasons, seasons, episodes);
@@ -852,6 +874,9 @@ int set_serie_default_parameters(SERIE *serie, int numb_of_keys,  int seasons,  
 int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes, int content_tags) {
   if(serie != NULL) {
     serie->year = (char*) malloc(sizeof(char));
+    serie->gender =(char*) calloc(1, sizeof(*serie->gender));
+    serie->category =(char*) calloc(1, sizeof(*serie->category));
+    serie->country =(char*) calloc(1, sizeof(*serie->country));
     serie->state =(char*) calloc(1, sizeof(*serie->state));
     serie->director = malloc(sizeof(*serie->director));
     serie->producer = malloc(sizeof(*serie->producer));
@@ -897,6 +922,48 @@ int set_serie_year(SERIE *serie, char *year) {
   return 0;
 }
 
+int set_serie_gender(SERIE *serie, char *gender) {
+  char *new_gender;
+
+  if(serie != NULL && gender != NULL) {
+    new_gender = (char*) realloc(serie->gender, (strlen(gender)+1) * sizeof(char));
+    if(new_gender != NULL) {
+      serie->gender = new_gender;
+      sprintf(serie->gender, "%s", gender);
+    }
+  }
+
+  return 0;
+}
+
+int set_serie_country(SERIE *serie, char *country) {
+  char *new_country;
+
+  if(serie != NULL && country != NULL) {
+    new_country = (char*) realloc(serie->country, (strlen(country)+1) * sizeof(char));
+    if(new_country != NULL) {
+      serie->country = new_country;
+      sprintf(serie->country, "%s", country);
+    }
+  }
+
+  return 0;
+}
+
+int set_serie_category(SERIE *serie, char *category) {
+  char *new_category;
+
+  if(serie != NULL && category != NULL) {
+    new_category = (char*) realloc(serie->category, (strlen(category)+1) * sizeof(char));
+    if(new_category != NULL) {
+      serie->category = new_category;
+      sprintf(serie->category, "%s", category);
+    }
+  }
+
+  return 0;
+}
+
 int set_serie_state(SERIE *serie, char *state) {
   char *new_state;
 
@@ -915,6 +982,9 @@ int print_serie(SERIE *serie) {
   if(serie != NULL) {
     printf("\"Serie\" : {\n");
     printf("\tYear : %s,\n", serie->year);
+    printf("\tGender : %s,\n", serie->gender);
+    printf("\tCountry : %s,\n", serie->country);
+    printf("\tCategory : %s,\n", serie->category);
     print_director(serie->director, "\t", "\t\t");
     printf("\tState : %s,\n", serie->state);
     print_director(serie->director, "\t", "\t\t");
@@ -1067,6 +1137,7 @@ int init_video(bson_t *video_bson, VIDEO *video, int index) {
   if(video_bson != NULL && video != NULL) {
     keylen = bson_uint32_to_string(index, &key, buf, sizeof buf);
     bson_append_document_begin(video_bson, key, (int)keylen, &child2);
+    BSON_APPEND_UTF8(&child2, "year", video->year);
     BSON_APPEND_UTF8(&child2, "title", video->title);
     BSON_APPEND_UTF8(&child2, "img", video->img);
     BSON_APPEND_UTF8(&child2, "category", video->category);
@@ -1146,6 +1217,9 @@ int serie_to_bson(bson_t **document, SERIE *serie) {
     init_keys_and_values(document, serie->key_value_array);
     BSON_APPEND_BOOL(*document, "hide", serie->hide);
     BSON_APPEND_UTF8(*document, "state", serie->state);
+    BSON_APPEND_UTF8(*document, "gender", serie->gender);
+    BSON_APPEND_UTF8(*document, "category", serie->category);
+    BSON_APPEND_UTF8(*document, "country", serie->country);
     init_date(&(*document), "year", serie->year);
     //BSON_APPEND_DOCUMENT_BEGIN(*document, "director", &director);
     //init_director(&director, serie->director);
@@ -1229,12 +1303,45 @@ int deserialize_year(SERIE *serie, struct json_object *year) {
 }
 
 int deserialize_state(SERIE *serie, struct json_object *stateObj) {
-  char *state = json_object_get_string(stateObj);
+  char *state = (char*) json_object_get_string(stateObj);
 
   if(serie != NULL && state != NULL) {
     set_serie_state(serie, state);
     //printf("%s\n", json_object_get_string(stateObj));
     free(state);
+  }
+  return 0;
+}
+
+int deserialize_gender(SERIE *serie, struct json_object *genderObj) {
+  char *gender = (char *)json_object_get_string(genderObj);
+
+  if(serie != NULL && gender != NULL) {
+    set_serie_gender(serie, gender);
+    //printf("%s\n", json_object_get_string(genderObj));
+    free(gender);
+  }
+  return 0;
+}
+
+int deserialize_category(SERIE *serie, struct json_object *categoryObj) {
+  char *category = (char *)json_object_get_string(categoryObj);
+
+  if(serie != NULL && category != NULL) {
+    set_serie_category(serie, category);
+    //printf("%s\n", json_object_get_string(genderObj));
+    free(category);
+  }
+  return 0;
+}
+
+int deserialize_country(SERIE *serie, struct json_object *countryObj) {
+  char *country = (char *)json_object_get_string(countryObj);
+
+  if(serie != NULL && country != NULL) {
+    set_serie_country(serie, country);
+    //printf("%s\n", json_object_get_string(genderObj));
+    free(country);
   }
   return 0;
 }
@@ -1345,10 +1452,11 @@ int deserialize_tags(STR_ARRAY *contentTag, struct json_object *tags) {
 
 int deserialize_video(VIDEO *video, struct json_object *video_json) {
   const char *url;
-  struct json_object *titleObj, *imgObj, *summaryObj, *categoryObj, *lengthObj, *urlObj, *censor_ratingObj;
+  struct json_object *titleObj, *imgObj, *summaryObj, *categoryObj, *lengthObj, *urlObj, *censor_ratingObj, *yearObj;
 
   if(video != NULL && video_json != NULL) {
     imgObj = json_object_object_get(video_json, "img");
+    yearObj = json_object_object_get(video_json, "year");
     titleObj = json_object_object_get(video_json, "title");
     summaryObj = json_object_object_get(video_json, "summary");
     categoryObj = json_object_object_get(video_json, "category");
@@ -1359,6 +1467,7 @@ int deserialize_video(VIDEO *video, struct json_object *video_json) {
     url = json_object_get_string(urlObj);
 
     set_video_img(video, (char*)json_object_get_string(imgObj));
+    set_video_year(video, (char *)json_object_get_string(yearObj));
     set_video_title(video, (char*)json_object_get_string(titleObj));
     set_video_category(video, (char*) json_object_get_string(categoryObj));
     set_video_summary(video, (char*)json_object_get_string(summaryObj));
@@ -1508,6 +1617,9 @@ int bson_to_serie(SERIE *serie, bson_t *document) {
     deserialize_hide(serie, getObj_rec(serie_json, "/hide"));
     deserialize_year(serie, getObj_rec(serie_json, "/year"));
     deserialize_state(serie, getObj_rec(serie_json, "/state"));
+    deserialize_gender(serie, getObj_rec(serie_json, "/gender"));
+    deserialize_country(serie, getObj_rec(serie_json, "/country"));
+    deserialize_category(serie, getObj_rec(serie_json, "/category"));
 
     deserialize_bykey(serie->key_value_array, serie_json, "title", 0);
     deserialize_bykey(serie->key_value_array, serie_json, "img", 1);

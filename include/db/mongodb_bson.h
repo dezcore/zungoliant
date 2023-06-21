@@ -40,7 +40,7 @@ typedef struct _VIDEO {
     char *summary;
     char *length;
     char *censor_rating;
-    //char *created_at;
+    char *year;
     //char *upDated_at;
 } VIDEO;
 
@@ -76,6 +76,9 @@ typedef struct _SERIE {
     int hide;
     char *year;
     char *state;
+    char *gender;
+    char *country;
+    char *category;
     DIRECTOR *director;
     DIRECTOR *producer;
     STUDIO *studio;
@@ -101,6 +104,7 @@ int print_video(VIDEO *video, char *tabs);
 int set_video_img(VIDEO *video, char *img);
 int set_video_url(VIDEO *video, char *url);
 int json_tobson(char *json, bson_t **bson);
+int set_video_year(VIDEO *video, char *year);
 int set_serie_year(SERIE *serie, char *year);
 int init_director_struct(DIRECTOR *director);
 int url_to_bson(bson_t **document, char *url);
@@ -110,12 +114,15 @@ int set_video_title(VIDEO *video, char *title);
 int set_season_date(SEASON *season, char *date);
 int free_video_array_struct(VIDEO_ARRAY *array);
 int init_serie_default_parameters(SERIE *serie);
+int set_serie_gender(SERIE *serie, char *gender);
 int set_video_length(VIDEO *video, char *length);
 int set_season_title(SEASON *season, char *title);
 int free_season_array_struct(SEASON_ARRAY *array);
 int bson_to_serie(SERIE *serie, bson_t *document);
 int set_video_summary(VIDEO *video, char *summary);
 int serie_to_bson(bson_t **document, SERIE *serie);
+int set_serie_country(SERIE *serie, char *country);
+int set_serie_category(SERIE *serie, char *category);
 int set_video_category(VIDEO *video, char *category);
 int set_season_summary(SEASON *season, char *summary);
 int serie_to_set_bson(bson_t **document, SERIE *serie);
@@ -147,7 +154,7 @@ int find_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *co
 int set_serie_default_parameters(SERIE *serie, int numb_of_keys,  int seasons,  int episodes, int tags);
 int print_array_key_value(KEY_VALUE_ARRAY *array, char *tabs, char* subtabs, char *kv_tabs, char *kv_subtabs);
 int print_array_season(SEASON_ARRAY *array, char *tabs, char* subtabs, char *season_tabs, char *season_subtabs);
-int set_video(VIDEO *video, char *title, char *img, char *category, char *summary, char *url, char *length, char *censor_rating);
 int init_serie_struct(SERIE *serie, size_t keys_values_size, size_t number_of_season, size_t number_of_episodes, int content_tags);
 int set_studio(STUDIO *studio, char *name, char *country, char *city, char *fonder, char *startYear, char *endYear, char *bithYear);
+int set_video(VIDEO *video, char *title, char *img, char *category, char *summary, char *url, char *length, char *censor_rating, char *year);
 #endif

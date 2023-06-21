@@ -310,13 +310,13 @@ int json_mapping_to_video(VIDEO *video, struct json_object *video_json, int type
         titleObj = getObj_rec(video_json,(char*)titleField);
         lengthObj = getObj_rec(video_json, (char*)lengthField);
         videoIdObj = getObj_rec(video_json, (char *) videoId_field);
-        
+
         url = json_object_get_string(urlObj);
         title = json_object_get_string(titleObj);
         length = json_object_get_string(lengthObj);
         videoId = json_object_get_string(videoIdObj);
 
-        set_video(video, (char*)title, (char*) videoId, (char*)category, (char*)summary, (char*)url, (char*)length, (char*)censor_rating);
+        set_video(video, (char*)title, (char*) videoId, (char*)category, (char*)summary, (char*)url, (char*)length, (char*)censor_rating, "1970-01-01T10:42:00Z");
     }
     
     if(strcmp(video->title, "") == 0) {
@@ -399,6 +399,9 @@ int json_mapping_to_keys_values(KEY_VALUE_ARRAY *array, struct json_object *vide
 int json_mapping_to_serie(SERIE *serie, struct json_object *video_json, int type) {
     if(video_json != NULL && serie != NULL) {
         json_mapping_to_keys_values(serie->key_value_array, video_json, type);
+        set_serie_gender(serie, "Comedy");
+        set_serie_category(serie, "Default");
+        set_serie_country(serie, "CD");
         set_serie_year(serie, "1970-01-01T10:42:00Z");
         //json_mapping_to_director(serie->director, NULL);
         //json_mapping_to_director(serie->producer, NULL);
