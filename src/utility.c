@@ -270,6 +270,7 @@ int get_str_match(char *str, char *pattern, char **match) {
         }
     }
 
+    regfree(&reg);
     return 0;
 }
 

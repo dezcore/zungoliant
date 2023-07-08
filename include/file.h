@@ -2,12 +2,15 @@
 #define FILE_H_
 
 #include "./utility.h"
+#define BUF_SIZE 65536 //2^16
 
+int cpt_files(char *dirPath);
 int createDir(char *dir_path);
 int existFile(char *fileName);
 int createFile(char *fileName);
 int printContent(char *filePath);
 char* getAbsolutePath(const char *path);
+int copy(char* filePath, char* out_path);
 int fileToFifo(char *filePath, File *file);
 int getCurrentDir(char *res,  size_t size);
 int init_fifo(File **fifo, char *filePath);

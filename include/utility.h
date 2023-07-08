@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <dirent.h>
 #include <regex.h>
 #include <time.h>
 #include <sys/wait.h>

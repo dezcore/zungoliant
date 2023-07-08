@@ -1303,45 +1303,44 @@ int deserialize_year(SERIE *serie, struct json_object *year) {
 }
 
 int deserialize_state(SERIE *serie, struct json_object *stateObj) {
-  char *state = (char*) json_object_get_string(stateObj);
-
+  const char *state = json_object_get_string(stateObj);
   if(serie != NULL && state != NULL) {
-    set_serie_state(serie, state);
+    set_serie_state(serie, (char*) state);
     //printf("%s\n", json_object_get_string(stateObj));
-    free(state);
+    //free(state);
   }
   return 0;
 }
 
 int deserialize_gender(SERIE *serie, struct json_object *genderObj) {
-  char *gender = (char *)json_object_get_string(genderObj);
+  const char *gender = json_object_get_string(genderObj);
 
   if(serie != NULL && gender != NULL) {
-    set_serie_gender(serie, gender);
+    set_serie_gender(serie, (char *) gender);
     //printf("%s\n", json_object_get_string(genderObj));
-    free(gender);
+    //free(gender);
   }
   return 0;
 }
 
 int deserialize_category(SERIE *serie, struct json_object *categoryObj) {
-  char *category = (char *)json_object_get_string(categoryObj);
+  const char *category = json_object_get_string(categoryObj);
 
   if(serie != NULL && category != NULL) {
-    set_serie_category(serie, category);
+    set_serie_category(serie, (char *) category);
     //printf("%s\n", json_object_get_string(genderObj));
-    free(category);
+    //free(category);
   }
   return 0;
 }
 
 int deserialize_country(SERIE *serie, struct json_object *countryObj) {
-  char *country = (char *)json_object_get_string(countryObj);
+  const char *country = json_object_get_string(countryObj);
 
   if(serie != NULL && country != NULL) {
-    set_serie_country(serie, country);
+    set_serie_country(serie, (char *)country);
     //printf("%s\n", json_object_get_string(genderObj));
-    free(country);
+    //free(country);
   }
   return 0;
 }
@@ -1793,7 +1792,8 @@ int exist_document(mongoc_client_t *client, bson_t *selector, char *dbName, char
     } 
   }
 
-  bson_free(cursor);
+  //bson_free(cursor);
+  mongoc_cursor_destroy(cursor);
   return exist;
 }
 
@@ -1811,8 +1811,9 @@ int find_serie(mongoc_client_t *client, bson_t *selector, char *dbName, char *co
       exist = -1;
     }
   }
-
-  bson_free(cursor);
+  
+  //bson_free(cursor);
+  mongoc_cursor_destroy(cursor);
   return exist;
 }
 

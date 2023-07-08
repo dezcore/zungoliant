@@ -95,33 +95,58 @@ int json_tofile(const char *outfile,struct json_object *jso) {
     return 0;
 }
 
-int file_tojson_byfd(char* fileName, struct json_object **json) {
-    int fd = open(fileName, O_RDONLY);
+long sizeof_file(char* fileName) {
+    long size = 0;
+    FILE * file = fopen(fileName, "rb");
 
-    if(fd ==-1) {
-        // print which type of error have in a code
-        printf("Error Number % d\n", errno);     
-        // print program detail "Success or failure"
-        perror("Program");                
+    if(file != NULL) {
+        fseek(file, 0L, SEEK_END);
+        size = ftell(file);
+        //You can then seek back
+        fseek(file, 0L, SEEK_SET);
+        //rewind(file);
     }
-
-    lseek(fd, 0, SEEK_SET);
-    *json = json_object_from_fd(fd);
-
-    if(close(fd) < 0) {
-        perror("c1");
-        exit(1);
-    }
-
-    printf("Error : %s\n", json_util_get_last_err());
-    
-    return 0;
+    fclose(file);
+    return size;
 }
 
-int file_tojson(char* fileName, struct json_object **json) {
-    if(fileName != NULL) {
-        file_tojson_byfd(fileName, &(*json)); 
+long file_tojson_byfd(char* fileName, struct json_object **json) {
+    int fd;
+    long size = sizeof_file(fileName);
+
+    if(size < 86117) {
+        fd = open(fileName, O_RDONLY);
+        if(fd ==-1) {
+            // print which type of error have in a code
+            printf("Error Number % d\n", errno);     
+            // print program detail "Success or failure"
+            perror("Program");                
+        }
+
+        lseek(fd, 0, SEEK_SET);
+        *json = json_object_from_fd(fd);
+
+        if(close(fd) < 0) {
+            perror("c1");
+            exit(1);
+        }
     }
 
-    return 0;
+    const char* error = json_util_get_last_err();
+    
+    if(error != NULL) {
+        printf("Error : %s, fileSize : %ld\n", error, size);
+    }
+
+    return size;
+}
+
+long file_tojson(char* fileName, struct json_object **json) {
+    long size = 0;
+
+    if(fileName != NULL) {
+       size = file_tojson_byfd(fileName, &(*json)); 
+    }
+
+    return size;
 }

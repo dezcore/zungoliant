@@ -478,6 +478,7 @@ int exist_serie_in_db(mongoc_client_t *client, char *title, SERIE *serie) {
         if(selector != NULL) {
             res = exist_document(client, selector, (char*)db_name, (char*)search_collection);
             if(res) { 
+                //printf("Serie title : %s\n", title);
                 res = find_serie(client, selector, (char*)db_name, (char*)serie_collection, serie);
                 //print_serie(serie);
             } else {
@@ -488,8 +489,10 @@ int exist_serie_in_db(mongoc_client_t *client, char *title, SERIE *serie) {
         }
     }
 
-    bson_free(selector);
-    bson_free(prefix_selector);
+    bson_destroy(selector);
+    bson_destroy(prefix_selector);
+    //bson_free(selector);
+    //bson_free(prefix_selector);
     return res;
 }
 
@@ -503,8 +506,8 @@ int exist_title_in_collection(mongoc_client_t *client, char *title, char *db_nam
             res = exist_document(client, selector, db_name, collection);
         }
     }
-
-    bson_free(selector);
+    bson_destroy(selector);
+    //bson_free(selector);
     return res;
 }
 
@@ -586,7 +589,7 @@ int update_serie(mongoc_client_t *client, SERIE *serie, struct json_object *vide
     if(serie != NULL && video_json != NULL && title != NULL) {
         for(int i = 0; i < serie->seasons->length; i++) {
             season = &(serie->seasons->elements[i]);
-
+            printf("Title : %s\n", title);
             if(season->number == get_title_season(title)) {
                 existSeason = 1;
                 videoExist = update_season_videos(client, serie, season, video_json, title, type);
@@ -824,7 +827,32 @@ int save_channel_page_data(struct json_object *json, YPage *page, File *urls_fif
     return 0;
 }
 
+int oversizejson_handler(int size, char* parseFile) {
+    char buffer[10];
+    int file_count = 0;
+    char *dirPath = NULL;
+    char *errorFile = NULL;
+    char fileName[50] = "/data/errors/error";
+
+    if(parseFile != NULL) {
+        get_pwd(&dirPath,  "/data/errors/");
+        file_count =  cpt_files(dirPath);
+        sprintf(buffer, "%d", file_count);
+        strcat(fileName, buffer);
+
+        get_pwd(&errorFile, fileName);
+        copy(parseFile, errorFile);
+        //get_absolutePath(YINITDATA_FILE_PATH, &parseContentPath);
+        printf("OverSize : %ld, parseFile : %s, %s\n", size,  parseFile, fileName);
+    }
+
+    free(dirPath);
+    free(errorFile);
+    return 0;
+}
+
 int pages_handler(YPage *page, char *url, char* parseFile, File *urls_fifo) {
+    long size = 0;
     bson_t *document = bson_new(); 
     struct json_object *json = NULL;
     const char *dbName = "maboke", *collection = "urls";
@@ -832,13 +860,15 @@ int pages_handler(YPage *page, char *url, char* parseFile, File *urls_fifo) {
     if(page != NULL && url != NULL && parseFile != NULL && !exist_url_in_collection(page->mongo_client, url, (char*)dbName, (char*)collection)) {
         set_page_pattern_url(page->page_pattern, url);
         downloadPage_and_replace(parseFile, page);
-        file_tojson(parseFile, &json);
+        size = file_tojson(parseFile, &json);
 
-        if(page->type == 0)
+        if(page->type == 0 && json != NULL) {
             save_youtube_page_data(json, page, urls_fifo);
-        else if(page->type == 1)
+        } else if(page->type == 1 && json != NULL) {
             save_channel_page_data(json, page, urls_fifo);
-
+        } else {
+            oversizejson_handler(size, parseFile);
+        }
         url_to_bson(&document, url);
         insert_document(page->mongo_client, (char*)dbName, (char*)collection, document);
     }

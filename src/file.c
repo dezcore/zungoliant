@@ -248,6 +248,46 @@ int write_file(char *fileName, char* str, char *accessMode) {
     return 0;
 }
 
+int cpt_files(char *dirPath) {
+    int file_count = 0;
+    DIR * dirp;
+    struct dirent * entry;
+
+    if(dirPath) {
+        dirp = opendir(dirPath);
+        while ((entry = readdir(dirp)) != NULL) {
+            if(entry->d_type == DT_REG) { /* If the entry is a regular file */
+                file_count++;
+            }
+        }
+        closedir(dirp);
+    }
+
+    return file_count;
+}
+
+int copy(char*  filePath, char* out_path) {
+    FILE *fptr;
+    char* line;
+
+    if(filePath == NULL) exit(EXIT_FAILURE);
+
+    line =(char *) malloc(STR_LEN * sizeof(char));
+    fptr = fopen(filePath, "r");
+
+    if(fptr == NULL) exit(EXIT_FAILURE);
+
+    while(fgets(line, STR_LEN, fptr)) {
+        write_file(out_path, line, "a");
+        //printf("%s\n", line);
+    }
+
+    free(line);
+    fclose(fptr);
+
+    return 0;
+}
+
 int createDir(char *dir_path) {
     struct stat st = {0};
 
