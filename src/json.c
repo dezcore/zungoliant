@@ -150,3 +150,33 @@ long file_tojson(char* fileName, struct json_object **json) {
 
     return size;
 }
+
+long detect_oversize_json(char* fileName, struct json_object **json) {
+    int fd;
+    long size = sizeof_file(fileName);
+
+    fd = open(fileName, O_RDONLY);
+    if(fd ==-1) {
+        // print which type of error have in a code
+        printf("Error Number % d\n", errno);     
+        // print program detail "Success or failure"
+        perror("Program");                
+    }
+
+    lseek(fd, 0, SEEK_SET);
+    *json = json_object_from_file (fileName);//json_object_from_fd(fd);
+
+    if(close(fd) < 0) {
+        perror("c1");
+        exit(1);
+    }
+
+    const char* error = json_util_get_last_err();
+
+    if(error != NULL) {
+        printf("Error : %s, fileSize : %ld, fileName : %s\n", error, size, fileName);
+        printf("VALUE : %s\n", json_object_get_string(*json));
+    }
+    
+    return size;
+}

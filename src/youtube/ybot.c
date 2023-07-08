@@ -86,3 +86,8 @@ int free_ybot(Ybot *bot) {
     free(bot);
     return 0;
 }
+
+int test_oversize_json() {
+    detect_oversize_pages();
+    return 0;
+}

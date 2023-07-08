@@ -843,7 +843,7 @@ int oversizejson_handler(int size, char* parseFile) {
         get_pwd(&errorFile, fileName);
         copy(parseFile, errorFile);
         //get_absolutePath(YINITDATA_FILE_PATH, &parseContentPath);
-        printf("OverSize : %ld, parseFile : %s, %s\n", size,  parseFile, fileName);
+        printf("OverSize : %d, parseFile : %s, %s\n", size,  parseFile, fileName);
     }
 
     free(dirPath);
@@ -875,5 +875,67 @@ int pages_handler(YPage *page, char *url, char* parseFile, File *urls_fifo) {
 
     json_object_put(json);
     bson_destroy(document);
+    return 0;
+}
+
+int extract_target_json(char *input, char *output) {
+    struct json_object *json = NULL;
+    const char *video_page_regex = "\\{\"twoColumnWatchNextResults.*currentVideoEndpoint";
+    const char *tabs_page_regex = "\\{\"twoColumnWatchNextResults.*currentVideoEndpoint";
+    char *contents = (char*) calloc(2, sizeof(char));
+
+    if(contents != NULL && input != NULL && output != NULL) {
+        load_file(input, &contents);
+        if(contents != NULL) {
+            //trim(&contents);
+            if(strstr(contents, "tabs") != NULL) {
+                puts("tabs"); 
+                //get_nested_json(&contents, tabs_page_regex);
+            } else if(strstr(contents, "twoColumnWatchNextResults") != NULL) {
+                get_nested_json(&contents, video_page_regex);
+                replace_substring(&contents, ",\"currentVideoEndpoint$", " ");
+                write_file(output, contents, "w+");
+                detect_oversize_json(output, &json);
+            }
+            //replace_all(&contents, page->patterns, page->page_pattern->replace);
+        }       
+    }
+
+    free(contents);
+    json_object_put(json);
+
+    return 0;
+}
+
+int extract_sub_json(char *input_file, int output_index) {
+    char buffer[10];
+    char *outputFile = NULL;
+    char fileName[50] = "/data/jsons/json";
+
+    if(input_file != NULL) {
+        sprintf(buffer, "%d", output_index);
+        strcat(fileName, buffer);
+        get_pwd(&outputFile, fileName);
+        extract_target_json(input_file, outputFile);
+    }
+    return 0;
+}
+
+int detect_oversize_pages() {
+    //"/contents/twoColumnWatchNextResults/secondaryResults/secondaryResults/results"
+    //"/tabRenderer/content/sectionListRenderer/contents/0/itemSectionRenderer/contents/0/gridRenderer/items"
+    //"/tabRenderer/content/sectionListRenderer/contents"
+    //"/tabRenderer/content/richGridRenderer/contents"    
+    for(int i = 1; i < 16; i++) {
+        char buffer[10];
+        char *errorFile = NULL;
+        char fileName[50] = "/data/errors/error";
+        sprintf(buffer, "%d", i);
+        strcat(fileName, buffer);
+        get_pwd(&errorFile, fileName);
+        extract_sub_json(errorFile, i);
+        //printf("FileName : %s\n", errorFile);
+        free(errorFile);
+    }
     return 0;
 }

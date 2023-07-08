@@ -239,7 +239,7 @@ int replace_substring(char **str, const char *pattern, char* replace) {
 int replace_all(char **contents, PATTERNS *array, char rpl[]) {
     if(*contents != NULL && array != NULL) {
         for(int i = 0; i < array->size; i++) {
-            replace_substring(&(*contents), (array->patterns[i]).value, rpl);
+            replace_substring(contents, (array->patterns[i]).value, rpl);
         }
     }
     return 0;

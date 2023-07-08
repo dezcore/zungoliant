@@ -15,4 +15,5 @@ typedef struct _Ybot {
 } Ybot;
 
 int run_ybot();
+int test_oversize_json();
 #endif

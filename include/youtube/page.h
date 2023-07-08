@@ -35,6 +35,7 @@ typedef struct _YPage {
 int print_page(YPage *page);
 int free_yPage(YPage *page);
 int init_yPage(YPage *page);
+int detect_oversize_pages();
 int init_page_pattern_paramters(PAGEPATTERN *pattern);
 int set_page_pattern_url(PAGEPATTERN  *pattern, char *url);
 int downloadPage_and_replace(char *parseContent, YPage *page);
