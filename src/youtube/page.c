@@ -886,68 +886,73 @@ int extract_target_json(char *contents, char *output, char *regex, char *replace
         get_nested_json(&contents, regex);
         replace_substring(&contents, replace, separator);
         write_file(output, contents, "w+");
-        //json = getJson("{\"Hello\" : \"Hello world !\"}");
-        //printf("VALUE : %s\n", json_object_get_string(json));
+
         if(testjson) {
             detect_oversize_json(output, &json);
-            printf("VALUE : %s\n", json_object_get_string(json));
+            //printf("VALUE : %s\n", json_object_get_string(json));
         }
-        //replace_all(&contents, page->patterns, page->page_pattern->replace);
     }
+
     json_object_put(json);
     return 0;
 }
 
-int extract_sub_json(char *input_file, int output_index) {
+int extract_sub_json_rec(char *outFilePath, int output_index, char *input_file, char *regex, char *replace, char *separator, int testjson, char **resFile) {
     char buffer[10];
-    char fileName[50] = "/data/jsons/json";
-    char resultsFileName[50] = "/data/results/json";
-    char secondaryResultsFileName[50] = "/data/secondaryResults/json";
-
+    char fileName[50];
+    char *outputFile = NULL;
     char *contents = (char*) calloc(2, sizeof(char));
-    char *resultContents = (char*) calloc(2, sizeof(char));
-    char *secondaryResultsContents = (char*) calloc(2, sizeof(char));
-    char *outputFile = NULL,  *resultOutputFile = NULL, *secondaryResultsOutputFile = NULL;
+    load_file(input_file, &contents);
 
-    const char *results_regex = "\\{\"results.*secondaryResults";
-    const char *secondaryResults_regex = "\\{\"secondaryResults.*\\{\"autoplay\":\\{\"sets\":";
-    const char *video_page_regex = "\\{\"twoColumnWatchNextResults.*currentVideoEndpoint";
-    const char *tabs_page_regex = "\\{\"twoColumnWatchNextResults.*currentVideoEndpoint";
-
-    if(input_file != NULL) {
+    if(outFilePath != NULL && contents != NULL) {
+        sprintf(fileName, "%s", outFilePath);
         sprintf(buffer, "%d", output_index);
         strcat(fileName, buffer);
-        strcat(resultsFileName, buffer); 
-        strcat(secondaryResultsFileName, buffer);
-
         get_pwd(&outputFile, fileName);
-        get_pwd(&resultOutputFile, resultsFileName);
-        get_pwd(&secondaryResultsOutputFile, secondaryResultsFileName);
+        extract_target_json(contents, outputFile, regex, replace, separator, testjson);
+        
+        if(*resFile != NULL)
+            sprintf(*resFile, "%s", outputFile);
+    }
 
+    free(outputFile);
+    free(contents);
+
+    return 0;
+}
+
+int fragments_json(char *input_file, int output_index) {
+    char *contents = (char*) calloc(2, sizeof(char));
+    char *pageFilePath = malloc(50 *sizeof(char));
+    char *infosFilePath = malloc(50 *sizeof(char));
+    char *secondaryFilePath = malloc(50 *sizeof(char));
+
+    const char *results_regex = "\\{\"results.*secondaryResults";
+    const char *infos_regex = "\\{\"videoPrimaryInfoRenderer.*videoSecondaryInfoRenderer";
+    const char *secondaryResults_regex = "\\{\"secondaryResults.*\\{\"autoplay\":\\{\"sets\":";
+    const char *video_page_regex = "\\{\"twoColumnWatchNextResults.*currentVideoEndpoint";
+    const char *tabs_page_regex = "\\{\"richGridRenderer.*continuationItemRenderer";
+
+    if(input_file != NULL) {
         load_file(input_file, &contents);
+
         if(contents != NULL) {
             if(strstr(contents, "tabs") != NULL) {
-                puts("tabs"); 
-                //get_nested_json(&contents, tabs_page_regex);
+                if(strstr(contents, "tabs") != NULL)
+                    extract_sub_json_rec("/data/tabs/json", output_index, input_file, tabs_page_regex, ",\\{\"continuationItemRenderer", "]}}", 1, &pageFilePath);
             } else if(strstr(contents, "twoColumnWatchNextResults") != NULL) {
-                extract_target_json(contents, outputFile, video_page_regex,  ",\"currentVideoEndpoint$", " ", 0);
-
-                load_file(input_file, &resultContents);
-                if(resultContents != NULL) {
-                    extract_target_json(resultContents, resultOutputFile, results_regex, ",\"secondaryResults\":\\{\"secondaryResults$", "}", 0);
-                }
-
-                load_file(input_file, &secondaryResultsContents);
-                if(secondaryResultsContents != NULL) {
-                    extract_target_json(secondaryResultsContents, secondaryResultsOutputFile, secondaryResults_regex, ",\"autoplay\":\\{\"autoplay\":\\{\"sets\":$", " ", 1);
-                }
+                extract_sub_json_rec("/data/jsons/json", output_index, input_file, video_page_regex,  ",\"currentVideoEndpoint$", " ", 0, &pageFilePath);
+                extract_sub_json_rec("/data/results/json", output_index, pageFilePath, results_regex, ",\"secondaryResults\":\\{\"secondaryResults$", "}", 0, &secondaryFilePath);
+                extract_sub_json_rec("/data/infos/json", output_index, secondaryFilePath, infos_regex, ",\\{\"videoSecondaryInfoRenderer$", " ", 1, &infosFilePath);
+                extract_sub_json_rec("/data/secondaryResults/json", output_index, pageFilePath, secondaryResults_regex,  ",\"autoplay\":\\{\"autoplay\":\\{\"sets\":$", " ", 1, &secondaryFilePath);
             }
         }
     }
 
     free(contents);
-    free(resultContents);
-    free(secondaryResultsContents);
+    free(pageFilePath);
+    free(infosFilePath);
+    free(secondaryFilePath);
     return 0;
 }
 
@@ -963,7 +968,7 @@ int detect_oversize_pages() {
         sprintf(buffer, "%d", i);
         strcat(fileName, buffer);
         get_pwd(&errorFile, fileName);
-        extract_sub_json(errorFile, i);
+        fragments_json(errorFile, i);
         //printf("FileName : %s\n", errorFile);
         free(errorFile);
     }
