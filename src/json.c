@@ -165,12 +165,12 @@ long detect_oversize_json(char* fileName, struct json_object **json) {
 
     lseek(fd, 0, SEEK_SET);
     *json = json_object_from_fd(fd);
-
+    
     if(close(fd) < 0) {
         perror("c1");
         exit(1);
     }
-    
+
     const char* error = json_util_get_last_err();
 
     if(error != NULL) {

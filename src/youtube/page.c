@@ -187,6 +187,114 @@ int downloadPage_and_replace(char *parseContent, YPage *page) {
     return 0;
 }
 
+int oversizejson_handler(char* parseFile) {
+    char buffer[10];
+    int file_count = 0;
+    char *dirPath = NULL;
+    char *errorFile = NULL;
+    char fileName[50] = "/data/tabserrors/error";
+
+    if(parseFile != NULL) {
+        get_pwd(&dirPath,  "/data/tabserrors/");
+        file_count =  cpt_files(dirPath);
+        sprintf(buffer, "%d", file_count);
+        strcat(fileName, buffer);
+
+        get_pwd(&errorFile, fileName);
+        copy(parseFile, errorFile);
+        //printf("OverSize : %d, parseFile : %s, %s\n", size,  parseFile, fileName);
+    }
+
+    free(dirPath);
+    free(errorFile);
+    return 0;
+}
+
+int extract_target_json(char *contents, char *output, char *regex, char *replace, char *separator, int testjson) {
+    struct json_object *json = NULL;
+
+    if(contents != NULL && output != NULL) {
+        //trim(&contents);
+        get_nested_json(&contents, regex);
+        replace_substring(&contents, replace, separator);
+        write_file(output, contents, "w+");
+
+        if(testjson) {
+            detect_oversize_json(output, &json);
+            //printf("VALUE : %s\n", json_object_get_string(json));
+        }
+    }
+
+    json_object_put(json);
+    return 0;
+}
+
+int extract_sub_json(char *outFilePath, int output_index, char *input_file, char *regex, char *replace, char *separator, int testjson, char **resFile) {
+    char buffer[10];
+    char fileName[50];
+    char *outputFile = NULL;
+    char *contents = (char*) calloc(2, sizeof(char));
+    load_file(input_file, &contents);
+
+    if(outFilePath != NULL && contents != NULL) {
+        sprintf(fileName, "%s", outFilePath);
+        sprintf(buffer, "%d", output_index);
+        strcat(fileName, buffer);
+        get_pwd(&outputFile, fileName);
+        extract_target_json(contents, outputFile, regex, replace, separator, testjson);
+        
+        if(*resFile != NULL)
+            sprintf(*resFile, "%s", outputFile);
+    }
+
+    free(outputFile);
+    free(contents);
+
+    return 0;
+}
+
+int fragments_json(char *input_file, int output_index) {
+    char *contents = (char*) calloc(2, sizeof(char));
+    char *pageFilePath = malloc(50 *sizeof(char));
+    char *infosFilePath = malloc(50 *sizeof(char));
+    char *secondaryFilePath = malloc(50 *sizeof(char));
+
+    const char *results_regex = "\\{\"results.*secondaryResults";
+    const char *infos_regex = "\\{\"videoPrimaryInfoRenderer.*videoSecondaryInfoRenderer";
+    const char *secondaryResults_regex = "\\{\"secondaryResults.*\\{\"autoplay\":\\{\"sets\":";
+    const char *video_page_regex = "\\{\"twoColumnWatchNextResults.*currentVideoEndpoint";
+    const char *tabs_page_regex = "\\{\"richGridRenderer.*continuationItemRenderer";
+    const char *tabs_page_shelfRenderer_regex = "\\{\"shelfRenderer.*playAllButton";
+
+    if(input_file != NULL) {
+        load_file(input_file, &contents);
+
+        if(contents != NULL) {
+            if(strstr(contents, "tabs") != NULL) {
+                if(strstr(contents, "richGridRenderer") != NULL) {
+                    extract_sub_json("/data/tabs/json", output_index, input_file, (char*)tabs_page_regex, ",\\{\"continuationItemRenderer$", "]}}", 1, &pageFilePath);
+                } else if(strstr(contents, "shelfRenderer") != NULL) {
+                    extract_sub_json("/data/tabs/json", output_index, input_file, (char*)tabs_page_shelfRenderer_regex, ",\"playAllButton$", "}}", 1, &pageFilePath);
+                } else {
+                    puts("tab oversizejson");
+                    oversizejson_handler(input_file);
+                }
+            } else if(strstr(contents, "twoColumnWatchNextResults") != NULL) {
+                extract_sub_json("/data/jsons/json", output_index, input_file, (char*)video_page_regex,  ",\"currentVideoEndpoint$", " ", 0, &pageFilePath);
+                extract_sub_json("/data/results/json", output_index, pageFilePath, (char*)results_regex, ",\"secondaryResults\":\\{\"secondaryResults$", "}", 0, &secondaryFilePath);
+                extract_sub_json("/data/infos/json", output_index, secondaryFilePath, (char*)infos_regex, ",\\{\"videoSecondaryInfoRenderer$", " ", 1, &infosFilePath);
+                extract_sub_json("/data/secondaryResults/json", output_index, pageFilePath, (char *)secondaryResults_regex,  ",\"autoplay\":\\{\"autoplay\":\\{\"sets\":$", " ", 1, &secondaryFilePath);
+            }
+        }
+    }
+
+    free(contents);
+    free(pageFilePath);
+    free(infosFilePath);
+    free(secondaryFilePath);
+    return 0;
+}
+
 int json_mapping_to_director(DIRECTOR *director, struct json_object *director_json) {
     if(director != NULL && director_json != NULL) {
         printf("json_mapping_to_director");
@@ -731,30 +839,45 @@ int json_video_handler(YPage *page, struct json_object *video_json, char *title,
     return 0;
 }
 
-int save_youtube_page_data(struct json_object *json, YPage *page, File *urls_fifo) {
+int file_to_json(struct json_object **json, char *filePath, int output_index) {
+    char buffer[10];
+    char fileName[50];
+    char *outputFile = NULL;
+
+    if(filePath != NULL) {
+        sprintf(fileName, "%s", filePath);
+        sprintf(buffer, "%d", output_index);
+        strcat(fileName, buffer);
+        get_pwd(&outputFile, fileName);
+        detect_oversize_json(outputFile, json);
+    }
+
+    free(outputFile);
+    return 0;
+}
+
+int save_youtube_page_data(YPage *page, File *urls_fifo, int output_index) {
     const char *title;
+    struct json_object *json = NULL;
+    struct json_object *videos_json;
     struct json_object *video_json, *titleObj;
-    struct json_object *videos_josn/*, *player_json*/;
+
+    file_to_json(&json, "/data/secondaryResults/json", output_index);
 
     if(json != NULL && page != NULL && urls_fifo != NULL) {
-        videos_josn = getObj_rec(json, VIDEO_PAGE_ROOT_FIELD);
-        //player_json = getObj_rec(json, VIDEO_PAGE_CHANNEL_ROOT_FIELD);
-        ///printf("save_youtube_page_data(1) : %s\n", json_object_get_string(video_json));
+        videos_json = getObj_rec(json, VIDEO_PAGE_ROOT_FIELD);
 
-        if(videos_josn != NULL) {
-            for(int i = 0; i < json_object_array_length(videos_josn); i++) {
-		        video_json = json_object_array_get_idx(videos_josn, i);
+        if(videos_json != NULL) {
+            for(int i = 0; i < json_object_array_length(videos_json); i++) {
+		        video_json = json_object_array_get_idx(videos_json, i);
                 titleObj = getObj_rec(video_json, TITLE_FIELD);
 
                 if((title = json_object_get_string(titleObj)) != NULL)
                     json_video_handler(page, video_json, (char*)title, urls_fifo, page->type);
-                /*if(video != NULL && player_json != NULL) {
-                    json_mapping_player_to_video(video, player_json);
-                    json_mapping_player_channel(video, player_json);
-                }*/
 	        }
         }
     }
+    json_object_put(json);
     return 0;
 }
 
@@ -802,157 +925,70 @@ int channel_videos_page(struct json_object *videos_json, YPage *page, File *urls
     return 0;
 }
 
-int save_channel_page_data(struct json_object *json, YPage *page, File *urls_fifo) {
-    struct json_object *rootObj,  *tabsObj, *contents, *tabObj;
+int save_channel_page_data(YPage *page, File *urls_fifo, int output_index) {
+    struct json_object *json = NULL;
+    struct json_object *contents;
 
-    if(json != NULL && page != NULL && urls_fifo != NULL) {
-        rootObj = getObj_rec(json, CHANNEL_PAGE_ROOT_FIELD);
-        if(rootObj != NULL) {
-            if((tabsObj = getObj_rec(rootObj, CHANNEL_PAGE_TABS_FIELD)) != NULL) {
-                for(int i = 0; i < json_object_array_length(tabsObj); i++) {
-                    if((tabObj = json_object_array_get_idx(tabsObj, i)) != NULL) {
-                        if((contents = getObj_rec(tabObj, CHANNELS_PAGE_TAB_CONTENTS_FIELD)) != NULL)
-                            json_mapping_channels_tabs_data(contents);
-                        else if((contents = getObj_rec(tabObj, CHANNEL_PAGE_HOME_TAB_CONTENTS_FIELD)) != NULL)
-                            channel_home_page_videos(contents, page, urls_fifo);
-                        if((contents = getObj_rec(tabObj, CHANNEL_PAGE_VIDEOS_TAB_CONTENTS_FIELD)) != NULL)
-                            channel_videos_page(contents, page, urls_fifo);
-                    }
-                }
-            }
-        }
-        //puts("save_channel_page_data");
-        //printf("%s\n", json_object_get_string(json));
+    file_to_json(&json, "/data/tabs/json", output_index);
+    if(page != NULL && urls_fifo != NULL && json != NULL) {
+        puts("save_channel_page_data(");
+        //"/tabRenderer/content/sectionListRenderer/contents/0/itemSectionRenderer/contents/0/gridRenderer/items"
+        //if((contents = getObj_rec(tabObj, CHANNELS_PAGE_TAB_CONTENTS_FIELD)) != NULL)
+        //    json_mapping_channels_tabs_data(contents);
+
+        //"/tabRenderer/content/sectionListRenderer/contents"
+        //else if((contents = getObj_rec(tabObj, CHANNEL_PAGE_HOME_TAB_CONTENTS_FIELD)) != NULL)
+        //    channel_home_page_videos(contents, page, urls_fifo);
+
+        //"/richGridRenderer/contents"
+        if((contents = getObj_rec(json, CHANNEL_PAGE_VIDEOS_TAB_CONTENTS_FIELD)) != NULL)
+            channel_videos_page(contents, page, urls_fifo);
     }
+
+    json_object_put(json);
     return 0;
 }
 
-int oversizejson_handler(int size, char* parseFile) {
-    char buffer[10];
-    int file_count = 0;
-    char *dirPath = NULL;
-    char *errorFile = NULL;
-    char fileName[50] = "/data/errors/error";
+int cpt_dir_contents(dirPath) {
+    int cpt = 0;
+    char *dir_abs = NULL;
 
-    if(parseFile != NULL) {
-        get_pwd(&dirPath,  "/data/errors/");
-        file_count =  cpt_files(dirPath);
-        sprintf(buffer, "%d", file_count);
-        strcat(fileName, buffer);
-
-        get_pwd(&errorFile, fileName);
-        copy(parseFile, errorFile);
-        //get_absolutePath(YINITDATA_FILE_PATH, &parseContentPath);
-        printf("OverSize : %d, parseFile : %s, %s\n", size,  parseFile, fileName);
+    if(dirPath != NULL) {
+        get_pwd(&dir_abs, dirPath);
+        cpt = cpt_files(dir_abs);
     }
 
-    free(dirPath);
-    free(errorFile);
-    return 0;
+    free(dir_abs);
+    return cpt;
 }
 
 int pages_handler(YPage *page, char *url, char* parseFile, File *urls_fifo) {
     long size = 0;
+    int output_index = 0;
     bson_t *document = bson_new(); 
-    struct json_object *json = NULL;
+    //struct json_object *json = NULL;
     const char *dbName = "maboke", *collection = "urls";
 
     if(page != NULL && url != NULL && parseFile != NULL && !exist_url_in_collection(page->mongo_client, url, (char*)dbName, (char*)collection)) {
         set_page_pattern_url(page->page_pattern, url);
         downloadPage_and_replace(parseFile, page);
-        size = file_tojson(parseFile, &json);
+        //size = file_tojson(parseFile, &json);
 
-        if(page->type == 0 && json != NULL) {
-            save_youtube_page_data(json, page, urls_fifo);
-        } else if(page->type == 1 && json != NULL) {
-            save_channel_page_data(json, page, urls_fifo);
-        } else {
-            oversizejson_handler(size, parseFile);
+        if(page->type == 0) {
+            output_index = cpt_dir_contents("/data/secondaryResults/");
+            fragments_json(parseFile, output_index);
+            save_youtube_page_data(page, urls_fifo, output_index);
+        } else if(page->type == 1) {
+            output_index = cpt_dir_contents("/data/tabs/");
+            fragments_json(parseFile, output_index);
+            save_channel_page_data(page, urls_fifo, output_index);
         }
         url_to_bson(&document, url);
         insert_document(page->mongo_client, (char*)dbName, (char*)collection, document);
     }
 
-    json_object_put(json);
+    //json_object_put(json);
     bson_destroy(document);
-    return 0;
-}
-
-int extract_target_json(char *contents, char *output, char *regex, char *replace, char *separator, int testjson) {
-    struct json_object *json = NULL;
-
-    if(contents != NULL && output != NULL) {
-        //trim(&contents);
-        get_nested_json(&contents, regex);
-        replace_substring(&contents, replace, separator);
-        write_file(output, contents, "w+");
-
-        if(testjson) {
-            detect_oversize_json(output, &json);
-            //printf("VALUE : %s\n", json_object_get_string(json));
-        }
-    }
-
-    json_object_put(json);
-    return 0;
-}
-
-int extract_sub_json_rec(char *outFilePath, int output_index, char *input_file, char *regex, char *replace, char *separator, int testjson, char **resFile) {
-    char buffer[10];
-    char fileName[50];
-    char *outputFile = NULL;
-    char *contents = (char*) calloc(2, sizeof(char));
-    load_file(input_file, &contents);
-
-    if(outFilePath != NULL && contents != NULL) {
-        sprintf(fileName, "%s", outFilePath);
-        sprintf(buffer, "%d", output_index);
-        strcat(fileName, buffer);
-        get_pwd(&outputFile, fileName);
-        extract_target_json(contents, outputFile, regex, replace, separator, testjson);
-        
-        if(*resFile != NULL)
-            sprintf(*resFile, "%s", outputFile);
-    }
-
-    free(outputFile);
-    free(contents);
-
-    return 0;
-}
-
-int fragments_json(char *input_file, int output_index) {
-    char *contents = (char*) calloc(2, sizeof(char));
-    char *pageFilePath = malloc(50 *sizeof(char));
-    char *infosFilePath = malloc(50 *sizeof(char));
-    char *secondaryFilePath = malloc(50 *sizeof(char));
-
-    const char *results_regex = "\\{\"results.*secondaryResults";
-    const char *infos_regex = "\\{\"videoPrimaryInfoRenderer.*videoSecondaryInfoRenderer";
-    const char *secondaryResults_regex = "\\{\"secondaryResults.*\\{\"autoplay\":\\{\"sets\":";
-    const char *video_page_regex = "\\{\"twoColumnWatchNextResults.*currentVideoEndpoint";
-    const char *tabs_page_regex = "\\{\"richGridRenderer.*continuationItemRenderer";
-
-    if(input_file != NULL) {
-        load_file(input_file, &contents);
-
-        if(contents != NULL) {
-            if(strstr(contents, "tabs") != NULL) {
-                if(strstr(contents, "tabs") != NULL)
-                    extract_sub_json_rec("/data/tabs/json", output_index, input_file, tabs_page_regex, ",\\{\"continuationItemRenderer", "]}}", 1, &pageFilePath);
-            } else if(strstr(contents, "twoColumnWatchNextResults") != NULL) {
-                extract_sub_json_rec("/data/jsons/json", output_index, input_file, video_page_regex,  ",\"currentVideoEndpoint$", " ", 0, &pageFilePath);
-                extract_sub_json_rec("/data/results/json", output_index, pageFilePath, results_regex, ",\"secondaryResults\":\\{\"secondaryResults$", "}", 0, &secondaryFilePath);
-                extract_sub_json_rec("/data/infos/json", output_index, secondaryFilePath, infos_regex, ",\\{\"videoSecondaryInfoRenderer$", " ", 1, &infosFilePath);
-                extract_sub_json_rec("/data/secondaryResults/json", output_index, pageFilePath, secondaryResults_regex,  ",\"autoplay\":\\{\"autoplay\":\\{\"sets\":$", " ", 1, &secondaryFilePath);
-            }
-        }
-    }
-
-    free(contents);
-    free(pageFilePath);
-    free(infosFilePath);
-    free(secondaryFilePath);
     return 0;
 }
 
@@ -961,7 +997,7 @@ int detect_oversize_pages() {
     //"/tabRenderer/content/sectionListRenderer/contents/0/itemSectionRenderer/contents/0/gridRenderer/items"
     //"/tabRenderer/content/sectionListRenderer/contents"
     //"/tabRenderer/content/richGridRenderer/contents"    
-    for(int i = 1; i < 16; i++) {
+    for(int i = 1; i < 17; i++) {
         char buffer[10];
         char *errorFile = NULL;
         char fileName[50] = "/data/errors/error";

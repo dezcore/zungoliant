@@ -14,7 +14,7 @@
 
 //VIDEO PAGE
 #define VIDEO_PAGE_CHANNEL_ROOT_FIELD "/contents/twoColumnWatchNextResults/results/results"
-#define VIDEO_PAGE_ROOT_FIELD "/contents/twoColumnWatchNextResults/secondaryResults/secondaryResults/results"
+#define VIDEO_PAGE_ROOT_FIELD "/secondaryResults/results"
 
 #define VIDEO_PAGE_PLAYLIST_ITEM_VIDEOID_FIELD "/compactVideoRenderer/videoId"
 #define VIDEO_PAGE_PLAYLIST_ITEM_TITLE_FIELD "/compactVideoRenderer/title/simpleText"
@@ -35,13 +35,12 @@
 #define VIDEO_PAGE_CHANNEL_URL_FIELD "/contents/1/videoSecondaryInfoRenderer/owner/videoOwnerRenderer/title/runs/0/navigationEndpoint/commandMetadata/webCommandMetadata/url"
 
 //CHANNEL PAGE
-#define CHANNEL_PAGE_ROOT_FIELD "/twoColumnBrowseResultsRenderer"
-#define CHANNEL_PAGE_TABS_FIELD "/tabs"
+// #define CHANNEL_PAGE_ROOT_FIELD "/twoColumnBrowseResultsRenderer"
+// #define CHANNEL_PAGE_TABS_FIELD "/tabs"
 #define CHANNEL_PAGE_HOME_TAB_URL_FIELD "/tabRenderer/endpoint/commandMetadata/webCommandMetadata/url"
 #define CHANNEL_PAGE_HOME_TAB_CONTENTS_FIELD "/tabRenderer/content/sectionListRenderer/contents"
-#define CHANNEL_PAGE_VIDEOS_TAB_CONTENTS_FIELD "/tabRenderer/content/richGridRenderer/contents"
-#define CHANNELS_PAGE_TAB_CONTENTS_FIELD "/tabRenderer/content/sectionListRenderer/contents/0/itemSectionRenderer/contents/0/gridRenderer/items"
-
+#define CHANNEL_PAGE_VIDEOS_TAB_CONTENTS_FIELD "/richGridRenderer/contents"
+//#define CHANNELS_PAGE_TAB_CONTENTS_FIELD "/tabRenderer/content/sectionListRenderer/contents/0/itemSectionRenderer/contents/0/gridRenderer/items"
 
 #define CHANNEL_PAGE_HOME_VIDEOID_FIELD "/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/videoId"
 #define CHANNEL_PAGE_HOME_VIDEO_TITLE_FIELD "/itemSectionRenderer/contents/0/channelVideoPlayerRenderer/title/runs/0/text"
